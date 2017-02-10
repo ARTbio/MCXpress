@@ -3,13 +3,25 @@
 # has   <- wants %in% rownames(installed.packages())
 # if(any(!has)) install.packages(wants[!has])
 ####Library
+library(tidyverse)
+library(statmod)
 library(diptest)
+library(splines)
 library(abind)
+library(Rtsne)
+library(plotly)
+library(shiny)
 library(fields)
 library(igraph)
+library(fgsea)
+library(BiocParallel)
+library(stringr)
+library(magrittr)
 library(ade4)
 library(reshape2)
+library(DT)
 library(fpc)
+library(shinythemes)
 
 select <- dplyr::select
 transmute <- dplyr::transmute
@@ -20,69 +32,69 @@ Initialise_MCXpress <- function(X, min_reads = 1) {
   if (X %>% is.matrix){
     if((X %>% rownames %>% is.null)|(X %>%  colnames %>% is.null)){errormessage<-"Gene name should be the rownames of the matrix and Sample name the column name"
     stop(errormessage)} else{
-  MCXpress <- list()
-  X <- as.matrix(unique(X[apply(X, 1, var) > 0, ]))
-  X <- X[str_length(X %>% rownames) > 0, ]
-  X <- X[rowSums(X) > min_reads, ]
-  MCXpress$ExpressionMatrix<-X
-  class(MCXpress)<- "MCXpress_object"
-  return(MCXpress)}}else{errormessage<-"The input is not a matrix"
-  stop(errormessage)}
+      MCXpress <- list()
+      X <- as.matrix(unique(X[apply(X, 1, var) > 0, ]))
+      X <- X[str_length(X %>% rownames) > 0, ]
+      X <- X[rowSums(X) > min_reads, ]
+      MCXpress$ExpressionMatrix<-X
+      class(MCXpress)<- "MCXpress_object"
+      return(MCXpress)}}else{errormessage<-"The input is not a matrix"
+      stop(errormessage)}
 }
 
 ###Gene Selection
 Select_Most_Variable_Gene <- function(X, ngenes) {
   if(X %>%  class %>%  equals("MCXpress_object")){
-  exp_matrix<-X$ExpressionMatrix
-  means <- exp_matrix %>%  rowMeans
-  vars  <- apply(exp_matrix, 1, var)
-  cv2   <- vars / means ^ 2
-  minMeanForFit <- unname(quantile(means[which(cv2 > .3)], 0.95))
-  useForFit <- means >= minMeanForFit
-  fit <-
-    glmgam.fit(cbind(a0 = 1, a1tilde = 1 / means[useForFit]), cv2[useForFit])
-  a0  <- unname(fit$coefficients["a0"])
-  a1  <- unname(fit$coefficients["a1tilde"])
-  fit$coefficients
-  xg  <-
-    exp(seq(min(log(means[means > 0])), max(log(means)), length.out = 1000))
-  vfit  <- a1 / xg + a0
-  df  <- ncol(exp_matrix) - 1
-  afit  <- a1 / means + a0
-  varFitRatio <- vars / (afit * means ^ 2)
-  varorder  <- order(varFitRatio, decreasing = T)
-  oed <- exp_matrix[varorder, ]
-  X$ExpressionMatrix <- exp_matrix[varorder[1:ngenes],]
-  return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
-  stop(errormessage)}
+    exp_matrix<-X$ExpressionMatrix
+    means <- exp_matrix %>%  rowMeans
+    vars  <- apply(exp_matrix, 1, var)
+    cv2   <- vars / means ^ 2
+    minMeanForFit <- unname(quantile(means[which(cv2 > .3)], 0.95))
+    useForFit <- means >= minMeanForFit
+    fit <-
+      glmgam.fit(cbind(a0 = 1, a1tilde = 1 / means[useForFit]), cv2[useForFit])
+    a0  <- unname(fit$coefficients["a0"])
+    a1  <- unname(fit$coefficients["a1tilde"])
+    fit$coefficients
+    xg  <-
+      exp(seq(min(log(means[means > 0])), max(log(means)), length.out = 1000))
+    vfit  <- a1 / xg + a0
+    df  <- ncol(exp_matrix) - 1
+    afit  <- a1 / means + a0
+    varFitRatio <- vars / (afit * means ^ 2)
+    varorder  <- order(varFitRatio, decreasing = T)
+    oed <- exp_matrix[varorder, ]
+    X$ExpressionMatrix <- exp_matrix[varorder[1:ngenes],]
+    return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
+    stop(errormessage)}
 }
 
 
 Select_Highest_Mean <- function(X, ngenes) {
   if(X %>%  class %>%  equals("MCXpress_object")){
-  exp_matrix<- X$ExpressionMatrix
-  High_Means <-
-    (exp_matrix %>%  rowMeans %>% sort(decreasing = TRUE) %>%  names %>% na.omit)
-  High_Means <-  High_Means[str_length(High_Means) > 0]
-  High_Means <-  High_Means[1:ngenes]
-  X$ExpressionMatrix<-exp_matrix[High_Means, ]
-  return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
-  stop(errormessage)}
+    exp_matrix<- X$ExpressionMatrix
+    High_Means <-
+      (exp_matrix %>%  rowMeans %>% sort(decreasing = TRUE) %>%  names %>% na.omit)
+    High_Means <-  High_Means[str_length(High_Means) > 0]
+    High_Means <-  High_Means[1:ngenes]
+    X$ExpressionMatrix<-exp_matrix[High_Means, ]
+    return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
+    stop(errormessage)}
 }
 
 Select_Diptest <- function(X, pval = 0.1) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<- X$ExpressionMatrix
-  dipPval <-
-    as.numeric(lapply(1:dim(exp_matrix)[1], function(x)
-      dip.test(as.numeric(exp_matrix[x, ]))$p.value))
-  dipPval <- matrix(c(dipPval, seq(1:length(dipPval))), ncol = 2)
-  dipPvalOrderedIndex <- dipPval %>% order
-  dipPvalSigIndex <-
-    dipPvalOrderedIndex[dipPval[dipPvalOrderedIndex] < pval]
-  X$ExpressionMatrix<- exp_matrix[dipPvalSigIndex, ]
-  return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
-  stop(errormessage)}
+    dipPval <-
+      as.numeric(lapply(1:dim(exp_matrix)[1], function(x)
+        dip.test(as.numeric(exp_matrix[x, ]))$p.value))
+    dipPval <- matrix(c(dipPval, seq(1:length(dipPval))), ncol = 2)
+    dipPvalOrderedIndex <- dipPval %>% order
+    dipPvalSigIndex <-
+      dipPvalOrderedIndex[dipPval[dipPvalOrderedIndex] < pval]
+    X$ExpressionMatrix<- exp_matrix[dipPvalSigIndex, ]
+    return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
+    stop(errormessage)}
 }
 
 #Gene Discretization Methods
@@ -90,33 +102,33 @@ Select_Diptest <- function(X, pval = 0.1) {
 Discretisation_Bsplines <- function(X, nbins = 2) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<-X$ExpressionMatrix
-  nc = ncol(exp_matrix)
-  ng = nrow(exp_matrix)
-  discreteMatrix = array(0, dim = c(ng, nc, nbins))
-  for (counterGene in seq(ng)) {
-    j = bs(
-      scale(exp_matrix[counterGene, ]),
-      df = nbins,
-      degree = 2,
-      intercept = T
-    )
-    for (counterCondition in seq(nc)) {
-      if (nbins == 2) {
-        newJ <- cbind(rowSums(j[, 1:2]), j[, 3:dim(j)[2]])
-        discreteMatrix[counterGene, counterCondition, ] = newJ[counterCondition, ]
-      }
-      else {
-        discreteMatrix[counterGene, counterCondition, ] = j[counterCondition, ]
+    nc = ncol(exp_matrix)
+    ng = nrow(exp_matrix)
+    discreteMatrix = array(0, dim = c(ng, nc, nbins))
+    for (counterGene in seq(ng)) {
+      j = bs(
+        scale(exp_matrix[counterGene, ]),
+        df = nbins,
+        degree = 2,
+        intercept = T
+      )
+      for (counterCondition in seq(nc)) {
+        if (nbins == 2) {
+          newJ <- cbind(rowSums(j[, 1:2]), j[, 3:dim(j)[2]])
+          discreteMatrix[counterGene, counterCondition, ] = newJ[counterCondition, ]
+        }
+        else {
+          discreteMatrix[counterGene, counterCondition, ] = j[counterCondition, ]
+        }
       }
     }
-  }
-  rownames(discreteMatrix) <- rownames(exp_matrix)
-  colnames(discreteMatrix) <- colnames(exp_matrix)
-  # Note: this is a fuzzy coded expression matrix
-  Disjunctive_Matrix <- discreteMatrix %>% Create_Disjunctive_Matrix
-  X$Disjunctive_Matrix<-Disjunctive_Matrix
-  return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
-  stop(errormessage)}
+    rownames(discreteMatrix) <- rownames(exp_matrix)
+    colnames(discreteMatrix) <- colnames(exp_matrix)
+    # Note: this is a fuzzy coded expression matrix
+    Disjunctive_Matrix <- discreteMatrix %>% Create_Disjunctive_Matrix
+    X$Disjunctive_Matrix<-Disjunctive_Matrix
+    return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
+    stop(errormessage)}
 }
 
 Discretisation_Range_01 <- function(X) {
@@ -162,8 +174,7 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
   dis_matrix<- X$Disjunctive_Matrix
   MCA <- dis_matrix %>% as.data.frame(row.names = dis_matrix %>% rownames)
   MCA <- prep.fuzzy.var(MCA, rep(2, (MCA %>% ncol) / 2))
-  MCA_results <-
-    dudi.fca(MCA, nf = Dim, scannf = FALSE)
+  MCA_results <-dudi.fca(MCA, nf = Dim, scannf = FALSE)
   Component <- paste0("PC", 1:Dim)
   X$Dim_Red$Cells_Standard  <-
     MCA_results$li %>%  set_colnames(Component) %>%  as.data.frame(row.names = MCA_results$li %>% rownames)
@@ -175,8 +186,7 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
     MCA_results$c1 %>%  set_colnames(Component) %>%  as.data.frame(row.names = MCA_results$c1 %>% rownames)
   #Distance Calculation
   cat('Calculating Cell to Cell Distance...\n')
-  X$Dim_Red$Cell2Cell_Distance <-
-    rdist(X$Dim_Red$Cells_Standard[, 1:Dim])
+  X$Dim_Red$Cell2Cell_Distance <-X$Dim_Red$Cells_Standard[,1:Dim] %>% rdist
   X$Dim_Red$Cell2Cell_Distance %<>%  set_colnames(X$Dim_Red$Cells_Principal %>%  rownames)
   X$Dim_Red$Cell2Cell_Distance %<>%  set_rownames(X$Dim_Red$Cells_Principal %>%  rownames)
   X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal, X$Dim_Red$Genes_Standard) %>%  set_colnames(X$Dim_Red$Genes_Standard %>% rownames) %>%  set_rownames(X$Dim_Red$Cells_Principal %>% rownames)
@@ -218,7 +228,7 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
   #Calculate Correlation PC and Genes
   X$Dim_Red$PC_Gene_Cor <-
     cor(dis_matrix, X$Dim_Red$Cells_Principal) %>% as.data.frame(row.names = X$Dim_Red$PC_Gene_Cor %>% rownames) %>% rownames_to_column(var =
-                                                                                                                                        "Genes") %>%  as_tibble() %>%  gather(-Genes, key = "Component", value= "Cor")
+                                                                                                                                          "Genes") %>%  as_tibble() %>%  gather(-Genes, key = "Component", value= "Cor")
   #End Calculate Correlation PC and Genes
 
   X$Dim_Red$Graph <-
@@ -417,7 +427,7 @@ Cluster_Kmeans <- function(X,
   X$cluster$Graph1 <-
     ggplot(X$Dim_Red$Cells_Standard, aes(x = PC1, y = PC2)) + geom_point(aes(colour =
                                                                                X$cluster$Cluster_Quali %>% as.vector())) + theme_bw() + guides(colour =
-                                                                                                                                      guide_legend(title = "Cluster")) + ggtitle("Cells Low Dimensional Space") +
+                                                                                                                                                 guide_legend(title = "Cluster")) + ggtitle("Cells Low Dimensional Space") +
     theme(legend.text = element_text(colour = "black", size = 8))
   X$cluster$Graph2 <-
     ggplot(X$Dim_Red$Genes_Standard, aes(x = PC1, y = PC2)) + geom_point(alpha =
@@ -474,7 +484,7 @@ Functional_Analysis_GSEA <-
            maxSize = 1000,
            minSize = 0,
            nproc = 1) {
-        PCResults<- tibble()
+    PCResults<- tibble()
     All_PCRanking<- tibble()
     for(i in 1:(min(X$Dim_Red$Eigen_Value%>% length,10)) ){
       cat(paste0("Processing PC", i, '...\n'))
@@ -598,144 +608,4 @@ Reactome_Category_Generator <- function(Info_File, Hierarchy_File) {
   return(Final)
 }
 
-#Object Print Methods
 
-print.Dim_Red_Object <- function(obj, ...) {
-  cat(obj$Methods, 'Dimension Reduction Results', "\n", "\n")
-  NAME <-
-    c(
-      "",
-      "$Cells_Standard",
-      "$Cells_Principal",
-      "$Genes_Standard",
-      "$Genes_Principal",
-      "$Graph",
-      "$Eigen_Value",
-      "$Shiny"
-    )
-  DESCRIPTION <-
-    c(
-      "",
-      "Cells raw coordinate",
-      "Cells normalised coordinate",
-      "Genes raw coordinate",
-      "Genes normalised coordinate",
-      "Plot of Cell space",
-      "eigenvalue",
-      "Interactive Plot"
-    )
-  tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
-}
-
-print.Cluster_Object <- function(obj, ...) {
-  cat('Clustering Results', "\n", "\n")
-  NAME <-
-    c(
-      "",
-      "$nClusters",
-      "$Cluster_Quali",
-      "$Closest_Cluster",
-      "$Coord_Centroids",
-      "$Graph1",
-      "$Graph2",
-      "$Shiny"
-    )
-  DESCRIPTION <-
-    c(
-      "",
-      "Number of Cluster",
-      "A vector indicating the cluster for each samples",
-      "Table indicating for each genes the cluster that is expressing the most",
-      "Coordinates of the Cluster Centroids",
-      "Cluster Plot in Cell Space",
-      "Centroids of cluster plotted in Genespace",
-      "Interactive Plot"
-    )
-  tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
-}
-
-print.FA_Object <- function(obj, ...) {
-  cat('Functionnal Analysis Results', "\n", "\n")
-  NAME <- c("", "$Ranking", "$GSEA_Results", "$Shiny")
-  DESCRIPTION <-
-    c(
-      "",
-      "Table with Gene Ranking for each cluster",
-      "fgsea package Gene Set Enrichment Analysis Results for each cluster",
-      "Interactive Plot"
-    )
-  tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
-}
-##A small tweak on fgsea plotEnrichment function so it is compatible with plotly
-plotlyEnrichment<-function(pathway,stats, gseaParam=1)
-{
-  rnk <- rank(-stats)
-  ord <- order(rnk)
-  statsAdj <- stats[ord]
-  statsAdj <- sign(statsAdj) * (abs(statsAdj)^gseaParam)
-  statsAdj <- statsAdj/max(abs(statsAdj))
-  name<-statsAdj[as.vector(na.omit(match(pathway, names(statsAdj))))] %>% sort %>% names %>% rev
-  pathway <- unname(as.vector(na.omit(match(pathway, names(statsAdj)))))
-  pathway <- sort(pathway)
-  gseaRes <- calcGseaStat(statsAdj, selectedStats = pathway,
-                          returnAllExtremes = TRUE)
-  bottoms <- gseaRes$bottoms
-  tops <- gseaRes$tops
-  n <- length(statsAdj)
-  xs <- as.vector(rbind(pathway - 1, pathway))
-  ys <- as.vector(rbind(bottoms, tops))
-  toPlot <- data.frame(x = c(0, xs, n + 1), y = c(0, ys, 0))
-  diff <- (max(tops) - min(bottoms))/8
-  x = y = NULL
-
-  data_markers <- data.frame(Genes=rep(name, each=100),x=rep(pathway, 100) %>% sort, y=rep(seq(from=diff/2, to=-diff/2, length.out = 100),pathway %>% length))
-  plot_ly(data = toPlot) %>%  add_lines( x=~x, y=~y, mode="lines", line = list(color = 'rgb(154, 240, 24)', width = 2), name= "Enrichment") %>%
-    add_lines(x=~x ,y = ~min(bottoms), line = list(color = 'rgb(110, 193, 248)', width = 2, dash = 'dash'), name= "Lower limit", hoverinfo="text", text=~round(min(bottoms), digits = 4)) %>%
-    add_lines(x=~x ,y = ~max(tops), line = list(color = 'rgb(250, 150, 10)', width = 2, dash = 'dash'), name="Upper limit",  hoverinfo="text", text=~round(max(tops), digits = 4)) %>%
-    add_markers(data=data_markers , x=~x ,y =~y, marker=list(color = 'rgb(0, 10, 10)', size=1), name="Genes", hoverinfo="text", text=~paste0(Genes,'</br>',"Rank:", x), showlegend=FALSE)
-}
-
-Reactome_GridPlot <-
-  function(X, Info_File, Hierarchy_File, GMTfile, p = 0.25) {
-    GMT <- GMTfile %>%  attributes() %>%  as_tibble
-    colnames(GMT) <- 'pathway'
-    Category <- Reactome_Category_Generator(Info_File, Hierarchy_File)
-    GMT_Category <- inner_join(GMT, Category, by = 'pathway')
-    Reactome_Table <-
-      inner_join(X$Functionnal_Analysis$GSEA_Results, GMT_Category, by = 'pathway')
-    Reactome_Table_filtered <-
-      Reactome_Table %>%  filter(!is.na(padj)) %>%  filter(padj < p) %>%  mutate(Padj =
-                                                                                   format(padj, scientific = TRUE, digits = 2))
-    Reactome_Grid <- NULL
-    Reactome_Grid <-
-      ggplot(Reactome_Table_filtered,
-             aes(
-               Category,
-               ES,
-               colour = NES,
-               text = pathway,
-               text2 = Padj
-             )) + geom_jitter(alpha = 0.7, size = (round(log(
-               Reactome_Table_filtered$size
-             ))) / 3) + facet_grid(Cluster ~ .,
-                                   scales = "fixed",
-                                   shrink = FALSE,
-                                   space = "free_x") + theme_light() + theme(panel.grid.major.y = element_line(colour =
-                                                                                                                 "gray")) + theme(axis.text.x = element_text(
-                                                                                                                   face = "bold",
-                                                                                                                   angle = 60,
-                                                                                                                   hjust = 1,
-                                                                                                                   size = 8
-                                                                                                                 )) + scale_colour_gradient2(
-                                                                                                                   low = "blue",
-                                                                                                                   mid = "black",
-                                                                                                                   high = "red",
-                                                                                                                   midpoint = 0
-                                                                                                                 )
-    Reactome_Grid <-
-      Reactome_Grid + geom_vline(xintercept = seq(1.5, length(
-        unique(Reactome_Table_filtered$Category)
-      ), 1), color = "gray")
-    Reactome_Grid <- Reactome_Grid
-    return(Reactome_Grid)
-  }
