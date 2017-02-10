@@ -1,3 +1,8 @@
+print.MCXpress_object <- function(obj, ...){
+  cat("MCXpress$Dim_Red")
+}
+
+
 print.Dim_Red_Object <- function(obj, ...) {
   cat(obj$Methods, 'Dimension Reduction Results', "\n", "\n")
   NAME <-
@@ -70,3 +75,4 @@ print.FA_Object <- function(obj, ...) {
     )
   tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
 }
+

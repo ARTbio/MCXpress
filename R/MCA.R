@@ -26,6 +26,12 @@ library(shinythemes)
 select <- dplyr::select
 transmute <- dplyr::transmute
 
+#' Performs Multiple Corespondence Analysis on a object of class MCXpress containing a Disjunctive Matrix.
+#'
+#' @param X A MCXpress class object containing a Disjunctive Matrix.
+#' @param Dim number of Axis to be kept for the variables and individual coordinates and used for the distance calculation.
+#' @return
+#' @seealso
 Dimension_reduction_MCA <- function(X, Dim = 5) {
   cat('Beginning MCA...\n')
   dis_matrix<- X$Disjunctive_Matrix

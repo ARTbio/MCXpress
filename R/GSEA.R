@@ -94,7 +94,7 @@ Functional_Analysis_GSEA <-
              "minSize:",
              minSize)
     cat(paste0('DONE\n'))
-    class(X$Functionnal_Analysis) <- "FA_Object"
+    class(X$Functionnal_Analysis) <- "FA.object"
     return(X)
   }
 
