@@ -190,7 +190,6 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
   X$Dim_Red$Cell2Cell_Distance %<>%  set_colnames(X$Dim_Red$Cells_Principal %>%  rownames)
   X$Dim_Red$Cell2Cell_Distance %<>%  set_rownames(X$Dim_Red$Cells_Principal %>%  rownames)
   X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal, X$Dim_Red$Genes_Standard) %>%  set_colnames(X$Dim_Red$Genes_Standard %>% rownames) %>%  set_rownames(X$Dim_Red$Cells_Principal %>% rownames)
-
   #End Distance Calculation
   X$Dim_Red$Eigen_Value     <-
     MCA_results$eig %>% set_names(Component)
