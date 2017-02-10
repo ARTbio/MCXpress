@@ -50,20 +50,15 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
   #End Distance Calculation
   X$Dim_Red$Eigen_Value     <-
     MCA_results$eig %>% set_names(Component)
-  X$Dim_Red$GraphEigen <-
+  EigCum <-
     ((MCA_results$eig * 100) / (MCA_results$eig %>% sum)) %>%  as.data.frame() %>%  mutate(PC =
                                                                                              (paste0("PC", c(
                                                                                                1:length(MCA_results$eig)
                                                                                              )))) %>% mutate(Cumul = ((MCA_results$eig * 100) / (MCA_results$eig %>% sum)) %>% cumsum)
-  colnames(X$Dim_Red$GraphEigen)[1] <- "EigenValue"
-  X$Dim_Red$GraphEigen <- X$Dim_Red$GraphEigen[c(2, 1, 3)]
-  X$Dim_Red$GraphEigen <-
-    X$Dim_Red$GraphEigen[1:(X$Dim_Red$Cells_Standard %>%  nrow), ] %>% na.omit
-  X$Dim_Red$Cumul <-
-    X$Dim_Red$GraphEigen %>%  gather(EigenValue, Cumul, key = "Type", value = "Value")
-  X$Dim_Red$GraphEigen <-
-    X$Dim_Red$GraphEigen %>%  ggplot(aes(x = PC, y = Cumul, text = PC)) + geom_bar(stat =
-                                                                                     "identity") + scale_x_discrete(limits = X$Dim_Red$GraphEigen$PC)
+  colnames(EigCum)[1] <- "EigenValue"
+  EigCum <- EigCum[c(2, 1, 3)]
+  EigCum <-EigCum[1:(X$Dim_Red$Cells_Standard %>%  nrow),] %>% na.omit
+  X$Dim_Red$Cumul <- EigCum %>%  gather(EigenValue, Cumul, key = "Type", value = "Value")
   X$Dim_Red$Methods <- "MCA"
 
   #Calculate Wilcoxon for Cell2CellDistance
