@@ -1,3 +1,17 @@
+Initialise_MCXpress <- function(X, min_reads = 1) {
+  if (X %>% is.matrix){
+    if((X %>% rownames %>% is.null)|(X %>%  colnames %>% is.null)){errormessage<-"Gene name should be the rownames of the matrix and Sample name the column name"
+    stop(errormessage)} else{
+      MCXpress <- list()
+      X <- as.matrix(unique(X[apply(X, 1, var) > 0, ]))
+      X <- X[str_length(X %>% rownames) > 0, ]
+      X <- X[rowSums(X) > min_reads, ]
+      MCXpress$ExpressionMatrix<-X
+      class(MCXpress)<- "MCXpress_object"
+      return(MCXpress)}}else{errormessage<-"The input is not a matrix"
+      stop(errormessage)}
+}
+
 plotlyEnrichment<-function(pathway,stats, gseaParam=1)
 {
   rnk <- rank(-stats)
