@@ -5,22 +5,24 @@ Functional_Analysis_GSEA <-
            maxSize = 1000,
            minSize = 0,
            nproc = 1) {
-    PCResults<- tibble()
-    All_PCRanking<- tibble()
-    for(i in 1:(min(X$Dim_Red$Eigen_Value%>% length,10)) ){
-      cat(paste0("Processing PC", i, '...\n'))
-      PCRanking<- X$Dim_Red$PC_Gene_Cor %>%
-        filter(Component==paste0("PC",i)) %>%
+    AxisResults<- tibble()
+    All_AxisRanking<- tibble()
+    for(i in 1:(min(X$Dim_Red$Eigen_Value %>% length,5))){
+      cat(paste0("Processing Axis", i, '...\n'))
+      #Create Ranking to feed in the FGSEA
+      AxisRanking<- X$Dim_Red$Axis_Gene_Cor %>%
+        filter(Component==paste0("Axis",i)) %>%
         separate(col= Genes, into = c("Genes","bin"),sep = "-bin", convert = TRUE) %>%
         filter(bin==1) %>%
         mutate(AbsCor = Cor %>%  abs) %>%
         arrange(Cor) %>%
         mutate(Ranking=rank(Cor))
-      GSEA_PCRank<-PCRanking$Ranking %>% as.matrix %>%  as.vector() %>%   set_names(value = PCRanking$Genes)
+      GSEA_AxisRank<-AxisRanking$Ranking %>% as.matrix %>%  as.vector() %>%   set_names(value = AxisRanking$Genes)
+      #End Ranking Creation for Axis
       GSEAResults <-
         fgsea(
           pathways = GMTfile,
-          stats = GSEA_PCRank,
+          stats = GSEA_AxisRank,
           nperm = nperm,
           maxSize = maxSize,
           minSize = minSize,
@@ -28,21 +30,25 @@ Functional_Analysis_GSEA <-
           BPPARAM = SerialParam(),
           gseaParam = 1
         )
-      GSEAResults %<>%  as_tibble()%>% mutate(PC = rep(paste0("PC",i), GSEAResults %>%  nrow()))
-      All_PCRanking <- bind_rows(All_PCRanking, PCRanking)
-      PCResults <- bind_rows(PCResults, GSEAResults)
+      GSEAResults %<>%
+        as_tibble() %>%
+        mutate(Axis = rep(paste0("Axis",i), GSEAResults %>%  nrow()))
+      All_AxisRanking %<>% bind_rows(AxisRanking)
+      AxisResults %<>% bind_rows(GSEAResults)
     }
-    X$Functionnal_Analysis$GSEA_Results_PC<- PCResults[, c(ncol(PCResults), 1:(ncol(PCResults) - 1))]
-    X$Functionnal_Analysis$GSEA_Results_PC[c("ES", "NES", "padj","pval")]<- X$Functionnal_Analysis$GSEA_Results_PC[c("ES", "NES", "padj","pval")] %>% format(scientific = TRUE, digits = 2)
-    X$Functionnal_Analysis$RankingPC<- All_PCRanking %>%  select(-bin)
+    X$Functionnal_Analysis$GSEA_Results_Axis<- AxisResults[, c(ncol(AxisResults), 1:(ncol(AxisResults) - 1))]
+    X$Functionnal_Analysis$GSEA_Results_Axis[c("ES", "NES", "padj","pval")]<- X$Functionnal_Analysis$GSEA_Results_Axis[c("ES", "NES", "padj","pval")] %>% format(scientific = TRUE, digits = 2)
+    X$Functionnal_Analysis$RankingAxis<- All_AxisRanking %>%  select(-bin)
+
     cat("Beginning Gene Set Enrichment Analysis For Cluster...\n")
     Results <- tibble()
     All_Ranking <- tibble()
     Gene_All_Clusters_Distance <-
-      X$cluster$Gene_Cluster_Distance %>% separate(col = Genes,
-                                                   sep = '-bin',
-                                                   into = c('Genes', 'bin')) %>% filter(bin == 1) %>% dplyr::select(-bin) %>%  gather(contains("Cluster"), key = Cluster, value =
-                                                                                                                                        Distance)
+      X$cluster$Gene_Cluster_Distance %>%
+      separate(col = Genes, sep = '-bin', into = c('Genes', 'bin')) %>%
+      filter(bin == 1) %>%
+      dplyr::select(-bin) %>%
+      gather(contains("Cluster"), key = Cluster, value =Distance)
     ID <- Gene_All_Clusters_Distance$Cluster %>% unique()
     for (i in 1:X$cluster$nClusters) {
       cat(paste0("Processing Cluster", i, '...\n'))
@@ -81,7 +87,7 @@ Functional_Analysis_GSEA <-
 
     X$Functionnal_Analysis$Shiny  <-Create_Shiny_Functionnal_Analysis(X)
     A<-X$Functionnal_Analysis$Ranking %>%  select(-Distance)
-    B<-X$Functionnal_Analysis$RankingPC %>%  select(-Cor, -AbsCor) %>%  extract(,c(2,1,3))
+    B<-X$Functionnal_Analysis$RankingAxis %>%  select(-Cor, -AbsCor) %>%  extract(,c(2,1,3))
     colnames(A)[1]<-"Group"
     colnames(B)[1]<-"Group"
     Grouped<-bind_rows(A,B)

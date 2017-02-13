@@ -29,15 +29,15 @@ Calculate_Cluster_Centroids <- function(cluster, X) {
     Calculate_Cluster_Cluster_Distance(X$cluster$Coord_Centroids)
   X <- Calculate_Distance_Centroids_to_Gene(X)
   X$cluster$Graph1 <-
-    ggplot(X$Dim_Red$Cells_Standard, aes(x = PC1, y = PC2)) + geom_point(aes(colour =
+    ggplot(X$Dim_Red$Cells_Standard, aes(x = Axis1, y = Axis2)) + geom_point(aes(colour =
                                                                                X$cluster$Cluster_Quali %>% as.vector())) + theme_bw() + guides(colour =
                                                                                                                                                  guide_legend(title = "Cluster")) + ggtitle("Cells Low Dimensional Space") +
     theme(legend.text = element_text(colour = "black", size = 8))
   X$cluster$Graph2 <-
-    ggplot(X$Dim_Red$Genes_Standard, aes(x = PC1, y = PC2)) + geom_point(alpha =
+    ggplot(X$Dim_Red$Genes_Standard, aes(x = Axis1, y = Axis2)) + geom_point(alpha =
                                                                            0.5) + theme_bw() + ggtitle("Genes Low Dimensional Space") + geom_point(
                                                                              data = X$cluster$Coord_Centroids,
-                                                                             aes(x = PC1, y = PC2, colour = Cluster),
+                                                                             aes(x = Axis1, y = Axis2, colour = Cluster),
                                                                              size = 3,
                                                                              alpha = 1
                                                                            ) + theme(legend.text = element_text(colour = "black", size = 8))
@@ -130,15 +130,15 @@ Cluster_Personalised <- function(X, Y) {
     Calculate_Cluster_Cluster_Distance(X$cluster$Coord_Centroids)
   X <- Calculate_Distance_Centroids_to_Gene(X)
   X$cluster$Graph1 <-
-    ggplot(X$Dim_Red$Cells_Standard, aes(x = PC1, y = PC2)) + geom_point(aes(colour =
+    ggplot(X$Dim_Red$Cells_Standard, aes(x = Axis1, y = Axis2)) + geom_point(aes(colour =
                                                                                X$cluster$Cluster_Quali %>% as.vector())) + theme_bw() + guides(colour =
                                                                                                                                                  guide_legend(title = "Cluster")) + ggtitle("Cells Low Dimensional Space") +
     theme(legend.text = element_text(colour = "black", size = 8))
   X$cluster$Graph2 <-
-    ggplot(X$Dim_Red$Genes_Standard, aes(x = PC1, y = PC2)) + geom_point(alpha =
+    ggplot(X$Dim_Red$Genes_Standard, aes(x = Axis1, y = Axis2)) + geom_point(alpha =
                                                                            0.5) + theme_bw() + ggtitle("Genes Low Dimensional Space") + geom_point(
                                                                              data = X$cluster$Coord_Centroids,
-                                                                             aes(x = PC1, y = PC2, colour = Cluster),
+                                                                             aes(x = Axis1, y = Axis2, colour = Cluster),
                                                                              size = 3,
                                                                              alpha = 1
                                                                            ) + theme(legend.text = element_text(colour = "black", size = 8))
@@ -178,15 +178,15 @@ Cluster_Kmeans <- function(X,
   X <- Calculate_Distance_Centroids_to_Gene(X)
   X$cluster$Calinski_Harabasz<-cluster.stats(d = (Distance*1000), clustering = Cluster$cluster)$ch
   X$cluster$Graph1 <-
-    ggplot(X$Dim_Red$Cells_Standard, aes(x = PC1, y = PC2)) + geom_point(aes(colour =
+    ggplot(X$Dim_Red$Cells_Standard, aes(x = Axis1, y = Axis2)) + geom_point(aes(colour =
                                                                                X$cluster$Cluster_Quali %>% as.vector())) + theme_bw() + guides(colour =
                                                                                                                                                  guide_legend(title = "Cluster")) + ggtitle("Cells Low Dimensional Space") +
     theme(legend.text = element_text(colour = "black", size = 8))
   X$cluster$Graph2 <-
-    ggplot(X$Dim_Red$Genes_Standard, aes(x = PC1, y = PC2)) + geom_point(alpha =
+    ggplot(X$Dim_Red$Genes_Standard, aes(x = Axis1, y = Axis2)) + geom_point(alpha =
                                                                            0.5) + theme_bw() + ggtitle("Genes Low Dimensional Space") + geom_point(
                                                                              data = X$cluster$Coord_Centroids,
-                                                                             aes(x = PC1, y = PC2, colour = Cluster),
+                                                                             aes(x = Axis1, y = Axis2, colour = Cluster),
                                                                              size = 3,
                                                                              alpha = 1
                                                                            ) + theme(legend.text = element_text(colour = "black", size = 8))
@@ -211,7 +211,7 @@ Find_Closest_Cluster <- function(X) {
 
 
 Calculate_Distance_Centroids_to_Gene <- function(X) {
-  A <- X$cluster$Coord_Centroids %>% select(contains('PC'))
+  A <- X$cluster$Coord_Centroids %>% select(contains('Axis'))
   B <- X$Dim_Red$Genes_Standard
   Y <- rdist(x1 = A, x2 = B) %>% t()
   colnames(Y) <- X$cluster$Coord_Centroids$Cluster
@@ -223,8 +223,8 @@ Calculate_Distance_Centroids_to_Gene <- function(X) {
 }
 
 Calculate_Cluster_Cluster_Distance <- function(ClusterCoord) {
-  ClusterCoord_PC <- ClusterCoord %>%  select(contains('PC'))
-  Distance <- rdist(ClusterCoord_PC)
+  ClusterCoord_Axis <- ClusterCoord %>%  select(contains('Axis'))
+  Distance <- rdist(ClusterCoord_Axis)
   colnames(Distance) <- ClusterCoord$Cluster
   rownames(Distance) <- ClusterCoord$Cluster
   return(Distance)

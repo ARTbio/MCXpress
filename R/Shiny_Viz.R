@@ -10,17 +10,17 @@ Create_Shiny_Cluster <- function(X) {
                        5,
                        selectInput(
                          "Axis1",
-                         label = "Select Axis1",
+                         label = "Select x Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC1"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
                        ),
                        selectInput(
                          "Axis2",
-                         label = "Select Axis2",
+                         label = "Select y Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC2"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
                        ),
                        selectInput(
                          "Type",
@@ -59,17 +59,17 @@ Create_Shiny_Cluster <- function(X) {
                        5,
                        selectInput(
                          "Axis1_Gene",
-                         label = "Select Axis1",
+                         label = "Select x Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC1"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
                        ),
                        selectInput(
                          "Axis2_Gene",
-                         label = "Select Axis2",
+                         label = "Select y Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC2"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
                        )
                      ),
                      column(
@@ -102,24 +102,24 @@ Create_Shiny_Cluster <- function(X) {
                        5,
                        selectInput(
                          "Axis1_3D",
-                         label = "Select Axis1",
+                         label = "Select x Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC1"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
                        ),
                        selectInput(
                          "Axis2_3D",
-                         label = "Select Axis2",
+                         label = "Select y Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC2"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
                        ),
                        selectInput(
                          "Axis3_3D",
-                         label = "Select Axis3",
+                         label = "Select z Axis",
                          choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("PC")) %>%  colnames,
-                         selected = "PC3"
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis3"
                        )
                      ),
                      column(
@@ -283,18 +283,18 @@ Create_Shiny_Dim_Red <- function(X) {
                           5, wellPanel(
                             selectInput(
                               "Axis1_Gene",
-                              label = "Select Axis1",
+                              label = "Select x Axis1",
                               choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                            "Sample") %>% select(contains("PC")) %>%  colnames,
-                              selected = "PC1"
+                                                                                            "Sample") %>% select(contains("Axis")) %>%  colnames,
+                              selected = "Axis1"
                             ),
 
                             selectInput(
                               "Axis2_Gene",
-                              label = "Select Axis2",
+                              label = "Select y Axis",
                               choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                            "Sample") %>% select(contains("PC")) %>%  colnames,
-                              selected = "PC2"
+                                                                                            "Sample") %>% select(contains("Axis")) %>%  colnames,
+                              selected = "Axis2"
                             ),
                             selectInput(
                               "Type_Gene",
@@ -357,41 +357,41 @@ Create_Shiny_Dim_Red <- function(X) {
                  "2 Axis" = wellPanel(
                    selectInput(
                      "Axis1",
-                     label = "Select Axis1",
+                     label = "Select x Axis",
                      choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                   "Sample") %>% select(contains("PC")) %>%  colnames,
-                     selected = "PC1"
+                                                                                   "Sample") %>% select(contains("Axis")) %>%  colnames,
+                     selected = "Axis1"
                    ),
 
                    selectInput(
                      "Axis2",
-                     label = "Select Axis2",
+                     label = "Select y Axis",
                      choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                   "Sample") %>% select(contains("PC")) %>%  colnames,
-                     selected = "PC2"
+                                                                                   "Sample") %>% select(contains("Axis")) %>%  colnames,
+                     selected = "Axis2"
                    )
                  ),
                  "3 Axis" =  wellPanel(
                    selectInput(
                      "Axis1_3D",
-                     label = "Select Axis1",
+                     label = "Select x Axis",
                      choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                   "Sample") %>% select(contains("PC")) %>%  colnames,
-                     selected = "PC1"
+                                                                                   "Sample") %>% select(contains("Axis")) %>%  colnames,
+                     selected = "Axis1"
                    ),
                    selectInput(
                      "Axis2_3D",
-                     label = "Select Axis2",
+                     label = "Select y Axis",
                      choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                   "Sample") %>% select(contains("PC")) %>%  colnames,
-                     selected = "PC2"
+                                                                                   "Sample") %>% select(contains("Axis")) %>%  colnames,
+                     selected = "Axis2"
                    ),
                    selectInput(
                      "Axis3_3D",
-                     label = "Select Axis3",
+                     label = "Select z Axis",
                      choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                   "Sample") %>% select(contains("PC")) %>%  colnames,
-                     selected = "PC3"
+                                                                                   "Sample") %>% select(contains("Axis")) %>%  colnames,
+                     selected = "Axis3"
                    )
                  )
           )
@@ -546,8 +546,8 @@ Create_Shiny_Dim_Red <- function(X) {
         d4 <- X$Dim_Red$Cumul[X$Dim_Red$Cumul$Type == input$Mode, ]
         d4 <- d4[1:input$amount_adjust, ]
         (
-          d4 %>% ggplot(aes(x = PC, y = Value)) + geom_bar(stat = "identity") + scale_x_discrete(limits =
-                                                                                                   d4$PC)
+          d4 %>% ggplot(aes(x = Axis, y = Value)) + geom_bar(stat = "identity") + scale_x_discrete(limits =
+                                                                                                   d4$Axis)
         ) %>% ggplotly
       })
     }
@@ -625,7 +625,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                           label= paste("Choose", input$Mode_Func_Plot),
                           choices={switch(input$Mode_Func_Plot,
                                           "Cluster"=X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique,
-                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_PC$PC %>%  unique
+                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_Axis$Axis %>%  unique
                           )})},ignoreNULL = TRUE)
 
 
@@ -642,11 +642,11 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                           label= paste("Choose", input$Mode_Func_DT),
                           choices={switch(input$Mode_Func_DT,
                                           "Cluster"=X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique,
-                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_PC$PC %>%  unique
+                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_Axis$Axis %>%  unique
                           )}
         )
       })
-      Table_Enrich<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results %>% filter(Cluster==input$Choice_Func_DT) %>% select(-Cluster, -nMoreExtreme, -leadingEdge)), "Axis"=(X$Functionnal_Analysis$GSEA_Results_PC %>% filter(PC==input$Choice_Func_DT) %>% select(-PC, -nMoreExtreme, -leadingEdge)))})
+      Table_Enrich<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results %>% filter(Cluster==input$Choice_Func_DT) %>% select(-Cluster, -nMoreExtreme, -leadingEdge)), "Axis"=(X$Functionnal_Analysis$GSEA_Results_Axis %>% filter(Axis==input$Choice_Func_DT) %>% select(-Axis, -nMoreExtreme, -leadingEdge)))})
       output$Table <- renderDataTable(Table_Enrich()%>%  datatable(rownames=FALSE))
     }
   )
