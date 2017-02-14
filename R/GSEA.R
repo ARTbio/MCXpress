@@ -85,13 +85,14 @@ Functional_Analysis_GSEA <-
       X$cluster$Gene_Cluster_Distance %>% gather(-Genes, key = "Cluster", value = "Distance") %>% group_by(Genes) %>%  summarise(Dis_Var =
                                                                                                                                    var(Distance)) %>% mutate(Rank_Var = -Dis_Var %>% rank)
 
-    X$Functionnal_Analysis$Shiny  <-Create_Shiny_Functionnal_Analysis(X)
+
     A<-X$Functionnal_Analysis$Ranking %>%  select(-Distance)
     B<-X$Functionnal_Analysis$RankingAxis %>%  select(-Cor, -AbsCor) %>%  extract(,c(2,1,3))
     colnames(A)[1]<-"Group"
     colnames(B)[1]<-"Group"
     Grouped<-bind_rows(A,B)
     X$Functionnal_Analysis$Grouped<-Grouped
+    X$Functionnal_Analysis$Shiny<-Create_Shiny_Functionnal_Analysis(X)
     X$Functionnal_Analysis$Info <-
       paste0("number of permutation:",
              nperm,
