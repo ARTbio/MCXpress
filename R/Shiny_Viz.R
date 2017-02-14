@@ -160,13 +160,13 @@ Create_Shiny_Cluster <- function(X) {
                              ))),
                    mainPanel(width = 12, h3("Boxplot"), plotlyOutput(
                      "Boxplot", width = "100%", height = "100%"
-                   ), wellPanel(h3("Genes Specific to Cluster"), dataTableOutput("DTBOX")))
+                   ), h3("Genes Specific to Cluster"), dataTableOutput("DTBOX"))
                  )
       ),
     server = function(input, output) {
       options(warn=-1)
 
-      output$DTBOX<-renderDataTable( {DTboxplot<-data_frame()
+      output$DTBOX<-renderDataTable({DTboxplot<-data_frame()
       for(i in (X$cluster$Gene_Cluster_Distance %>% select(-Genes) %>% colnames()))
       {
         Cluster<-i
@@ -174,7 +174,7 @@ Create_Shiny_Cluster <- function(X) {
         bin2<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==2) %>% extract("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>%  paste(collapse=" ")
         DTboxplot<-bind_rows(DTboxplot,data_frame(Cluster, bin1,bin2))
       }
-      return(DTboxplot)} %>% datatable(rownames = FALSE))
+      return(DTboxplot %>% datatable(rownames = FALSE))})
 
       Boxplot<-X$ExpressionMatrix %>%  as.data.frame(x= . ,row.names =rownames(.)) %>%  rownames_to_column(var="Genes") %>%  gather("Sample","Expression",-Genes) %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample")
       output$Boxplot <-
