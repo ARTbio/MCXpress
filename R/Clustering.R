@@ -14,15 +14,15 @@ Calculate_Cluster_Centroids <- function(cluster, X) {
   cluster_info  <-  cluster %>%  clusters
   Cells_Coord   <-  X$Dim_Red$Cells_Principal
   X$cluster$Cluster_Quali   <-  paste0('Cluster', cluster_info$membership)
-  names(X$cluster$Cluster_Quali)  <-  cluster_info %$% names(membership)
+  names(X$cluster$Cluster_Quali)  <-  cluster_info %>% names(cluster_info$membership)
   X$cluster$Cluster_Quali <-
     tibble(names(X$cluster$Cluster_Quali), X$cluster$Cluster_Quali) %>%  set_colnames(c("Sample", "Cluster"))
   Cell_Coord_Cluster <-
     left_join(by = 'Sample',
               X$cluster$Cluster_Quali,
-              Cells_Coord %>%  rownames_to_column(var = 'Sample')) %>%  select(-Sample)
+              Cells_Coord %>%  rownames_to_column(var = 'Sample')) %>%  select_("-Sample")
   Coord_Centroids <-
-    Cell_Coord_Cluster %>%  group_by_(Cluster) %>%  summarise_each(funs(mean))
+    Cell_Coord_Cluster %>%  group_by_("Cluster") %>%  summarise_each(funs(mean))
   X$cluster$nClusters <- cluster_info$no
   X$cluster$Coord_Centroids <- Coord_Centroids
   X$cluster$Distance <-

@@ -1,6 +1,6 @@
 #' @import magrittr
 #' @import tidyverse
-#' @import plotly except=last_plot
+#' @import plotly
 #' @import shiny
 #' @import fgsea
 #' @import shinythemes
@@ -9,7 +9,7 @@
 #' @import dplyr
 #' @importFrom tidyr spread gather separate
 #' @import tibble
-#' @importFrom DT datatable
+#' @importFrom DT datatable dataTableOutput renderDataTable
 #' @import BiocParallel
 #' @import stringr
 #' @import statmod

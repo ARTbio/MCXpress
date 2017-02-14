@@ -160,7 +160,7 @@ Create_Shiny_Cluster <- function(X) {
                              ))),
                    mainPanel(width = 12, h3("Boxplot"), plotlyOutput(
                      "Boxplot", width = "100%", height = "100%"
-                   ), wellPanel(h3("Genes Specific to Cluster"), dataTableOutput("DTBOX",width = "100%", height = "100%" )))
+                   ), wellPanel(h3("Genes Specific to Cluster"), dataTableOutput("DTBOX")))
                  )
       ),
     server = function(input, output) {
