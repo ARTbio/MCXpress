@@ -3,7 +3,6 @@
 # has   <- wants %in% rownames(installed.packages())
 # if(any(!has)) install.packages(wants[!has])
 ####Library
-library(tidyverse)
 library(statmod)
 library(diptest)
 library(splines)
