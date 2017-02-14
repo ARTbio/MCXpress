@@ -1,27 +1,9 @@
 ##MCA
-# wants <- c("survival")
-# has   <- wants %in% rownames(installed.packages())
-# if(any(!has)) install.packages(wants[!has])
 ####Library
-library(statmod)
-library(diptest)
-library(splines)
-library(abind)
-library(Rtsne)
-library(plotly)
-library(shiny)
-library(fields)
-library(igraph)
-library(fgsea)
-library(BiocParallel)
-library(stringr)
-library(magrittr)
-library(ade4)
+#library(Rtsne)
+#library(fields)
+#library(igraph)
 library(reshape2)
-library(DT)
-library(fpc)
-library(shinythemes)
-
 select <- dplyr::select
 transmute <- dplyr::transmute
 

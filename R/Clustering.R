@@ -22,7 +22,7 @@ Calculate_Cluster_Centroids <- function(cluster, X) {
               X$cluster$Cluster_Quali,
               Cells_Coord %>%  rownames_to_column(var = 'Sample')) %>%  select(-Sample)
   Coord_Centroids <-
-    Cell_Coord_Cluster %>%  group_by(Cluster) %>%  summarise_each(funs(mean))
+    Cell_Coord_Cluster %>%  group_by_(Cluster) %>%  summarise_each(funs(mean))
   X$cluster$nClusters <- cluster_info$no
   X$cluster$Coord_Centroids <- Coord_Centroids
   X$cluster$Distance <-
