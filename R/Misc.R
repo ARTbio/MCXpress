@@ -41,9 +41,6 @@ plotlyEnrichment<-function(pathway,stats, gseaParam=1)
     add_markers(data=data_markers , x=~x ,y =~y, marker=list(color = 'rgb(0, 10, 10)', size=1), name="Genes", hoverinfo="text", text=~paste0(Genes,'</br>',"Rank:", x), showlegend=FALSE)
 }
 
-
-
-
 Reactome_GridPlot <-
   function(X, Info_File, Hierarchy_File, GMTfile, p = 0.25) {
     GMT <- GMTfile %>%  attributes() %>%  as_tibble

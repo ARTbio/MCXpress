@@ -621,8 +621,8 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                    title = "Boxplot Enrichment Cluster",
                    fluidPage(titlePanel("Genes Expression by Cluster"),
                              fluidRow(column(
-                               width = 6,
-                               selectInput(
+                               width = 10,
+                               selectInput(width = "100%",
                                  "Enrich_Heatmap_GeneSet",
                                  "Choose a Gene:",
                                  choices =
