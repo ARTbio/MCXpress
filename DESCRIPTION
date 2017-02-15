@@ -32,10 +32,12 @@ Imports:
     diptest,
     fields,
     igraph,
-    lazyeval
+    lazyeval,
+    fpc
 Suggests:
     biomaRt,
     knitr,
-    rmarkdown
+    rmarkdown,
+    readr
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1

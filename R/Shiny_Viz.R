@@ -607,7 +607,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                                width = 6,
                                selectInput(
                                  "Choice_Func_DT",
-                                 "Choose a Cluster:",
+                                 "Choose a Geneset:",
                                  choices =
                                    (X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique),
                                  selectize = T
@@ -615,6 +615,23 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                              )))),
                    mainPanel(width=12,dataTableOutput(
                      "Table", width = "100%", height = "100%"
+                   ))
+                 ),
+                 tabPanel(
+                   title = "Boxplot Enrichment Cluster",
+                   fluidPage(titlePanel("Genes Expression by Cluster"),
+                             fluidRow(column(
+                               width = 6,
+                               selectInput(
+                                 "Enrich_Heatmap_GeneSet",
+                                 "Choose a Gene:",
+                                 choices =
+                                   (X$Functionnal_Analysis$GSEA_Results$pathway %>%  unique),
+                                 selectize = T, multiple = TRUE, selected = (X$Functionnal_Analysis$GSEA_Results$pathway %>%  unique)[1]
+                               )
+                             ))),
+                   mainPanel(width = 12, h3("Boxplot"), plotlyOutput(
+                     "Enrich_Heatmap", width = "90%", height = "90%"
                    ))
                  )
       )
@@ -648,7 +665,16 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
       })
       Table_Enrich<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results %>% filter(Cluster==input$Choice_Func_DT) %>% select(-Cluster, -nMoreExtreme, -leadingEdge)), "Axis"=(X$Functionnal_Analysis$GSEA_Results_Axis %>% filter(Axis==input$Choice_Func_DT) %>% select(-Axis, -nMoreExtreme, -leadingEdge)))})
       output$Table <- renderDataTable(Table_Enrich()%>%  datatable(rownames=FALSE))
-    }
+
+      Enrich_Boxplot<-X$Functionnal_Analysis$GSEA_Results
+      output$Enrich_Heatmap <-
+        (renderPlotly(EnrichBoxplot %>% filter(pathway %in% input$Enrich_Heatmap_GeneSet) %>%   group_by(pathway) %>%  plot_ly(x=~pathway, y=~Cluster, z=~(ES %>% as.numeric)) %>% add_heatmap()
+))
+
+
+
+
+      }
   )
   return(App)
 }

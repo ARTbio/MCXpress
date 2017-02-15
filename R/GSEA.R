@@ -7,7 +7,7 @@ Functional_Analysis_GSEA <-
            nproc = 1) {
     AxisResults<- tibble()
     All_AxisRanking<- tibble()
-    for(i in 1:(min(X$Dim_Red$Eigen_Value %>% length,5))){
+    for(i in 1:(min(X$Dim_Red$Cells_Principal %>% ncol ,5))){
       cat(paste0("Processing Axis", i, '...\n'))
       #Create Ranking to feed in the FGSEA
       AxisRanking<- X$Dim_Red$Axis_Gene_Cor %>%

@@ -13,7 +13,7 @@ select_most_variable_genes <- function(X, ngenes) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<-X$ExpressionMatrix
     means <- exp_matrix %>%  rowMeans
-    vars  <- apply(exp_matrix, 1, var)
+    vars  <- exp_matrix %>% apply(1, var)
     cv2   <- vars / means ^ 2
     minMeanForFit <- unname(quantile(means[which(cv2 > .3)], 0.95))
     useForFit <- means >= minMeanForFit
