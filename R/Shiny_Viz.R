@@ -163,20 +163,20 @@ Create_Shiny_Cluster <- function(X) {
                    ), h3("Genes Specific to Cluster"), dataTableOutput("DTBOX"))
                  )
       ),
-    server = function(input, output) {
+    server = function(input, output){
       options(warn=-1)
 
       output$DTBOX<-renderDataTable({DTboxplot<-data_frame()
-      for(i in (X$cluster$Gene_Cluster_Distance %>% select(-Genes) %>% colnames()))
+      for(i in (X$cluster$Gene_Cluster_Distance %>% select(-Genes) %>% colnames))
       {
         Cluster<-i
-        bin1<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==1) %>% extract("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>% paste(collapse=" ")
-        bin2<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==2) %>% extract("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>%  paste(collapse=" ")
-        DTboxplot<-bind_rows(DTboxplot,data_frame(Cluster, bin1,bin2))
+        bin1<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==1) %>% select_("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>% paste(collapse=" ")
+        bin2<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==2) %>% select_("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>%  paste(collapse=" ")
+        DTboxplot<-bind_rows(DTboxplot,data_frame(Cluster,bin1,bin2))
       }
       return(DTboxplot %>% datatable(rownames = FALSE))})
 
-      Boxplot<-X$ExpressionMatrix %>%  as.data.frame(x= . ,row.names =rownames(.)) %>%  rownames_to_column(var="Genes") %>%  gather("Sample","Expression",-Genes) %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample")
+      Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>%  gather("Sample","Expression",-Genes) %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample")
       output$Boxplot <-
         (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace( type="box", split=~Cluster, jitter=0.5, pointpos=0, boxpoints="all") %>%  layout(boxmode="group")))
       output$CellSpace <- renderPlotly({
@@ -630,7 +630,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                                  selectize = T, multiple = TRUE, selected = (X$Functionnal_Analysis$GSEA_Results$pathway %>%  unique)[1]
                                )
                              ))),
-                   mainPanel(width = 12, h3("Boxplot"), plotlyOutput(
+                   mainPanel(width = 12, h3("Enrichment Score Heatmap"), plotlyOutput(
                      "Enrich_Heatmap", width = "90%", height = "90%"
                    ))
                  )
@@ -668,7 +668,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
 
       Enrich_Boxplot<-X$Functionnal_Analysis$GSEA_Results
       output$Enrich_Heatmap <-
-        (renderPlotly(EnrichBoxplot %>% filter(pathway %in% input$Enrich_Heatmap_GeneSet) %>%   group_by(pathway) %>%  plot_ly(x=~pathway, y=~Cluster, z=~(ES %>% as.numeric)) %>% add_heatmap()
+        (renderPlotly(Enrich_Boxplot %>% filter(pathway %in% input$Enrich_Heatmap_GeneSet) %>%   group_by(pathway) %>%  plot_ly(x=~pathway, y=~Cluster, z=~(ES %>% as.numeric)) %>% add_heatmap()
 ))
 
 

@@ -14,37 +14,34 @@ Calculate_Cluster_Centroids <- function(cluster, X) {
   cluster_info  <-  cluster %>%  clusters
   Cells_Coord   <-  X$Dim_Red$Cells_Principal
   X$cluster$Cluster_Quali   <-  paste0('Cluster', cluster_info$membership)
-  names(X$cluster$Cluster_Quali)  <-  cluster_info %$% names(membership)
+  names(X$cluster$Cluster_Quali)  <- cluster_info$membership %>%  names
   X$cluster$Cluster_Quali <-
     tibble(names(X$cluster$Cluster_Quali), X$cluster$Cluster_Quali) %>%  set_colnames(c("Sample", "Cluster"))
   Cell_Coord_Cluster <-
     left_join(by = 'Sample',
               X$cluster$Cluster_Quali,
-              Cells_Coord %>%  rownames_to_column(var = 'Sample')) %>%  select(-Sample)
+              Cells_Coord %>%  rownames_to_column(var = 'Sample')) %>%  select_("-Sample")
   Coord_Centroids <-
-    Cell_Coord_Cluster %>%  group_by(Cluster) %>%  summarise_each(funs(mean))
+    Cell_Coord_Cluster %>%  group_by_("Cluster") %>%  summarise_each(funs(mean))
   X$cluster$nClusters <- cluster_info$no
   X$cluster$Coord_Centroids <- Coord_Centroids
   X$cluster$Distance <-
     Calculate_Cluster_Cluster_Distance(X$cluster$Coord_Centroids)
   X <- Calculate_Distance_Centroids_to_Gene(X)
   X$cluster$Graph1 <-
-    ggplot(X$Dim_Red$Cells_Standard, aes(x = Axis1, y = Axis2)) + geom_point(aes(colour =
+    ggplot(X$Dim_Red$Cells_Standard, aes_string(x ="Axis1", y ="Axis2")) + geom_point(aes(colour =
                                                                                X$cluster$Cluster_Quali %>% as.vector())) + theme_bw() + guides(colour =
                                                                                                                                                  guide_legend(title = "Cluster")) + ggtitle("Cells Low Dimensional Space") +
     theme(legend.text = element_text(colour = "black", size = 8))
   X$cluster$Graph2 <-
-    ggplot(X$Dim_Red$Genes_Standard, aes(x = Axis1, y = Axis2)) + geom_point(alpha =
+    ggplot(X$Dim_Red$Genes_Standard, aes_string(x ="Axis1", y ="Axis2")) + geom_point(alpha =
                                                                            0.5) + theme_bw() + ggtitle("Genes Low Dimensional Space") + geom_point(
                                                                              data = X$cluster$Coord_Centroids,
-                                                                             aes(x = Axis1, y = Axis2, colour = Cluster),
+                                                                             aes_string(x = "Axis1", y = "Axis2", colour = "Cluster"),
                                                                              size = 3,
                                                                              alpha = 1
                                                                            ) + theme(legend.text = element_text(colour = "black", size = 8))
   X$cluster$Shiny <- Create_Shiny_Cluster(X)
-  X$cluster$Distance_Var <-
-    X$cluster$Gene_Cluster_Distance %>% gather(-Genes, key = "Cluster", value = "Distance") %>% group_by(Genes) %>%  summarise(Dis_Var =
-                                                                                                                                 var(Distance)) %>% mutate(Rank_Var = -Dis_Var %>% rank) %>% arrange(Rank_Var)
   class(X$cluster) <- "Cluster_Object"
   return(X)
 }

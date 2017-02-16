@@ -7,7 +7,7 @@
 #' @import ggplot2
 #' @import diptest
 #' @import dplyr
-#' @importFrom tidyr spread gather separate
+#' @importFrom tidyr spread gather separate gather_ spread_ separate_
 #' @import tibble
 #' @importFrom DT datatable dataTableOutput renderDataTable
 #' @import BiocParallel

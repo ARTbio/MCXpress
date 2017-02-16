@@ -23,6 +23,7 @@ Discretisation_Bsplines <- function(X, nbins = 2) {
     }
     rownames(discreteMatrix) <- rownames(exp_matrix)
     colnames(discreteMatrix) <- colnames(exp_matrix)
+    discreteMatrix<-discreteMatrix[,,rev(1:dim(discreteMatrix)[3])]
     # Note: this is a fuzzy coded expression matrix
     Disjunctive_Matrix <- discreteMatrix %>% Create_Disjunctive_Matrix
     X$Disjunctive_Matrix<-Disjunctive_Matrix

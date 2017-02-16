@@ -3,7 +3,7 @@ Initialise_MCXpress <- function(X, min_reads = NULL){
     if((X %>% rownames %>% is.null)|(X %>%  colnames %>% is.null)){errormessage<-"Gene name should be the rownames of the matrix and Sample name the column name"
     stop(errormessage)} else{
       MCXpress <- list()
-      X <- as.matrix(unique(X[apply(X, 1, var) > 0, ]))
+      X <- as.matrix((X[apply(X, 1, var) > 0, ]))
       X <- X[str_length(X %>% rownames) > 0, ]
       if(min_reads %>%  is.numeric()){
       X <- X[rowSums(X) > min_reads, ]}

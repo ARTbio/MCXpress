@@ -16,9 +16,9 @@ transmute <- dplyr::transmute
 Dimension_reduction_MCA <- function(X, Dim = 5) {
   cat('Beginning MCA...\n')
   MCA <- X$Disjunctive_Matrix
-  MCA %<>% as.data.frame(row.names = MCA %>% rownames)
+  MCA %<>% data.frame
   MCA %<>% prep.fuzzy.var(rep(2, (MCA %>% ncol) / 2))
-  MCA %<>% dudi.fca(nf = Dim, scannf = FALSE)
+  MCA<- dudi.fca(MCA,scannf = FALSE, 10)
   Component <- paste0("Axis", 1:Dim)
   X$Dim_Red$Cells_Standard  <- MCA$li %>%
     set_colnames(Component) %>% data.frame
@@ -32,6 +32,7 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
   X$Dim_Red$Genes_Principal <- MCA$c1 %>%
     set_colnames(Component) %>% data.frame
   #Distance Calculation
+  Eig<-MCA$eig
   cat('Calculating Cell to Cell Distance...\n')
   X$Dim_Red$Cell2Cell_Distance <-X$Dim_Red$Cells_Standard[,1:Dim] %>% rdist
   X$Dim_Red$Cell2Cell_Distance %<>%  set_colnames(X$Dim_Red$Cells_Principal %>%  rownames)
@@ -138,8 +139,8 @@ Dimension_reduction_MCA_FAST <- function(X, Dim = 5) {
 
   #Calculate Correlation Axis and Genes
   X$Dim_Red$Axis_Gene_Cor <-
-    cor(X$Disjunctive_Matrix, X$Dim_Red$Cells_Principal) %>% as.data.frame(row.names = X$Dim_Red$Axis_Gene_Cor %>% rownames) %>% rownames_to_column(var =
-                                                                                                                                                      "Genes") %>%  as_tibble() %>%  gather(-Genes, key = "Component", value= "Cor")
+    cor(X$Disjunctive_Matrix, X$Dim_Red$Cells_Principal) %>% data.frame() %>% rownames_to_column(var = "Genes") %>%  as_tibble() %>%  gather(-Genes, key = "Component", value= "Cor")
+
   #End Calculate Correlation Axis and Genes
 
   X$Dim_Red$Plot <-
