@@ -146,9 +146,7 @@ Dimension_reduction_MCA_FAST <- function(X, Dim = 5) {
   X$Dim_Red$Plot <-
     X$Dim_Red$Cells_Principal %>% ggplot(aes(
       x = Axis1,
-      y = Axis2,
-          )) + geom_point() + theme_light()
-  X$Dim_Red$Shiny <- X %>% Create_Shiny_Dim_Red
+      y = Axis2)) + geom_point() + theme_light()
   class(X$Dim_Red) <- "Dim_Red_Object"
   class(X) <- "MCXpress_object"
   cat('MCA is finished \n')

@@ -4,7 +4,8 @@ Functional_Analysis_GSEA <-
            nperm = 1000,
            maxSize = 1000,
            minSize = 0,
-           nproc = 1) {
+           nproc = 1,
+           mode = "all"){
     AxisResults<- tibble()
     All_AxisRanking<- tibble()
     for(i in 1:(min(X$Dim_Red$Cells_Principal %>% ncol ,5))){
@@ -43,12 +44,22 @@ Functional_Analysis_GSEA <-
     cat("Beginning Gene Set Enrichment Analysis For Cluster...\n")
     Results <- tibble()
     All_Ranking <- tibble()
+
+    if(mode=="all")
+    {Gene_All_Clusters_Distance<-X$cluster$Gene_Cluster_Distance %>%
+      select(Genes,contains("Cluster")) %>%
+      separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%
+      group_by(Genes)%>%
+      summarise_at(vars(contains("Cluster")), min) %>%
+      gather(contains("Cluster"), key = Cluster, value = Distance)}
+    if(mode=="bin1"){
     Gene_All_Clusters_Distance <-
       X$cluster$Gene_Cluster_Distance %>%
       separate(col = Genes, sep = '-bin', into = c('Genes', 'bin')) %>%
       filter(bin == 1) %>%
-      dplyr::select(-bin) %>%
-      gather(contains("Cluster"), key = Cluster, value =Distance)
+      select(-bin) %>%
+      gather(contains("Cluster"), key = Cluster, value =Distance)}
+
     ID <- Gene_All_Clusters_Distance$Cluster %>% unique()
     for (i in 1:X$cluster$nClusters) {
       cat(paste0("Processing Cluster", i, '...\n'))
@@ -87,19 +98,11 @@ Functional_Analysis_GSEA <-
 
 
     A<-X$Functionnal_Analysis$Ranking %>%  select(-Distance)
-    B<-X$Functionnal_Analysis$RankingAxis %>%  select(-Cor, -AbsCor) %>%  extract(,c(2,1,3))
+    B<-X$Functionnal_Analysis$RankingAxis %>%  select(-Cor, -AbsCor) %>%  select(1,3, everything())
     colnames(A)[1]<-"Group"
     colnames(B)[1]<-"Group"
-    Grouped<-bind_rows(A,B)
-    X$Functionnal_Analysis$Grouped<-Grouped
+    X$Functionnal_Analysis$Grouped<-bind_rows(A,B)
     X$Functionnal_Analysis$Shiny<-Create_Shiny_Functionnal_Analysis(X)
-    X$Functionnal_Analysis$Info <-
-      paste0("number of permutation:",
-             nperm,
-             "maxSize:",
-             maxSize,
-             "minSize:",
-             minSize)
     cat(paste0('DONE\n'))
     class(X$Functionnal_Analysis) <- "FA.object"
     return(X)

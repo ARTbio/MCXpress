@@ -11,7 +11,7 @@
 #' @import tibble
 #' @importFrom DT datatable dataTableOutput renderDataTable
 #' @import BiocParallel
-#' @import stringr
+#' @importFrom stringr str_length
 #' @import statmod
 #' @import splines
 #' @importFrom  fields rdist
@@ -25,7 +25,7 @@ NULL
 #'Expression Matrix from GEO ID: GSE64553
 #'
 #'The dataset contains only the value for HFF samples
-#'and one outlier has been removed.
+#'and one outlier has been removed (HFF_PD58_woRotenone2).
 #'
 #'@format A matrix with 47966 genes (row) and 35 individuals (col)
 #'@source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE64553}
