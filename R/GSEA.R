@@ -12,12 +12,12 @@ Functional_Analysis_GSEA <-
       cat(paste0("Processing Axis", i, '...\n'))
       #Create Ranking to feed in the FGSEA
       AxisRanking<- X$Dim_Red$Axis_Gene_Cor %>%
-        filter(Component==paste0("Axis",i)) %>%
+        filter(Axis==paste0("Axis",i)) %>%
         separate(col= Genes, into = c("Genes","bin"),sep = "-bin", convert = TRUE) %>%
         filter(bin==1) %>%
         mutate(AbsCor = Cor %>%  abs) %>%
-        arrange(Cor) %>%
-        mutate(Ranking=rank(Cor))
+        arrange(desc(AbsCor)) %>%
+        mutate(Ranking=rank(-AbsCor))
       GSEA_AxisRank<-AxisRanking$Ranking %>% as.matrix %>%  as.vector() %>%   set_names(value = AxisRanking$Genes)
       #End Ranking Creation for Axis
       GSEAResults <-
@@ -98,7 +98,7 @@ Functional_Analysis_GSEA <-
 
 
     A<-X$Functionnal_Analysis$Ranking %>%  select(-Distance)
-    B<-X$Functionnal_Analysis$RankingAxis %>%  select(-Cor, -AbsCor) %>%  select(1,3, everything())
+    B<-X$Functionnal_Analysis$RankingAxis %>%  select(-Cor, -AbsCor) %>%  select(Axis, everything())
     colnames(A)[1]<-"Group"
     colnames(B)[1]<-"Group"
     X$Functionnal_Analysis$Grouped<-bind_rows(A,B)
