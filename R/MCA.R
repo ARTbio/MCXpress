@@ -69,7 +69,7 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
 
   #Calculate Correlation Axis and Genes
   X$Dim_Red$Axis_Gene_Cor <-
-    cor(X$Disjunctive_Matrix, X$Dim_Red$Cells_Principal) %>% data.frame %>% rownames_to_column(var ="Genes") %>%  as_tibble() %>%  gather(-Genes, key = "Axis", value= "Cor")
+    cor(X$Disjunctive_Matrix, X$Dim_Red$Cells_Principal) %>% data.frame %>% rownames_to_column(var ="Genes")
   #End Calculate Correlation Axis and Genes
 
   X$Dim_Red$Graph <-
@@ -139,7 +139,7 @@ Dimension_reduction_MCA_FAST <- function(X, Dim = 5) {
 
   #Calculate Correlation Axis and Genes
   X$Dim_Red$Axis_Gene_Cor <-
-    cor(X$Disjunctive_Matrix, X$Dim_Red$Cells_Principal) %>% data.frame() %>% rownames_to_column(var = "Genes") %>%  as_tibble() %>%  gather(-Genes, key = "Axis", value= "Cor")
+    cor(X$Disjunctive_Matrix, X$Dim_Red$Cells_Principal) %>% data.frame() %>% rownames_to_column(var = "Genes") %>%  as_tibble()
 
   #End Calculate Correlation Axis and Genes
 

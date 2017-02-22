@@ -570,7 +570,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                                 selectInput(
                                   "Geneset",
                                   "Choose a Geneset:",
-                                  choices = (X$Functionnal_Analysis$GSEA_Results$pathway %>%  unique),
+                                  choices = (X$Functionnal_Analysis$Pathways),
                                   selectize = T
                                 )
                               ),
@@ -579,7 +579,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                                 selectInput(
                                   "Choice_Func_Plot",
                                   "Choose a Cluster:",
-                                  choices = X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique
+                                  choices = X$Functionnal_Analysis$GSEA_Results %>% names
                                 ),
                                 selectInput(
                                   "Mode_Func_Plot",
@@ -609,7 +609,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                                  "Choice_Func_DT",
                                  "Choose a Geneset:",
                                  choices =
-                                   (X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique),
+                                   (X$Functionnal_Analysis$GSEA_Results %>%  names),
                                  selectize = T
                                )
                              )))),
@@ -626,8 +626,8 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                                  "Enrich_Heatmap_GeneSet",
                                  "Choose a Gene:",
                                  choices =
-                                   (X$Functionnal_Analysis$GSEA_Results$pathway %>%  unique),
-                                 selectize = T, multiple = TRUE, selected = (X$Functionnal_Analysis$GSEA_Results$pathway %>%  unique)[1]
+                                   (X$Functionnal_Analysis$Pathways),
+                                 selectize = T, multiple = TRUE, selected = (X$Functionnal_Analysis$Pathways)[1]
                                )
                              ))),
                    mainPanel(width = 12, h3("Enrichment Score Heatmap"), plotlyOutput(
@@ -641,8 +641,8 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
         updateSelectInput(session,"Choice_Func_Plot",
                           label= paste("Choose", input$Mode_Func_Plot),
                           choices={switch(input$Mode_Func_Plot,
-                                          "Cluster"=X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique,
-                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_Axis$Axis %>%  unique
+                                          "Cluster"=X$Functionnal_Analysis$GSEA_Results %>%  names,
+                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_Axis %>%  names
                           )})},ignoreNULL = TRUE)
 
 
@@ -658,12 +658,12 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
         updateSelectInput(session,"Choice_Func_DT",
                           label= paste("Choose", input$Mode_Func_DT),
                           choices={switch(input$Mode_Func_DT,
-                                          "Cluster"=X$Functionnal_Analysis$GSEA_Results$Cluster %>%  unique,
-                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_Axis$Axis %>%  unique
+                                          "Cluster"=X$Functionnal_Analysis$GSEA_Results %>%  names,
+                                          "Axis"=X$Functionnal_Analysis$GSEA_Results_Axis %>%  names
                           )}
         )
       })
-      Table_Enrich<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results %>% filter(Cluster==input$Choice_Func_DT) %>% select(-Cluster, -nMoreExtreme, -leadingEdge)), "Axis"=(X$Functionnal_Analysis$GSEA_Results_Axis %>% filter(Axis==input$Choice_Func_DT) %>% select(-Axis, -nMoreExtreme, -leadingEdge)))})
+      Table_Enrich<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results[[input$Choice_Func_DT]] %>% select(-nMoreExtreme, -leadingEdge)), "Axis"=(X$Functionnal_Analysis$GSEA_Results_Axis[[input$Choice_Func_DT]] %>% select(-nMoreExtreme, -leadingEdge)))})
       output$Table <- renderDataTable(Table_Enrich()%>%  datatable(rownames=FALSE))
 
       Enrich_Boxplot<-X$Functionnal_Analysis$GSEA_Results
