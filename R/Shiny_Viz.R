@@ -166,63 +166,57 @@ Create_Shiny_Cluster <- function(X) {
     server = function(input, output){
       options(warn=-1)
 
-      output$DTBOX<-renderDataTable({DTboxplot<-data_frame()
-      for(i in (X$cluster$Gene_Cluster_Distance %>% select(-Genes) %>% colnames))
-      {
-        Cluster<-i
-        bin1<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==1) %>% select_("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>% paste(collapse=" ")
-        bin2<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==2) %>% select_("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>%  paste(collapse=" ")
-        DTboxplot<-bind_rows(DTboxplot,data_frame(Cluster,bin1,bin2))
-      }
-      return(DTboxplot %>% datatable(rownames = FALSE))})
 
-      Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>%  gather("Sample","Expression",-Genes) %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample")
-      output$Boxplot <-
-        (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace( type="box", split=~Cluster, jitter=0.5, pointpos=0, boxpoints="all") %>%  layout(boxmode="group")))
       output$CellSpace <- renderPlotly({
-        if (input$Type == "Principal") {
-          d3 <-
-            X$Dim_Red$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
+        d3 <-
+          X$Dim_Red$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
+        d4 <-
+          X$Dim_Red$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
 
+        if (input$Type == "Principal") {
           p<-plot_ly(data=d3, x=~d3[[input$Axis1]], y=~d3[[input$Axis2]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$Axis1), yaxis = list(title=input$Axis2))
           p
         }
         else{
-          d3 <-
-            X$Dim_Red$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
-          p<-plot_ly(data=d3, x=~d3[[input$Axis1]], y=~d3[[input$Axis2]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$Axis1), yaxis = list(title=input$Axis2))
+          p<-plot_ly(data=d4, x=~d4[[input$Axis1]], y=~d4[[input$Axis2]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$Axis1), yaxis = list(title=input$Axis2))
           p
         }
       })
-      GeneSpace <-
-        X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes")
+
       output$GeneSpace <- renderPlotly({
-        p<-plot_ly(data=GeneSpace, x=~GeneSpace[[input$Axis1_Gene]], y=~GeneSpace[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text",alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene, color='rgba(0,0,0,1)', showlegend=FALSE), name="Genes")%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene)) %>%  add_markers(data=X$cluster$Coord_Centroids,x=~X$cluster$Coord_Centroids[[input$Axis1_Gene]] , y=~X$cluster$Coord_Centroids[[input$Axis2_Gene]],color=~Cluster,colors = "Blues", mode='markers',marker = list(size = 10, color=~Cluster), text=~Cluster)
-      })
+          Genes <- X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene, input$Axis2_Gene) %>% set_colnames(c("Genes", "AP1","AP2"))
+          Centroids <- X$cluster$Coord_Centroids %>% select_("Cluster",input$Axis1_Gene, input$Axis2_Gene) %>%  set_colnames(c("Cluster", "AC1","AC2"))
+        p<-plot_ly(data=Centroids, x=~AC1, y=~AC2) %>%
+           add_markers(color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
+           add_markers(data=Genes, x=~AP1, y=~AP2, name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene, color= "black", alpha= input$Alpha_Gene)) %>%
+          layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
+        return(p)
+        })
+
       output$CellSpace3D <- renderPlotly(
         plot_ly(
-          X$Dim_Red$Cells_Standard,
+          X$Dim_Red$Cells_Principal,
           color =  ~ X$cluster$Cluster_Quali$Cluster,
           mode = 'markers',
           text = ~ paste(
-            rownames(X$Dim_Red$Cells_Standard),
+            rownames(X$Dim_Red$Cells_Principal),
             '</br>',
             input$Axis1_3D,
             ': ',
-            X$Dim_Red$Cells_Standard[[input$Axis1_3D]] %>%  signif(digits = 4),
+            X$Dim_Red$Cells_Principal[[input$Axis1_3D]] %>%  signif(digits = 4),
             '</br>',
             input$Axis2_3D,
             ': ',
-            X$Dim_Red$Cells_Standard[[input$Axis2_3D]] %>%  signif(digits = 4),
+            X$Dim_Red$Cells_Principal[[input$Axis2_3D]] %>%  signif(digits = 4),
             '</br>',
             input$Axis3_3D,
             ': ',
-            X$Dim_Red$Cells_Standard[[input$Axis3_3D]] %>%  signif(digits = 4)
+            X$Dim_Red$Cells_Principal[[input$Axis3_3D]] %>%  signif(digits = 4)
           )
           ,
-          x = ~ X$Dim_Red$Cells_Standard[[input$Axis1_3D]],
-          y = ~ X$Dim_Red$Cells_Standard[[input$Axis2_3D]],
-          z = ~ X$Dim_Red$Cells_Standard[[input$Axis3_3D]],
+          x = ~ X$Dim_Red$Cells_Principal[[input$Axis1_3D]],
+          y = ~ X$Dim_Red$Cells_Principal[[input$Axis2_3D]],
+          z = ~ X$Dim_Red$Cells_Principal[[input$Axis3_3D]],
           hoverinfo = "text",
           marker = list(
             opacity= input$Alpha_3D,
@@ -241,6 +235,20 @@ Create_Shiny_Cluster <- function(X) {
             )
           )
       )
+
+      output$DTBOX<-renderDataTable({DTboxplot<-data_frame()
+      for(i in (X$cluster$Gene_Cluster_Distance %>% select(-Genes) %>% colnames))
+      {
+        Cluster<-i
+        bin1<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==1) %>% select_("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>% paste(collapse=" ")
+        bin2<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==2) %>% select_("Genes") %>% head(5) %>% as.matrix() %>% as.vector() %>%  paste(collapse=" ")
+        DTboxplot<-bind_rows(DTboxplot,data_frame(Cluster,bin1,bin2))
+      }
+      return(DTboxplot %>% datatable(rownames = FALSE))})
+
+      Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>%  gather("Sample","Expression",-Genes) %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample")
+      output$Boxplot <-
+        (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace( type="box", split=~Cluster, jitter=0.5, pointpos=0, boxpoints="all") %>%  layout(boxmode="group")))
     }
   )
   return(App)
@@ -646,12 +654,8 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                           )})},ignoreNULL = TRUE)
 
 
-
-
-
-      Data<-reactive(X$Functionnal_Analysis$Grouped %>% filter(Group==input$Choice_Func_Plot))
-      RankinG <- reactive(Data() %>% select(Ranking) %>%  as.matrix %>%as.numeric %>% as.vector() %>% setNames(Data()$Genes %>% unique))
-      output$GSEA<-renderPlotly(plotlyEnrichment(GMTfile[[input$Geneset]], RankinG(), gseaParam = 1))
+      Data<-reactive(X$Functionnal_Analysis$AllRanking[[input$Choice_Func_Plot]])
+      output$GSEA<-renderPlotly(plotlyEnrichment(GMTfile[[input$Geneset]], Data(), gseaParam = 1))
 
       #Datatable of Enrichment results
       observeEvent(input$Mode_Func_DT,{

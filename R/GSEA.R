@@ -54,8 +54,9 @@ Functional_Analysis_GSEA <-
     X$Functionnal_Analysis$RankingAxis<- axis_rank
     X$Functionnal_Analysis$GSEA_Results <- cluster_gsea
     X$Functionnal_Analysis$Ranking  <-  cluster_rank
+    X$Functionnal_Analysis$GMTfile<- GMTfile
     X$Functionnal_Analysis$Pathways <- axis_gsea$Axis1$pathway
-
+    X$Functionnal_Analysis$AllRanking<-append(X$Functionnal_Analysis$RankingAxis, X$Functionnal_Analysis$Ranking)
     X$Functionnal_Analysis$Shiny<-Create_Shiny_Functionnal_Analysis(X)
     cat(paste0('DONE\n'))
     class(X$Functionnal_Analysis) <- "FA.object"
