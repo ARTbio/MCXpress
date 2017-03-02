@@ -184,14 +184,14 @@ Create_Shiny_Cluster <- function(X) {
       })
 
       output$GeneSpace <- renderPlotly({
-          Genes <- X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene, input$Axis2_Gene) %>% set_colnames(c("Genes", "AP1","AP2"))
-          Centroids <- X$cluster$Coord_Centroids %>% select_("Cluster",input$Axis1_Gene, input$Axis2_Gene) %>%  set_colnames(c("Cluster", "AC1","AC2"))
+        Genes <- X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene, input$Axis2_Gene) %>% set_colnames(c("Genes", "AP1","AP2"))
+        Centroids <- X$cluster$Coord_Centroids %>% select_("Cluster",input$Axis1_Gene, input$Axis2_Gene) %>%  set_colnames(c("Cluster", "AC1","AC2"))
         p<-plot_ly(data=Centroids, x=~AC1, y=~AC2) %>%
-           add_markers(color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
-           add_markers(data=Genes, x=~AP1, y=~AP2, name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene, color= "black", alpha= input$Alpha_Gene)) %>%
+          add_markers(color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
+          add_markers(data=Genes, x=~AP1, y=~AP2, name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene, color= "black", alpha= input$Alpha_Gene)) %>%
           layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
         return(p)
-        })
+      })
 
       output$CellSpace3D <- renderPlotly(
         plot_ly(
@@ -295,9 +295,7 @@ Create_Shiny_Dim_Red <- function(X) {
                               choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
                                                                                             "Sample") %>% select(contains("Axis")) %>%  colnames,
                               selected = "Axis1"
-                            ),
-
-                            selectInput(
+                            ), selectInput(
                               "Axis2_Gene",
                               label = "Select y Axis",
                               choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
@@ -314,7 +312,6 @@ Create_Shiny_Dim_Red <- function(X) {
                         ),
                         column(
                           5, offset = 2,wellPanel(
-
                             sliderInput(
                               "Size_Gene",
                               label = "Point Size",
@@ -323,7 +320,6 @@ Create_Shiny_Dim_Red <- function(X) {
                               value = 2,
                               step = 1
                             ),
-
                             sliderInput(
                               "Alpha_Gene",
                               label = "Transparency",
@@ -370,7 +366,6 @@ Create_Shiny_Dim_Red <- function(X) {
                                                                                    "Sample") %>% select(contains("Axis")) %>%  colnames,
                      selected = "Axis1"
                    ),
-
                    selectInput(
                      "Axis2",
                      label = "Select y Axis",
@@ -543,8 +538,6 @@ Create_Shiny_Dim_Red <- function(X) {
         )
       }
       )
-
-
       output$GeneSpace <- renderPlotly({
         if (input$Type_Gene == "Principal") {d3<-X$Dim_Red$Genes_Principal %>% rownames_to_column(var = "Genes")} else{d3<-X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes")}
         p<-plot_ly(data=d3, x=~d3[[input$Axis1_Gene]], y=~d3[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text", alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene))%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
@@ -555,7 +548,7 @@ Create_Shiny_Dim_Red <- function(X) {
         d4 <- d4[1:input$amount_adjust, ]
         (
           d4 %>% ggplot(aes(x = Axis, y = Value)) + geom_bar(stat = "identity") + scale_x_discrete(limits =
-                                                                                                   d4$Axis)
+                                                                                                     d4$Axis)
         ) %>% ggplotly
       })
     }
@@ -631,11 +624,11 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                              fluidRow(column(
                                width = 10,
                                selectInput(width = "100%",
-                                 "Enrich_Heatmap_GeneSet",
-                                 "Choose a Gene:",
-                                 choices =
-                                   (X$Functionnal_Analysis$Pathways),
-                                 selectize = T, multiple = TRUE, selected = (X$Functionnal_Analysis$Pathways)[1]
+                                           "Enrich_Heatmap_GeneSet",
+                                           "Choose a Gene:",
+                                           choices =
+                                             (X$Functionnal_Analysis$Pathways),
+                                           selectize = T, multiple = TRUE, selected = (X$Functionnal_Analysis$Pathways)[1]
                                )
                              ))),
                    mainPanel(width = 12, h3("Enrichment Score Heatmap"), plotlyOutput(
@@ -673,12 +666,8 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
       Enrich_Boxplot<-X$Functionnal_Analysis$GSEA_Results
       output$Enrich_Heatmap <-
         (renderPlotly(Enrich_Boxplot %>% filter(pathway %in% input$Enrich_Heatmap_GeneSet) %>%   group_by(pathway) %>%  plot_ly(x=~pathway, y=~Cluster, z=~(ES %>% as.numeric)) %>% add_heatmap()
-))
-
-
-
-
-      }
+        ))
+    }
   )
   return(App)
 }
