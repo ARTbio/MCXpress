@@ -1,15 +1,17 @@
 Functional_Analysis_GSEA <- function(X, GMTfile, nperm = 1000,
-    maxSize = 1000, minSize = 0, nproc = 1, mode = "all") {
+     minSize = 15, maxSize = 500, nproc = 1, mode = "all") {
     df <- X$Dim_Red$Axis_Gene_Cor %>% separate(col = Genes,
         into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
         filter(bin == 1) %>% select(-bin)
 
+    cat("Calculating ranking of genes correlation for each axis \n")
     axis_rank <- df %>% select(-Genes) %>% purrr::map(abs) %>%
-        purrr::map(multiply_by, -1) %>% purrr::map(set_names,
+         purrr::map(set_names,
         nm = df$Genes) %>% purrr::map(rank, ties.method = "first") %>%
         purrr::map(sort)
-
-    axis_gsea <- axis_rank %>% purrr::map(.f = function(x) {
+    cat("Beginning enrichment analysis for axis \n")
+    axis_gsea <- axis_rank %>% purrr::map2(.y=axis_rank %>%  names, .f = function(x,y) {
+      cat(paste("processing:", y, "\n"))
         fgsea(pathways = GMTfile, stats = x, nperm = nperm,
             maxSize = maxSize, minSize = minSize, nproc = nproc,
             BPPARAM = SerialParam(), gseaParam = 1)
@@ -19,12 +21,15 @@ Functional_Analysis_GSEA <- function(X, GMTfile, nperm = 1000,
         into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
         filter(bin == 1) %>% select(-bin)
 
+    cat("\nCalculating ranking of genes for each clusters \n")
     cluster_rank <- df2 %>% select(-Genes) %>% purrr::map(abs) %>%
         purrr::map(multiply_by, -1) %>% purrr::map(set_names,
         nm = df$Genes) %>% purrr::map(rank, ties.method = "first") %>%
         purrr::map(sort)
 
-    cluster_gsea <- cluster_rank %>% purrr::map(.f = function(x) {
+    cat("Beginning enrichment analysis for clusters\n")
+    cluster_gsea <- cluster_rank %>% purrr::map2(.y= cluster_rank %>% names, .f = function(x,y) {
+      cat(paste("processing:", y, "\n"))
         fgsea(pathways = GMTfile, stats = x, nperm = nperm,
             maxSize = maxSize, minSize = minSize, nproc = nproc,
             BPPARAM = SerialParam(), gseaParam = 1)
@@ -39,7 +44,7 @@ Functional_Analysis_GSEA <- function(X, GMTfile, nperm = 1000,
     X$Functionnal_Analysis$AllRanking <- append(X$Functionnal_Analysis$RankingAxis,
         X$Functionnal_Analysis$Ranking)
     X$Functionnal_Analysis$Shiny <- Create_Shiny_Functionnal_Analysis(X)
-    cat(paste0("DONE\n"))
+    cat(paste0("Enrichment Analysis Completed\n"))
     class(X$Functionnal_Analysis) <- "FA.object"
     return(X)
 }

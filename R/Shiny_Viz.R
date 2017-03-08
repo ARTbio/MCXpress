@@ -2,37 +2,169 @@ Create_Shiny_Dim_Red <- function(X) {
   App <- shinyApp(
     ui = navbarPage(theme= shinytheme("cerulean"),
                     "Dimension Reduction",
+                    navbarMenu("Cell Space",
                     tabPanel(
-                      "Cell Space",
-                      fluidRow(
-                        column(
-                          4, wellPanel(
-                            selectInput(
-                              "nAxis_Dim_Red",
-                              label = "Representation",
-                              choices = c("2 Axis", "3 Axis")
-                            ),
-                            selectInput(
-                              "Type",
-                              label = "Type",
-                              choices = c("Principal", "Standard"),
-                              selected = "Principal"
-                            ),
-                              selectInput(
-                              "DR_CS_genes",
-                              label = "Gene Expression",
-                              choices = X$ExpressionMatrix %>% rownames
-                            )
-                          )),
-                        column(
-                          4, uiOutput("ui_Axis_Dim_Red")),
-                        column(
-                          4, uiOutput("ui_Option_Dim_Red"))
-                      ),
+                      "2 Axis",
+                      wellPanel(fluidRow(
+                  column(
+                       6,selectInput(
+                         "DR_CS_2D_Type",
+                         label = "Type",
+                         choices = c("Principal", "Standard"),
+                         selected = "Principal"
+                       ),
+                       selectInput(
+                         "DR_CS_Axis_x",
+                         label = "Select x Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
+                       ),
+                       selectInput(
+                         "DR_CS_Axis_y",
+                         label = "Select y Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
+                       )
+                     ),
+                  column(
+                       6,
+                       sliderInput(
+                         "Size",
+                         label = "Point Size",
+                         min = 0,
+                         max = 10,
+                         value = 5,
+                         step = 1
+                       ),
+                       sliderInput(
+                         "Alpha",
+                         label = "Transparency",
+                         min = 0,
+                         max = 1,
+                         value = 1,
+                         step = 0.1
+                       )
+                     )
+                      )),
                       mainPanel(width = 12,
-                                plotlyOutput("CellSpace", width = "95%", height =
+                                plotlyOutput("CellSpace2D", width = "95%", height =
                                                "100%"))
-                    ),
+                    ), tabPanel(
+                   "3 Axis",wellPanel(
+                   fluidRow(
+                     column(4,
+                       selectInput(
+                         "DR_CS_3D_Type",
+                         label = "Type",
+                         choices = c("Principal", "Standard"),
+                         selected = "Principal"
+                       ), selectInput(
+                         "DR_CS_Axis1_3D",
+                         label = "Select x Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
+                       )
+                     ),
+                     column(
+                       4,
+                       selectInput(
+                         "DR_CS_Axis2_3D",
+                         label = "Select y Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
+                       ),
+                       selectInput(
+                         "DR_CS_Axis3_3D",
+                         label = "Select z Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis3"
+                       )
+                     ),
+                     column(
+                       4,
+                       sliderInput(
+                         "DR_CS_Size_3D",
+                         label = "Point Size",
+                         min = 0,
+                         max = 10,
+                         value = 5,
+                         step = 0.1
+                       ),
+                       sliderInput(
+                         "DR_CS_Alpha_3D",
+                         label = "Transparency",
+                         min = 0,
+                         max = 1,
+                         value = 1,
+                         step = 0.1
+                       )
+                     )
+                   )),mainPanel(width = 12,
+                               plotlyOutput("CellSpace3D", width = "100%", height ="100%"
+                               ))
+                 ), tabPanel("Axis & Gene Correlation", wellPanel(fluidRow(
+                  column(
+                       4,selectInput(
+                         "DR_CS_AC_Type",
+                         label = "Type",
+                         choices = c("Principal", "Standard"),
+                         selected = "Principal"
+                       ),
+                       selectInput(
+                         "DR_CS_AC_Gene",
+                         label = "Gene",
+                         choices = X$ExpressionMatrix %>%  rownames
+                       )
+                     ),
+                  column(4,
+                    selectInput(
+                         "DR_CS_AC_Axis_x",
+                         label = "Select x Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
+                       ),
+                       selectInput(
+                         "DR_CS_AC_Axis_y",
+                         label = "Select y Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
+                       )
+                  ),
+                  column(
+                       4,
+                       sliderInput(
+                         "DR_CS_AC_Size",
+                         label = "Point Size",
+                         min = 0,
+                         max = 10,
+                         value = 5,
+                         step = 1
+                       ),
+                       sliderInput(
+                         "DR_CS_AC_Alpha",
+                         label = "Transparency",
+                         min = 0,
+                         max = 1,
+                         value = 1,
+                         step = 0.1
+                       )
+                     )
+                      ))
+,mainPanel(width = 12,
+                               plotlyOutput("CellSpaceGeneCor", width = "100%", height ="100%"
+                               )), mainPanel(width = 12,
+                               dataTableOutput("TableGeneCor", width = "100%", height ="100%"
+                               ))
+
+                 )
+                  ),
                     tabPanel(
                       title = "Gene Space",
                       fluidRow(
@@ -105,129 +237,57 @@ Create_Shiny_Dim_Red <- function(X) {
     ),
     server = function(input, output) {
       DR_axis_name <- X$Dim_Red$Cells_Principal %>% select(contains("Axis")) %>%  colnames
-      output$ui_Axis_Dim_Red <- renderUI(
-        {
-          switch(input$nAxis_Dim_Red,
-                 "2 Axis" = wellPanel(
-                   selectInput(
-                     "Axis1",
-                     label = "Select x Axis",
-                     choices = DR_axis_name,
-                     selected = "Axis1"
-                   ),
-                   selectInput(
-                     "Axis2",
-                     label = "Select y Axis",
-                     choices = DR_axis_name,
-                     selected = "Axis2"
-                   )
-                 ),
-                 "3 Axis" =  wellPanel(
-                   selectInput(
-                     "Axis1_3D",
-                     label = "Select x Axis",
-                     choices = DR_axis_name,
-                     selected = "Axis1"
-                   ),
-                   selectInput(
-                     "Axis2_3D",
-                     label = "Select y Axis",
-                     choices = DR_axis_name,
-                     selected = "Axis2"
-                   ),
-                   selectInput(
-                     "Axis3_3D",
-                     label = "Select z Axis",
-                     choices = DR_axis_name,
-                     selected = "Axis3"
-                   )
-                 )
-          )
-        }
-      )
 
-      output$ui_Option_Dim_Red <- renderUI({
-        switch(input$nAxis_Dim_Red,
-               "2 Axis" = wellPanel(
-                 sliderInput(
-                   "Size",
-                   label = "Point Size",
-                   min = 0,
-                   max = 10,
-                   value = 5,
-                   step = 1
-                 ),
-                 sliderInput(
-                   "Alpha",
-                   label = "Transparency",
-                   min = 0,
-                   max = 1,
-                   value = 1,
-                   step = 0.1
-                 )
-               ),
-               "3 Axis" =  wellPanel(
-                 sliderInput(
-                   "Size_3D",
-                   label = "Point Size",
-                   min = 0,
-                   max = 10,
-                   value = 5,
-                   step = 1
-                 ),
-                 sliderInput(
-                   "Alpha_3D",
-                   label = "Transparency",
-                   min = 0,
-                   max = 1,
-                   value = 1,
-                   step = 0.1
-                 )
-               )
-        )
-      })
-
-      output$CellSpace <- renderPlotly({
-        switch(input$nAxis_Dim_Red,
-               "2 Axis"={
-                 if (input$Type == "Principal"){
+      output$CellSpaceGeneCor<- renderPlotly({
+                 if (input$DR_CS_AC_Type == "Principal"){
+                   axis_cor <- X$Dim_Red$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+                   p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_AC_Axis_x), yaxis = list(title=input$DR_CS_AC_Axis_y))
+                   p
+                 }
+                 else{
+                   axis_cor <- X$Dim_Red$Cells_Standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+                   p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text", alpha= input$DR_CS_AC_Alpha, marker = list(size = input$DR_CS_AC_Size, color=~Expression))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
+                   p
+                 }})
+      output$CellSpace2D <- renderPlotly({
+                 if (input$DR_CS_2D_Type == "Principal"){
                    d3 <- X$Dim_Red$Cells_Principal %>%  rownames_to_column(var = "Sample")
-                   p<-plot_ly(data=d3, x=~d3[[input$Axis1]], y=~d3[[input$Axis2]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$Axis1), yaxis = list(title=input$Axis2))
+                   p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
                    p
                  }
                  else{
                    d3 <- X$Dim_Red$Cells_Standard %>%  rownames_to_column(var = "Sample")
-                   p<-plot_ly(data=d3, x=~d3[[input$Axis1]], y=~d3[[input$Axis2]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text", alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$Axis1), yaxis = list(title=input$Axis2))
+                   p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text", alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
                    p
-                 }},
-               "3 Axis"=
-                 ( if(input$Type == "Standard") {
+                 }})
+
+      output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
                    plot_ly(
                      X$Dim_Red$Cells_Standard,
                      mode = 'markers',
                      text = ~ paste(
                        rownames(X$Dim_Red$Cells_Standard),
                        '</br>',
-                       input$Axis1_3D,
+                       input$DR_CS_Axis1_3D,
                        ': ',
-                       X$Dim_Red$Cells_Standard[[input$Axis1_3D]] %>%  signif(digits = 4),
+                       X$Dim_Red$Cells_Standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
                        '</br>',
                        input$Axis2_3D,
                        ': ',
-                       X$Dim_Red$Cells_Standard[[input$Axis2_3D]] %>%  signif(digits = 4),
+                       X$Dim_Red$Cells_Standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
                        '</br>',
                        input$Axis3_3D,
                        ': ',
-                       X$Dim_Red$Cells_Standard[[input$Axis3_3D]] %>%  signif(digits = 4)
+                       X$Dim_Red$Cells_Standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
                      )
                      ,
-                     x = ~ X$Dim_Red$Cells_Standard[[input$Axis1_3D]],
-                     y = ~ X$Dim_Red$Cells_Standard[[input$Axis2_3D]],
-                     z = ~ X$Dim_Red$Cells_Standard[[input$Axis3_3D]],
+                     x = ~ X$Dim_Red$Cells_Standard[[input$DR_CS_Axis1_3D]],
+                     y = ~ X$Dim_Red$Cells_Standard[[input$DR_CS_Axis2_3D]],
+                     z = ~ X$Dim_Red$Cells_Standard[[input$DR_CS_Axis3_3D]],
                      hoverinfo = "text",
                      marker = list(
-                       opacity=input$Alpha_3D,
-                       size = input$Size_3D,
+                       opacity=input$DR_CS_Alpha_3D,
+                       size = input$DR_CS_Size_3D,
                        line = list(color = 'rgba(0, 0, 0, .8)',
                                    width = 2)
                      )
@@ -235,9 +295,9 @@ Create_Shiny_Dim_Red <- function(X) {
                      layout(
                        autosize = F,
                        scene = list(
-                         xaxis = list(title = input$Axis1_3D),
-                         yaxis = list(title = input$Axis2_3D),
-                         zaxis = list(title = input$Axis3_3D)
+                         xaxis = list(title = input$DR_CS_Axis1_3D),
+                         yaxis = list(title = input$DR_CS_Axis2_3D),
+                         zaxis = list(title = input$DR_CS_Axis3_3D)
                        )
                      )} else{plot_ly(
                        X$Dim_Red$Cells_Standard,
@@ -245,28 +305,28 @@ Create_Shiny_Dim_Red <- function(X) {
                        text = ~ paste(
                          rownames(X$Dim_Red$Cells_Principal),
                          '</br>',
-                         input$Axis1_3D,
+                         input$DR_CS_Axis1_3D,
                          ': ',
-                         X$Dim_Red$Cells_Principal[[input$Axis1_3D]] %>%  signif(digits = 4),
+                         X$Dim_Red$Cells_Principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
                          '</br>',
-                         input$Axis2_3D,
+                         input$DR_CS_Axis2_3D,
                          ': ',
-                         X$Dim_Red$Cells_Principal[[input$Axis2_3D]] %>%  signif(digits = 4),
+                         X$Dim_Red$Cells_Principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
                          '</br>',
-                         input$Axis3_3D,
+                         input$DR_CS_Axis3_3D,
                          ': ',
-                         X$Dim_Red$Cells_Principal[[input$Axis3_3D]] %>%  signif(digits = 4)
+                         X$Dim_Red$Cells_Principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
                        )
                        ,
-                       x = ~ X$Dim_Red$Cells_Principal[[input$Axis1_3D]],
-                       y = ~ X$Dim_Red$Cells_Principal[[input$Axis2_3D]],
-                       z = ~ X$Dim_Red$Cells_Principal[[input$Axis3_3D]],
+                       x = ~ X$Dim_Red$Cells_Principal[[input$DR_CS_Axis1_3D]],
+                       y = ~ X$Dim_Red$Cells_Principal[[input$DR_CS_Axis2_3D]],
+                       z = ~ X$Dim_Red$Cells_Principal[[input$DR_CS_Axis3_3D]],
                        width = 800,
                        height = 600,
                        hoverinfo = "text",
                        marker = list(
-                         opacity=input$Alpha_3D,
-                         size = input$Size_3D,
+                         opacity=input$DR_CS_Alpha_3D,
+                         size = input$DR_CS_Size_3D,
                          line = list(color = 'rgba(0, 0, 0, .8)',
                                      width = 2)
                        )
@@ -274,15 +334,11 @@ Create_Shiny_Dim_Red <- function(X) {
                          layout(
                            autosize = F,
                            scene = list(
-                             xaxis = list(title = input$Axis1_3D),
-                             yaxis = list(title = input$Axis2_3D),
-                             zaxis = list(title = input$Axis3_3D)
-                           )
-                         )}
-                 )
-        )
-      }
-      )
+                             xaxis = list(title = input$DR_CS_Axis1_3D),
+                             yaxis = list(title = input$DR_CS_Axis2_3D),
+                             zaxis = list(title = input$DR_CS_Axis3_3D)
+                           ))})
+      output$TableGeneCor<- renderDataTable(X$Dim_Red$Axis_Gene_Cor %>% extract(1:4))
       output$GeneSpace <- renderPlotly({
         if (input$Type_Gene == "Principal") {d3<-X$Dim_Red$Genes_Principal %>% rownames_to_column(var = "Genes")} else{d3<-X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes")}
         p<-plot_ly(data=d3, x=~d3[[input$Axis1_Gene]], y=~d3[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text", alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene))%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
@@ -307,9 +363,9 @@ Create_Shiny_Cluster <- function(X) {
   App <- shinyApp(
     ui =
       navbarPage(theme= shinytheme("cerulean"),
-                 "Clustering",
+                 "Clustering", navbarMenu("Cell Space",
                  tabPanel(
-                   "Cell Space",  titlePanel("Cluster in the Cell Space"),
+                   "Clustering 2 Axis",  titlePanel("Cluster in the Cell Space"),
                    wellPanel(fluidRow(
                      column(
                        5,
@@ -355,53 +411,9 @@ Create_Shiny_Cluster <- function(X) {
                        )
                      )
                    )),
-                   plotlyOutput("CellSpace", width = "99%", height = "99%")
-                 ),
-                 tabPanel(
-                   title = "Gene Space",  titlePanel("Genespace with Cluster Centroids"),
-                   wellPanel(fluidRow(
-                     column(
-                       5,
-                       selectInput(
-                         "Axis1_Gene",
-                         label = "Select x Axis",
-                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
-                         selected = "Axis1"
-                       ),
-                       selectInput(
-                         "Axis2_Gene",
-                         label = "Select y Axis",
-                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
-                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
-                         selected = "Axis2"
-                       )
-                     ),
-                     column(
-                       5,
-                       offset = 1,
-                       sliderInput(
-                         "Size_Gene",
-                         label = "Point Size",
-                         min = 0,
-                         max = 2,
-                         value = 1,
-                         step = 0.1
-                       ),
-                       sliderInput(
-                         "Alpha_Gene",
-                         label = "Transparency",
-                         min = 0,
-                         max = 1,
-                         value = 1,
-                         step = 0.1
-                       )
-                     )
-                   )),
-                   mainPanel(width=12, plotlyOutput("GeneSpace"))
-                 ),
-                 tabPanel(
-                   "Cell Space 3D",
+                   plotlyOutput("CellSpace", width = "100%", height = "100%")
+                 ), tabPanel(
+                   "Clustering 3 Axis",
                    fluidRow(
                      column(
                        5,
@@ -450,7 +462,51 @@ Create_Shiny_Cluster <- function(X) {
                    ),mainPanel(width = 12,
                                plotlyOutput("CellSpace3D", width = "100%", height ="100%"
                                ))
-                 ),  tabPanel(
+                 )),
+                 tabPanel(
+                   title = "Gene Space",  titlePanel("Genespace with Cluster Centroids"),
+                   wellPanel(fluidRow(
+                     column(
+                       5,
+                       selectInput(
+                         "Axis1_Gene",
+                         label = "Select x Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis1"
+                       ),
+                       selectInput(
+                         "Axis2_Gene",
+                         label = "Select y Axis",
+                         choices = X$Dim_Red$Cells_Principal %>%  rownames_to_column(var =
+                                                                                       "Sample") %>% select(contains("Axis")) %>%  colnames,
+                         selected = "Axis2"
+                       )
+                     ),
+                     column(
+                       5,
+                       offset = 1,
+                       sliderInput(
+                         "Size_Gene",
+                         label = "Point Size",
+                         min = 0,
+                         max = 2,
+                         value = 1,
+                         step = 0.1
+                       ),
+                       sliderInput(
+                         "Alpha_Gene",
+                         label = "Transparency",
+                         min = 0,
+                         max = 1,
+                         value = 1,
+                         step = 0.1
+                       )
+                     )
+                   )),
+                   mainPanel(width=12, plotlyOutput("GeneSpace"))
+                 ),
+                   tabPanel(
                    title = "Boxplot",
                    fluidPage(titlePanel("Genes Expression by Cluster"),
                              fluidRow(column(
@@ -664,8 +720,9 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
                           )}
         )
       })
-      Table_Enrich<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results[[input$Choice_Func_DT]] %>% select(-nMoreExtreme, -leadingEdge)), "Axis"=(X$Functionnal_Analysis$GSEA_Results_Axis[[input$Choice_Func_DT]] %>% select(-nMoreExtreme, -leadingEdge)))})
-      output$Table <- renderDataTable(Table_Enrich()%>%  datatable(rownames=FALSE))
+      Table_Enrich1<-reactive({switch(input$Mode_Func_DT, "Cluster"=(X$Functionnal_Analysis$GSEA_Results), "Axis"=(X$Functionnal_Analysis$GSEA_Results_Axis))})
+      Table_Enrich2<-eventReactive(input$Choice_Func_DT,Table_Enrich1()[[input$Choice_Func_DT]] %>% select(-nMoreExtreme, -leadingEdge), ignoreNULL = TRUE)
+      output$Table <- renderDataTable(Table_Enrich2()%>%  datatable(rownames=FALSE))
 
       Enrich_Boxplot<-X$Functionnal_Analysis$GSEA_Results %>%  map2(.y=X$Functionnal_Analysis$GSEA_Results %>% names, .f = function(x,y){mutate(.data=x, Cluster=y)}) %>%  bind_rows
       output$Enrich_Heatmap <-

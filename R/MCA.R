@@ -90,6 +90,15 @@ Dimension_reduction_MCA <- function(X, Dim = 5) {
     return(X)
 }
 
+#' Dimensional reduction using multiple corespondence analysis
+#'
+#' @param X A MCXpress object containing a Disjunctive Matrix produced by one of the Discretisation method.
+#' @param Dim Number of Dimension to use for the cell to cell distance calculation.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 Dimension_reduction_MCA_FAST <- function(X, Dim = 5) {
     cat("Beginning MCA...\n")
     MCA <- X$Disjunctive_Matrix
@@ -172,7 +181,7 @@ Dimension_reduction_MCA_FAST <- function(X, Dim = 5) {
     X$Dim_Red$Axis_Gene_Cor <- cor(X$Disjunctive_Matrix,
         X$Dim_Red$Cells_Principal) %>% data.frame() %>%
         rownames_to_column(var = "Genes") %>% as_tibble()
-
+    X$Dim_Red$Axis_Gene_Cor[,-1] <- X$Dim_Red$Axis_Gene_Cor[,-1] %>%  dmap(.f = round , digits=3)
     # End Calculate Correlation Axis and Genes
 
     X$Dim_Red$Plot <- X$Dim_Red$Cells_Principal %>%
