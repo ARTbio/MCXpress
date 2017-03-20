@@ -1,83 +1,85 @@
-Functional_Analysis_GSEA <- function(X, GMTfile, nperm = 1000,
-     minSize = 15, maxSize = 500, nproc = 1, mode = "all") {
-    df <- X$Dim_Red$Axis_Gene_Cor %>% separate(col = Genes,
-        into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
-        filter(bin == 1) %>% select(-bin)
 
-    cat("Calculating ranking of genes correlation for each axis \n")
-    axis_rank <- df %>% select(-Genes) %>% purrr::map(abs) %>%
-         purrr::map(set_names,
-        nm = df$Genes) %>% purrr::map(rank, ties.method = "first") %>%
-        purrr::map(sort)
-    cat("Beginning enrichment analysis for axis \n")
-    axis_gsea <- axis_rank %>% purrr::map2(.y=axis_rank %>%  names, .f = function(x,y) {
-      cat(paste("processing:", y, "\n"))
-        fgsea(pathways = GMTfile, stats = x, nperm = nperm,
-            maxSize = maxSize, minSize = minSize, nproc = nproc,
-            BPPARAM = SerialParam(), gseaParam = 1)
-    }) %>% purrr::map(as_tibble)
+#' Gene Set Enrichment Analysis of Clusters and Axis
+#'
+#' Performs a gene set enrichment analysis with the fgsea bioconductor package
+#' on the cluster and the axis using the ranking of the distance between the clusters centroids and the genes.
+#'
+#' @param X A MCXPress object containing a cluster and Dimred object
+#' @param GMTfile .gmt file containing a list of pathway with their represnting
+#'   gene.
+#' @param nperm the number of permutation.
+#' @param minSize threshold for the minimum number of genes that must be in the pathway.
+#' @param maxSize threshold for the maximum number of genes that must be in the pathway.
+#' @param nproc number of processor to use for the enrichment algorithm.
+#' @param bin an integer indicating which bin to use for the enrichment analysis.
+#' @param naxis number of axis to perform the enrichment analysis.
+#' @param gseaParam an integer to weight the enrichment analysis.
+#' @return RETURN_DESCRIPTION
+#' @examples
+#'
+GSEA <- function(X, GMTfile, nperm = 1000,
+  minSize = 15, maxSize = 500, nproc = 1, bin = 1, naxis = 2,
+  gseaParam = 0) {
 
-    df2 <- X$cluster$Gene_Cluster_Distance %>% separate(col = Genes,
-        into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
-        filter(bin == 1) %>% select(-bin)
+  df <- X$Dim_Red$Axis_Gene_Cor[, 1:(naxis + 1)] %>% separate(col = Genes,
+    into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+    filter(bin == 1) %>% select(-bin)
 
-    cat("\nCalculating ranking of genes for each clusters \n")
-    cluster_rank <- df2 %>% select(-Genes) %>% purrr::map(abs) %>%
-        purrr::map(multiply_by, -1) %>% purrr::map(set_names,
-        nm = df$Genes) %>% purrr::map(rank, ties.method = "first") %>%
-        purrr::map(sort)
+  cat("Calculating ranking of genes correlation for each axis \n")
+  axis_rank <- df %>% select(-Genes) %>% purrr::map(function(x) {
+    x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "first") %>%
+      sort
+  })
+  cat("Beginning enrichment analysis for axis \n")
+  axis_gsea <- axis_rank %>% purrr::map2(.y = axis_rank %>%
+    names, .f = function(x, y) {
+    cat(paste("processing:", y, "\n"))
+    gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
+      maxSize = maxSize, minSize = minSize, nproc = nproc,
+      BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
+      as_tibble
+    ins <- gsea %>% magrittr::extract(, 2:5) %>% round(digits = 5)
+    val <- gsea %>% magrittr::inset(, 2:5, value = ins)
+    return(val)
+  })
 
-    cat("Beginning enrichment analysis for clusters\n")
-    cluster_gsea <- cluster_rank %>% purrr::map2(.y= cluster_rank %>% names, .f = function(x,y) {
-      cat(paste("processing:", y, "\n"))
-        fgsea(pathways = GMTfile, stats = x, nperm = nperm,
-            maxSize = maxSize, minSize = minSize, nproc = nproc,
-            BPPARAM = SerialParam(), gseaParam = 1)
-    }) %>% purrr::map(as_tibble)
+  df2 <- X$cluster$Gene_Cluster_Distance %>% separate(col = Genes,
+    into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+    filter(bin %in% mode) %>% group_by(Genes) %>% summarise_at(.cols = -(1:2),
+    .funs = min)
 
-    X$Functionnal_Analysis$GSEA_Results_Axis <- axis_gsea
-    X$Functionnal_Analysis$RankingAxis <- axis_rank
-    X$Functionnal_Analysis$GSEA_Results <- cluster_gsea
-    X$Functionnal_Analysis$Ranking <- cluster_rank
-    X$Functionnal_Analysis$GMTfile <- GMTfile
-    X$Functionnal_Analysis$Pathways <- axis_gsea$Axis1$pathway
-    X$Functionnal_Analysis$AllRanking <- append(X$Functionnal_Analysis$RankingAxis,
-        X$Functionnal_Analysis$Ranking)
-    X$Functionnal_Analysis$Shiny <- Create_Shiny_Functionnal_Analysis(X)
-    cat(paste0("Enrichment Analysis Completed\n"))
-    class(X$Functionnal_Analysis) <- "FA.object"
-    return(X)
+  cat("\nCalculating ranking of genes for each clusters \n")
+  cluster_rank <- df2 %>% select(-Genes) %>% purrr::map(function(x) {
+    x %>% abs %>% multiply_by(-1) %>% set_names(df2$Genes) %>%
+      rank(ties.method = "first") %>% sort
+  })
+
+
+  cat("Beginning enrichment analysis for clusters\n")
+  cluster_gsea <- cluster_rank %>% purrr::map2(.y = cluster_rank %>%
+    names, .f = function(x, y) {
+    cat(paste("processing:", y, "\n"))
+    gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
+      maxSize = maxSize, minSize = minSize, nproc = nproc,
+      BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
+      as_tibble()
+    ins <- gsea %>% magrittr::extract(, 2:5) %>% round(digits = 5)
+    val <- gsea %>% magrittr::inset(, 2:5, value = ins)
+    return(val)
+  })
+
+  X$Functionnal_Analysis$GSEA_Results_Axis <- axis_gsea
+  X$Functionnal_Analysis$RankingAxis <- axis_rank
+  X$Functionnal_Analysis$GSEA_Results <- cluster_gsea
+  X$Functionnal_Analysis$Ranking <- cluster_rank
+  X$Functionnal_Analysis$GMTfile <- GMTfile
+  X$Functionnal_Analysis$Pathways <- axis_gsea$Axis1$pathway
+  X$Functionnal_Analysis$AllRanking <- X$Functionnal_Analysis$RankingAxis %>%
+    append(X$Functionnal_Analysis$Ranking)
+  X$Functionnal_Analysis$gseaParam <- gseaParam
+  X$Functionnal_Analysis$Shiny <- Create_Shiny_Functionnal_Analysis(X)
+  cat(paste0("Enrichment Analysis Completed\n"))
+  class(X$Functionnal_Analysis) <- "FA.object"
+  return(X)
 }
 
-Reactome_Category_Generator <- function(Info_File,
-    Hierarchy_File) {
-    colnames(Info_File)[1] = "value"
-    MAS <- Hierarchy_File[grep("HSA", Hierarchy_File$X1),
-        ]
-    A <- !(Hierarchy_File$X1 %in% Hierarchy_File$X2)
-    B <- Hierarchy_File$X1[A]
-    C <- B[grep("HSA", B)] %>% unique %>% as_tibble
-    D <- left_join(C, Info_File, by = "value") %>%
-        select(1:2)
-    X <- MAS$X2 %>% unique
-    W <- vector(length = X %>% length)
-    for (i in 1:(X %>% length)) {
-        Y <- X[i]
-        Flag <- Y %in% MAS$X2
-        while (Flag == TRUE) {
-            Y <- MAS$X1[grep(Y, MAS$X2)]
-            Flag <- Y %in% MAS$X2
-        }
-        W[i] <- Y
-    }
-    Q <- W %>% as_tibble()
-    colnames(Q) <- "value"
-    Q <- Q %>% add_column(X)
-    XC <- left_join(Q, D) %>% select(-value) %>% arrange(X2)
-    colnames(XC)[1] <- "value"
-    Standard <- bind_rows(XC, D)
-    Final <- left_join(Standard, Info_File, by = "value") %>%
-        select(-value)
-    colnames(Final) <- c("Category", "pathway", "species")
-    return(Final)
-}

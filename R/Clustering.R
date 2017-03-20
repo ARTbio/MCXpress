@@ -94,7 +94,7 @@ Cluster_percentage <- function(X, mutual = TRUE, shortest.rank.percent = 10,
 Cluster_Personalised <- function(X, Y) {
     Distance <- X$Dim_Red$Cell2Cell_Distance
     Cells_Coord <- X$Dim_Red$Cells_Principal
-    X$cluster$Cluster_Quali <- paste0("Cluster_", Y)
+    X$cluster$Cluster_Quali <- Y
     names(X$cluster$Cluster_Quali) <- names(Y)
     X$cluster$Cluster_Quali <- tibble(names(X$cluster$Cluster_Quali),
         X$cluster$Cluster_Quali) %>% set_colnames(c("Sample",

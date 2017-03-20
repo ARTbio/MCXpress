@@ -708,7 +708,7 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
 
 
       Data<-reactive(X$Functionnal_Analysis$AllRanking[[input$Choice_Func_Plot]])
-      output$GSEA<-renderPlotly(plotlyEnrichment(X$Functionnal_Analysis$GMTfile[[input$Geneset]], Data(), gseaParam = 1))
+      output$GSEA<-renderPlotly(plotlyEnrichment(X$Functionnal_Analysis$GMTfile[[input$Geneset]], Data(), gseaParam = X$Functionnal_Analysis$gseaParam))
 
       #Datatable of Enrichment results
       observeEvent(input$Mode_Func_DT,{
