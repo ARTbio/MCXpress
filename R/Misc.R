@@ -19,6 +19,9 @@ Initialise_MCXpress <- function(X, min_reads = NULL) {
       MCXpress <- list()
       X <- as.matrix((X[apply(X, 1, var) > 0, ]))
       X <- X[str_length(X %>% rownames) > 0, ]
+      colnames(X)<-gsub(pattern = " ", replacement ="_", x = colnames(X))
+      colnames(X)<-gsub(pattern = "-", replacement ="_", x = colnames(X))
+      colnames(X)<-gsub(pattern = "\\.", replacement ="_", x = colnames(X))
       if (min_reads %>% is.numeric()) {
         X <- X[rowSums(X) > min_reads, ]
       }
@@ -134,7 +137,7 @@ plot_immune <- function(X, GMTfile, quali, p = 0.05){
 #' @examples
 #' # ADD_EXAMPLES_HERE
 Reactome_GridPlot <- function(X, Info_File, Hierarchy_File, GMTfile,
-  p = 0.05) {
+  p = 0.05, width=1000, height=1000) {
   GMT <- GMTfile %>% attributes() %>% as_tibble
   colnames(GMT) <- "pathway"
   Category <- Reactome_Category_Generator2(Info_File, Hierarchy_File)
@@ -149,24 +152,26 @@ Reactome_GridPlot <- function(X, Info_File, Hierarchy_File, GMTfile,
     digits = 2))
 
 
-  Reactome_Table_filtered$Cluster <- Reactome_Table_filtered$Cluster %>%
-    factor(levels = c("STHSC", "LTHSC", "MPP", "CMP", "MEP",
-      "GMP", "LMPP"))
+  # Reactome_Table_filtered$Cluster <- Reactome_Table_filtered$Cluster %>%
+  #   factor(levels = c("STHSC", "LTHSC", "MPP", "CMP", "MEP",
+  #     "GMP", "LMPP"))
 
   Reactome_Grid <- NULL
   Reactome_Grid <- ggplot(Reactome_Table_filtered, aes(Category,
-    NES, colour = NES, text1 = pathway, text2 = Padj, text3 = NES,
+    NES, colour = ES, text1 = pathway, text2 = Padj, text3 = NES,
     text4 = Category)) + geom_jitter(alpha = 0.7, size = (round(log(Reactome_Table_filtered$size)))/3) +
-    facet_grid(Cluster ~ ., scales = "fixed", shrink = FALSE,
+    facet_grid(Cluster ~ Category., scales = "fixed", shrink = FALSE,
       space = "free_x") + theme_light() + theme(panel.grid.major.y = element_line(colour = "gray")) +
     theme(axis.title.x = element_blank(), axis.text.x = element_text(face = "bold",
       angle = 60, hjust = 1, size = 8)) + scale_colour_gradient2(low = "blue",
     mid = "black", high = "red")
   Reactome_Grid <- Reactome_Grid + geom_vline(xintercept = seq(1.5,
     length(unique(Reactome_Table_filtered$Category)), 1),
-    color = "gray") + theme(legend.justification = c(0, 1),
-    legend.position = c(0, 0))
-  Reactome_Grid %>% ggplotly(tooltip = c("text", "text2", "text3"))
+    color = "gray")
+  Reactome_Grid %<>% ggplotly(tooltip = c("text1", "text2", "text3"), autosize = F, width = width, height = height) %>% layout(margin=list(
+    b=250,
+    t=25, l=50, r=50, pad=0
+))
   return(Reactome_Grid)
 }
 

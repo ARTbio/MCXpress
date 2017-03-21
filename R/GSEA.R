@@ -18,7 +18,7 @@
 #' @examples
 #'
 GSEA <- function(X, GMTfile, nperm = 1000,
-  minSize = 15, maxSize = 500, nproc = 1, bin = 1, naxis = 2,
+  minSize = 15, maxSize = 500, nproc = 1, nbin = 1, naxis = 2,
   gseaParam = 0) {
 
   df <- X$Dim_Red$Axis_Gene_Cor[, 1:(naxis + 1)] %>% separate(col = Genes,
@@ -43,9 +43,9 @@ GSEA <- function(X, GMTfile, nperm = 1000,
     return(val)
   })
 
-  df2 <- X$cluster$Gene_Cluster_Distance %>% separate(col = Genes,
+  df2 <- X$cluster$Gene_Cluster_Distance %>% tidyr::separate(col = Genes,
     into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
-    filter(bin %in% mode) %>% group_by(Genes) %>% summarise_at(.cols = -(1:2),
+    dplyr::filter(bin %in% nbin) %>% dplyr::group_by(Genes) %>% dplyr::summarise_at(.cols = -(1:2),
     .funs = min)
 
   cat("\nCalculating ranking of genes for each clusters \n")
