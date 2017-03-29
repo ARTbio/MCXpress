@@ -17,8 +17,9 @@ Initialise_MCXpress <- function(X, min_reads = NULL) {
       stop(errormessage)
     } else {
       MCXpress <- list()
-      X <- as.matrix((X[apply(X, 1, var) > 0, ]))
-      X <- X[str_length(X %>% rownames) > 0, ]
+      X <- as.matrix((X[apply(X, 1, var) > 0,]))
+      X <- X[str_length(X %>% rownames) > 0,]
+      X <- X %>% subset(X %>% rownames %>% duplicated %>%  not)
       colnames(X)<-gsub(pattern = " ", replacement ="_", x = colnames(X))
       colnames(X)<-gsub(pattern = "-", replacement ="_", x = colnames(X))
       colnames(X)<-gsub(pattern = "\\.", replacement ="_", x = colnames(X))
@@ -101,13 +102,13 @@ plot_immune <- function(X, GMTfile, quali, p = 0.05){
     digits = 2))
 
 
-  Reactome_Table_filtered$Cluster <- Reactome_Table_filtered$Cluster %>%
-    factor(levels = c("STHSC", "LTHSC", "MPP", "CMP", "MEP",
-      "GMP", "LMPP"))
+  # Reactome_Table_filtered$Cluster <- Reactome_Table_filtered$Cluster %>%
+  #   factor(levels = c("STHSC", "LTHSC", "MPP", "CMP", "MEP",
+  #     "GMP", "LMPP"))
 
   Reactome_Grid <- NULL
-  Reactome_Grid <- ggplot(Reactome_Table_filtered, aes(Subcategory,
-    NES, colour = NES, text1 = pathway, text2 = Padj, text3 = NES,
+  Reactome_Grid <- ggplot(Reactome_Table_filtered, aes(Category,
+    ES, colour = NES, text1 = pathway, text2 = Padj, text3 = NES,
     text4 = Category)) + geom_jitter(alpha = 0.7, size = (round(log(Reactome_Table_filtered$size)))/3) +
     facet_grid(Cluster ~ ., scales = "fixed", shrink = FALSE) + theme_light() + theme(panel.grid.major.y = element_line(colour = "gray")) +
     theme(axis.title.x = element_blank(), axis.text.x = element_text(face = "bold",
@@ -117,7 +118,10 @@ plot_immune <- function(X, GMTfile, quali, p = 0.05){
   Reactome_Grid <- Reactome_Grid + geom_vline(xintercept = seq(1.5,
     length(unique(Reactome_Table_filtered$Subcategory)), 1),
     color = "gray")}
-  Reactome_Grid %<>% ggplotly(tooltip = c("x","text1", "text2", "text3"))
+  Reactome_Grid %<>% ggplotly(tooltip = c("x","text1"))%>% layout(margin=list(
+    b=100,
+    t=75, l=75, r=75, pad=0
+))
   return(Reactome_Grid)
 }
 
@@ -204,3 +208,43 @@ Reactome_Category_Generator <- function(Info_File, Hierarchy_File) {
   colnames(Final) <- c("Category", "pathway", "species")
   return(Final)
 }
+
+
+#
+# file1<-read_tsv("C:/Users/Akira/Documents/Reactome/ReactomePathwaysRelation.txt", col_names = FALSE)
+# file2<-read_tsv("C:/Users/Akira/Documents/Reactome/ReactomePathways.txt", col_names = FALSE)
+# file1
+# Info_File<- file2
+# Hierarchy_File<-file1
+# Reactome_Category_Generator2 <- function(Info_File,
+#     Hierarchy_File) {
+#     colnames(Info_File)[1] = "value"
+#     MAS <- Hierarchy_File[grep("MMU", Hierarchy_File$X1),
+#         ]
+#     A <- !(Hierarchy_File$X1 %in% Hierarchy_File$X2)
+#     B <- Hierarchy_File$X1[A]
+#     C <- B[grep("MMU", B)] %>% unique %>% as_tibble
+#     D <- left_join(C, Info_File, by = "value") %>%
+#         select(1:2)
+#     X <- MAS$X2 %>% unique
+#     W <- vector(length = X %>% length)
+#     for (i in 1:(X %>% length)) {
+#         Y <- X[i]
+#         Flag <- Y %in% MAS$X2
+#         while (Flag == TRUE) {
+#             Y <- MAS$X1[grep(Y, MAS$X2)]
+#             Flag <- Y %in% MAS$X2
+#         }
+#         W[i] <- Y
+#     }
+#     Q <- W %>% as_tibble()
+#     colnames(Q) <- "value"
+#     Q <- Q %>% add_column(X)
+#     XC <- left_join(Q, D) %>% select(-value) %>% arrange(X2)
+#     colnames(XC)[1] <- "value"
+#     Standard <- bind_rows(XC, D)
+#     Final <- left_join(Standard, Info_File, by = "value") %>%
+#         select(-value)
+#     colnames(Final) <- c("Category", "pathway", "species")
+#     return(Final)
+# }

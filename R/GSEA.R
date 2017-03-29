@@ -1,4 +1,3 @@
-
 #' Gene Set Enrichment Analysis of Clusters and Axis
 #'
 #' Performs a gene set enrichment analysis with the fgsea bioconductor package
@@ -14,22 +13,35 @@
 #' @param bin an integer indicating which bin to use for the enrichment analysis.
 #' @param naxis number of axis to perform the enrichment analysis.
 #' @param gseaParam an integer to weight the enrichment analysis.
-#' @return RETURN_DESCRIPTION
+#' @return Return a MCXpress object containing a
 #' @examples
-#'
+#   ____________________________________________________________________________
+#   Gene set enrichment analysis                                            ####
 GSEA <- function(X, GMTfile, nperm = 1000,
   minSize = 15, maxSize = 500, nproc = 1, nbin = 1, naxis = 2,
   gseaParam = 0) {
 
+##  ............................................................................
+##  A Axis Correlation Gene Set Enrichment Analysis                         ####
+
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### a Filtering of bin                                                      ####
   df <- X$Dim_Red$Axis_Gene_Cor[, 1:(naxis + 1)] %>% separate(col = Genes,
     into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
     filter(bin == 1) %>% select(-bin)
 
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### b Correlation Ranking Calculation                                       ####
   cat("Calculating ranking of genes correlation for each axis \n")
   axis_rank <- df %>% select(-Genes) %>% purrr::map(function(x) {
     x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "first") %>%
       sort
   })
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### c Fast Gene Set Enrichment Analysis on each Axis                        ####
+
   cat("Beginning enrichment analysis for axis \n")
   axis_gsea <- axis_rank %>% purrr::map2(.y = axis_rank %>%
     names, .f = function(x, y) {
@@ -43,10 +55,18 @@ GSEA <- function(X, GMTfile, nperm = 1000,
     return(val)
   })
 
-  df2 <- X$cluster$Gene_Cluster_Distance %>% tidyr::separate(col = Genes,
+##  ............................................................................
+##  B Gene Set Enrichment Analysis on Cluster                               ####
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### a Filter Bin                                                            ####
+ df2 <- X$cluster$Gene_Cluster_Distance %>% tidyr::separate(col = Genes,
     into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
     dplyr::filter(bin %in% nbin) %>% dplyr::group_by(Genes) %>% dplyr::summarise_at(.cols = -(1:2),
     .funs = min)
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### b Calculate Rank for Cluster                                              ####
 
   cat("\nCalculating ranking of genes for each clusters \n")
   cluster_rank <- df2 %>% select(-Genes) %>% purrr::map(function(x) {
@@ -54,6 +74,8 @@ GSEA <- function(X, GMTfile, nperm = 1000,
       rank(ties.method = "first") %>% sort
   })
 
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### c fgsea analysis for cluster                                            ####
 
   cat("Beginning enrichment analysis for clusters\n")
   cluster_gsea <- cluster_rank %>% purrr::map2(.y = cluster_rank %>%
@@ -67,6 +89,9 @@ GSEA <- function(X, GMTfile, nperm = 1000,
     val <- gsea %>% magrittr::inset(, 2:5, value = ins)
     return(val)
   })
+
+##  ............................................................................
+##  C GSEA finalisation                                                       ####
 
   X$Functionnal_Analysis$GSEA_Results_Axis <- axis_gsea
   X$Functionnal_Analysis$RankingAxis <- axis_rank

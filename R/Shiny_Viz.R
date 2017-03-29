@@ -544,24 +544,10 @@ Create_Shiny_Cluster <- function(X) {
 
       output$CellSpace3D <- renderPlotly(
         plot_ly(
-          X$Dim_Red$Cells_Principal,
-          color =  ~ X$cluster$Cluster_Quali$Cluster,
+          X$Dim_Red$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$Cluster_Quali, by="Sample"),
+          color = ~Cluster,
           mode = 'markers',
-          text = ~ paste(
-            rownames(X$Dim_Red$Cells_Principal),
-            '</br>',
-            input$Axis1_3D,
-            ': ',
-            X$Dim_Red$Cells_Principal[[input$Axis1_3D]] %>%  signif(digits = 4),
-            '</br>',
-            input$Axis2_3D,
-            ': ',
-            X$Dim_Red$Cells_Principal[[input$Axis2_3D]] %>%  signif(digits = 4),
-            '</br>',
-            input$Axis3_3D,
-            ': ',
-            X$Dim_Red$Cells_Principal[[input$Axis3_3D]] %>%  signif(digits = 4)
-          )
+          text = ~paste(Cluster," ", Sample)
           ,
           x = ~ X$Dim_Red$Cells_Principal[[input$Axis1_3D]],
           y = ~ X$Dim_Red$Cells_Principal[[input$Axis2_3D]],

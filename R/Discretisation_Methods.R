@@ -31,12 +31,21 @@ Discretisation_Bsplines <- function(X, nbins = 2) {
     stop(errormessage)}
 }
 
-Discretisation_Range_01 <- function(X) {
+Discretisation_Range_01 <- function(X, scaled=TRUE){
+  if(scaled==TRUE){
   Scale01 <-X$ExpressionMatrix %>% apply(MARGIN = 1, FUN = function(x) {(x - min(x)) / (max(x) - min(x))}) %>% t #Scale from 0 to 1
   Scale01bin1 <-  Scale01 %>%  set_rownames(Scale01 %>%  rownames %>% paste0("-bin1"))
   Scale01bin2 <- (1 - Scale01) %>% set_rownames(Scale01 %>%  rownames %>% paste0("-bin2"))
-  Disjunctive_Matrix <-Scale01bin1 %>%  rbind(Scale01bin2)
-  Disjunctive_Matrix<-Disjunctive_Matrix[Disjunctive_Matrix %>% rownames %>%  sort,] %>%  t
+  }
+  else{
+  maximum     <- X$ExpressionMatrix %>% max
+  minimum     <- X$ExpressionMatrix %>% min
+  Scale01     <- (X$ExpressionMatrix - minimum)/(maximum-minimum)
+  Scale01bin1 <-  Scale01 %>%  set_rownames(Scale01 %>%  rownames %>% paste0("-bin1"))
+  Scale01bin2 <- (1 - Scale01) %>% set_rownames(Scale01 %>%  rownames %>% paste0("-bin2"))
+  }
+  Disjunctive_Matrix  <-Scale01bin1 %>%  rbind(Scale01bin2)
+  Disjunctive_Matrix  <-Disjunctive_Matrix[Disjunctive_Matrix %>% rownames %>%  sort,] %>%  t
   X$Disjunctive_Matrix<-Disjunctive_Matrix
   return(X)
 }

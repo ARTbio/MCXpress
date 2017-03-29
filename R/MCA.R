@@ -1,65 +1,66 @@
-## MCA Library library(Rtsne) library(fields)
-## library(igraph)
-library(reshape2)
-select <- dplyr::select
-transmute <- dplyr::transmute
 
-
+#   ____________________________________________________________________________
+#   MCA Dimension Reduction                                                 ####
 #' Dimensional reduction using multiple corespondence analysis
 #'
 #' @param X A MCXpress object containing a Disjunctive Matrix produced by one of the Discretisation method.
 #' @param Dim Number of Dimension to use for the cell to cell distance calculation.
 #'
-#' @return
+#' @return A MCXpress objetc containing a MCXmca object.
 #' @export
 #'
 #' @examples
-reduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1) {
+reduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
     cat("Beginning MCA...\n")
-    MCA <- X$Disjunctive_Matrix
-    Acol <- colSums(MCA)
-    Arow <- rowSums(MCA)
-    Disjunctive_Matrix_transformation <- function(x) {
-        Z1 <- apply(x, 1, FUN = function(x) {
+##  ............................................................................
+##  A MCA Algorithm                                                           ####
+    Acol <- colSums(X$Disjunctive_Matrix)
+    Arow <- rowSums(X$Disjunctive_Matrix)
+    Y    <- apply(X$Disjunctive_Matrix, 1, FUN = function(x){
             x/sqrt(Acol)
         })
-        Z2 <- apply(Z1, 1, FUN = function(x) {
+        Z <- apply(Y, 1, FUN = function(x){
             x/sqrt(Arow)
         })
-        return(Z2)
-    }
-    Z <- Disjunctive_Matrix_transformation(MCA)
     Eigen <- eigen(tcrossprod(Z))
-    V <- Eigen$vectors[, -1]
-    D <- diag(Eigen$values)[-1, -1]
+
+##  ............................................................................
+##  B Coordinates Calculation                                               ####
+    V <- Eigen$vectors[,-1]
     Eig <- Eigen$values[-1]
-    Dc <- (1/(sqrt(Acol/sum(MCA))))
+    D <- Eig %>%  diag
+    Dc <- (1/(sqrt(Acol/sum(X$Disjunctive_Matrix))))
     Component <- paste0("Axis", 1:Dim)
-    X$Dim_Red$Cells_Principal <- (sqrt(nrow(MCA)) *
+    X$Dim_Red$Cells_Principal <- (sqrt(nrow(X$Disjunctive_Matrix)) *
         V)[, 1:Dim] %>% set_colnames(Component) %>%
-        set_rownames(MCA %>% rownames) %>% data.frame  ################l1
-    X$Dim_Red$Cells_Standard <- (sqrt(nrow(MCA)) *
+        set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
+    X$Dim_Red$Cells_Standard <- (sqrt(nrow(X$Disjunctive_Matrix)) *
         (V %*% sqrt(D)))[, 1:Dim] %>% set_colnames(Component) %>%
-        set_rownames(MCA %>% rownames) %>% data.frame  ##### li
+        set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
     X$Dim_Red$Genes_Standard <- ((t(Z) %*% V) * Dc)[,
-        1:Dim] %>% set_colnames(Component) %>% set_rownames(MCA %>%
+        1:Dim] %>% set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
         colnames) %>% data.frame
     X$Dim_Red$Genes_Principal <- sweep(X$Dim_Red$Genes_Standard,
-        2, sqrt(Eig)[2:(Dim + 1)], "/") %>% set_rownames(MCA %>%
+        2, sqrt(Eig)[2:(Dim + 1)], "/") %>%  set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
         colnames) %>% data.frame
-    # Distance Calculation
+
+##  ............................................................................
+##  C Distance Calculation                                                  ####
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### a Cell-Cell Distance                                                    ####
     cat("Calculating Cell to Cell Distance...\n")
     X$Dim_Red$Cell2Cell_Distance <- X$Dim_Red$Cells_Standard[,
-        1:Dim] %>% rdist
-    X$Dim_Red$Cell2Cell_Distance %<>% set_colnames(X$Dim_Red$Cells_Principal %>%
+        1:Dim] %>% rdist %>% set_colnames(X$Dim_Red$Cells_Principal %>%
+        rownames) %>% set_rownames(X$Dim_Red$Cells_Principal %>%
         rownames)
-    X$Dim_Red$Cell2Cell_Distance %<>% set_rownames(X$Dim_Red$Cells_Principal %>%
-        rownames)
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### b Cell-Gene Distance                                                    ####
     X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal,
         X$Dim_Red$Genes_Standard) %>% set_colnames(X$Dim_Red$Genes_Standard %>%
         rownames) %>% set_rownames(X$Dim_Red$Cells_Principal %>%
         rownames)
-    # End Distance Calculation
+
     X$Dim_Red$Eigen_Value <- Eig[1:Dim] %>% set_names(Component)
     EigCum <- ((Eig * 100)/(Eig %>% sum)) %>% as.data.frame() %>%
         mutate(Axis = (paste0("Axis", c(1:length(Eig))))) %>%
@@ -93,11 +94,19 @@ reduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1) {
     # End Calculate Wilcoxon for Cell2CellDistance
 
     # Calculate Correlation Axis and Genes
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Axis and Gene Correlation                                               ####
+
     X$Dim_Red$Axis_Gene_Cor <- cor(X$Disjunctive_Matrix,
         X$Dim_Red$Cells_Principal) %>% data.frame() %>%
         rownames_to_column(var = "Genes") %>% as_tibble()
     X$Dim_Red$Axis_Gene_Cor[,-1] <- X$Dim_Red$Axis_Gene_Cor[,-1] %>%  dmap(.f = round , digits=3)
     # End Calculate Correlation Axis and Genes
+
+
+### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
+### Cell Principal Space                                                    ####
 
     X$Dim_Red$Plot <- X$Dim_Red$Cells_Principal %>%
         ggplot(aes(x = Axis1, y = Axis2)) + geom_point() +
