@@ -50,6 +50,28 @@ Discretisation_Range_01 <- function(X, scaled=TRUE){
   return(X)
 }
 
+ParDiscretisation_Range_01 <- function(X, scaled=TRUE, nproc=NULL){
+  clproc=makeCluster(nproc)
+  on.exit(stopCluster(clproc))
+  if(scaled==TRUE){
+  Scale01 <-X$ExpressionMatrix %>% parApply(cl=clproc ,MARGIN = 1, FUN = function(x) {(x - min(x)) / (max(x) - min(x))}) %>% t #Scale from 0 to 1
+  Scale01bin1 <-  Scale01 %>%  set_rownames(Scale01 %>%  rownames %>% paste0("-bin1"))
+  Scale01bin2 <- (1 - Scale01) %>% set_rownames(Scale01 %>%  rownames %>% paste0("-bin2"))
+  }
+  else{
+  maximum     <- X$ExpressionMatrix %>% max
+  minimum     <- X$ExpressionMatrix %>% min
+  Scale01     <- (X$ExpressionMatrix - minimum)/(maximum-minimum)
+  Scale01bin1 <-  Scale01 %>%  set_rownames(Scale01 %>%  rownames %>% paste0("-bin1"))
+  Scale01bin2 <- (1 - Scale01) %>% set_rownames(Scale01 %>%  rownames %>% paste0("-bin2"))
+  }
+  Disjunctive_Matrix  <-Scale01bin1 %>%  rbind(Scale01bin2)
+  Disjunctive_Matrix  <-Disjunctive_Matrix[Disjunctive_Matrix %>% rownames %>%  sort,] %>%  t
+  X$Disjunctive_Matrix<-Disjunctive_Matrix
+
+  return(X)
+}
+
 Create_Disjunctive_Matrix <- function(ExpressionMatrix) {
   cat('Creating Disjunctive Matrix...',  "\n")
   MCA_Matrix <- NULL

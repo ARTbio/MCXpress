@@ -34,7 +34,7 @@ Calculate_Cluster_Centroids <- function(X) {
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### c Gene-Cluster Distance Calculation                                     ####
-    cat("\n Calculating Distance betwenn Cluster Centroids \n")
+    cat("\n Calculating Distance betwenn Cluster and Genes \n")
     GCD <- rdist(x1 = Coord_Centroids %>%
                                      select(contains("Axis")),
                                    x2 = genes_coord
@@ -183,13 +183,9 @@ cluster_percentage <- function(X, mutual = TRUE, shortest.rank.percent = 10,
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' @export
 cluster_supervised<- function(X, Y){
-    Y                              <-gsub(pattern = " ", replacement ="_", x = (Y))
-    Y                              <-gsub(pattern = "-", replacement ="_", x = (Y))
-    Y                              <-gsub(pattern = "\\.", replacement ="_", x = (Y))
-    names(Y)                       <-gsub(pattern = " ", replacement ="_", x = names(Y))
-    names(Y)                       <-gsub(pattern = "-", replacement ="_", x = names(Y))
-    names(Y)                       <-gsub(pattern = "\\.", replacement ="_", x = names(Y))
+
     X$cluster$Cluster_Quali        <- Y
+
     names(X$cluster$Cluster_Quali) <- names(Y)
     X$cluster$Cluster_Quali        <- tibble(names(X$cluster$Cluster_Quali),
         X$cluster$Cluster_Quali) %>% set_colnames(c("Sample","Cluster"))
@@ -210,6 +206,7 @@ cluster_supervised<- function(X, Y){
 #' @returnMCXpress object containing a MCXmca and MCXcluster object
 #' @export
 cluster_kmeans <- function(X, nCluster, maxIter = 10, nstart = 50){
+  cat("Performing Kmeans Clustering with ", nCluster, " Cluster")
     Distance <- X$Dim_Red$Cell2Cell_Distance
     Cluster <- Distance %>% kmeans(centers = nCluster,
         iter.max = maxIter, nstart = nstart)

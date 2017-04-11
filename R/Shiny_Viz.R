@@ -535,10 +535,10 @@ Create_Shiny_Cluster <- function(X) {
       output$GeneSpace <- renderPlotly({
         Genes <- X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene, input$Axis2_Gene) %>% set_colnames(c("Genes", "AP1","AP2"))
         Centroids <- X$cluster$Coord_Centroids %>% select_("Cluster",input$Axis1_Gene, input$Axis2_Gene) %>%  set_colnames(c("Cluster", "AC1","AC2"))
-        p<-plot_ly(data=Centroids, x=~AC1, y=~AC2) %>%
-          add_markers(color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
-          add_markers(data=Genes, x=~AP1, y=~AP2, name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene, color= "black", alpha= input$Alpha_Gene)) %>%
-          layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
+        p<-plot_ly(data=Genes, x=~AP1, y=~AP2) %>%
+          add_markers(name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene, color= "black", alpha= input$Alpha_Gene)) %>%
+          add_markers(data=Centroids, x=~AC1, y=~AC2, color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
+           layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
         return(p)
       })
 
@@ -571,19 +571,21 @@ Create_Shiny_Cluster <- function(X) {
           )
       )
 
-      output$DTBOX<-renderDataTable({DTboxplot<-data_frame()
-      for(i in (X$cluster$Gene_Cluster_Distance %>% select(-Genes) %>% colnames))
+      output$DTBOX<-renderDataTable({
+        DTboxplot<-data_frame()
+        Data<-X$cluster$Gene_Cluster_Distance %>%  gather("Cluster", "Distance", -Genes)
+   for(i in (Data$Cluster %>% unique))
       {
         Cluster<-i
-        bin1<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==1) %>% extract2("Genes") %>% head(5)  %>% paste(collapse=" ")
-        bin2<-X$cluster$Gene_Cluster_Distance %>%  arrange_(i) %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin") %>%  filter(bin==2) %>% extract2("Genes") %>% head(5)  %>%  paste(collapse=" ")
+        bin1<-Data %>% filter(Cluster==i) %>%  arrange_("Distance") %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin")  %>%  filter(bin==1)  %>%  extract2("Genes")  %>% head(5)  %>% paste(collapse=" ")
+        bin2<-Data %>% filter(Cluster==i) %>%  arrange_("Distance") %>%  separate(Genes, into=c("Genes", "bin"), sep="-bin")  %>%  filter(bin==2)  %>%  extract2("Genes")  %>% head(5)  %>% paste(collapse=" ")
         DTboxplot<-bind_rows(DTboxplot,data_frame(Cluster,bin1,bin2))
       }
       return(DTboxplot %>% datatable(rownames = FALSE))})
 
-      Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>%  gather("Sample","Expression",-Genes) %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample")
+      Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>% set_colnames(c("Genes",X$ExpressionMatrix %>%  colnames)) %>%  gather("Sample","Expression",-Genes)%>% as_tibble %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample") %>% as_tibble
       output$Boxplot <-
-        (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace( type="box", split=~Cluster, jitter=0.5, pointpos=0, boxpoints="all") %>%  layout(boxmode="group")))
+        (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace(type="box", split=~Cluster, jitter=0.5, pointpos=0, boxpoints="all") %>%  layout(boxmode="group",margin=list(b=100, t=25, l=50, r=50, pad=0) )))
     }
   )
   return(App)
@@ -700,7 +702,10 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
 
       Enrich_Boxplot<-X$Functionnal_Analysis$GSEA_Results %>%  map2(.y=X$Functionnal_Analysis$GSEA_Results %>% names, .f = function(x,y){mutate(.data=x, Cluster=y)}) %>%  bind_rows
       output$Enrich_Heatmap <-
-        (renderPlotly(Enrich_Boxplot %>% filter(pathway %in% input$Enrich_Heatmap_GeneSet) %>%   group_by(pathway) %>%  plot_ly(x=~pathway, y=~Cluster, z=~(ES %>% as.numeric)) %>% add_heatmap()
+        (renderPlotly(Enrich_Boxplot %>% filter(pathway %in% input$Enrich_Heatmap_GeneSet) %>%   group_by(pathway) %>%  plot_ly(x=~pathway, y=~Cluster, z=~(ES %>% as.numeric)) %>% add_heatmap(zmin=-1, zmax=1) %>%  layout(margin=list(
+    b=100,
+    t=25, l=50, r=50, pad=0
+))
         ))
     }
   )

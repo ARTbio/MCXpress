@@ -87,7 +87,7 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
 }
 
 
-plot_immune <- function(X, GMTfile, quali, p = 0.05){
+plot_immune <- function(X, GMTfile, quali, p = 0.05, thres =0.5){
   GMT <- GMTfile %>% attributes() %>% as_tibble
   colnames(GMT) <- "pathway"
   Category <- quali
@@ -98,7 +98,7 @@ plot_immune <- function(X, GMTfile, quali, p = 0.05){
       x %>% mutate(Cluster = y)
     }) %>% bind_rows(), GMT_Category, by = "pathway")
   Reactome_Table_filtered <- Reactome_Table %>% filter(!is.na(padj)) %>%
-    filter(padj < p) %>% mutate(Padj = format(padj, scientific = TRUE,
+    filter(padj < p) %>%  filter(ES > thres) %>% mutate(Padj = format(padj, scientific = TRUE,
     digits = 2))
 
 
@@ -108,9 +108,9 @@ plot_immune <- function(X, GMTfile, quali, p = 0.05){
 
   Reactome_Grid <- NULL
   Reactome_Grid <- ggplot(Reactome_Table_filtered, aes(Category,
-    ES, colour = NES, text1 = pathway, text2 = Padj, text3 = NES,
+    ES, colour = ES, text1 = pathway, text2 = Padj, text3 = NES,
     text4 = Category)) + geom_jitter(alpha = 0.7, size = (round(log(Reactome_Table_filtered$size)))/3) +
-    facet_grid(Cluster ~ ., scales = "fixed", shrink = FALSE) + theme_light() + theme(panel.grid.major.y = element_line(colour = "gray")) +
+    facet_grid(Cluster ~ Subcategory, scales = "fixed", shrink = FALSE, drop = FALSE) + theme_light() + theme(panel.grid.major.y = element_line(colour = "gray")) +
     theme(axis.title.x = element_blank(), axis.text.x = element_text(face = "bold",
       angle = 60, hjust = 1, size = 8)) + scale_colour_gradient2(low = "blue",
     mid = "black", high = "red")
@@ -155,7 +155,7 @@ Reactome_GridPlot <- function(X, Info_File, Hierarchy_File, GMTfile,
     filter(padj < p) %>% mutate(Padj = format(padj, scientific = TRUE,
     digits = 2))
 
-
+Reactome_Category_Generator(Info_File = file2 , Hierarchy_File = file1)
   # Reactome_Table_filtered$Cluster <- Reactome_Table_filtered$Cluster %>%
   #   factor(levels = c("STHSC", "LTHSC", "MPP", "CMP", "MEP",
   #     "GMP", "LMPP"))
@@ -181,10 +181,10 @@ Reactome_GridPlot <- function(X, Info_File, Hierarchy_File, GMTfile,
 
 Reactome_Category_Generator <- function(Info_File, Hierarchy_File) {
   colnames(Info_File)[1] = "value"
-  MAS <- Hierarchy_File[grep("HSA", Hierarchy_File$X1), ]
+  MAS <- Hierarchy_File[grep("MMU", Hierarchy_File$X1), ]
   A <- !(Hierarchy_File$X1 %in% Hierarchy_File$X2)
   B <- Hierarchy_File$X1[A]
-  C <- B[grep("HSA", B)] %>% unique %>% as_tibble
+  C <- B[grep("MMU", B)] %>% unique %>% as_tibble
   D <- left_join(C, Info_File, by = "value") %>% select(1:2)
   X <- MAS$X2 %>% unique
   W <- vector(length = X %>% length)
@@ -192,7 +192,7 @@ Reactome_Category_Generator <- function(Info_File, Hierarchy_File) {
     Y <- X[i]
     Flag <- Y %in% MAS$X2
     while (Flag == TRUE) {
-      Y <- MAS$X1[grep(Y, MAS$X2)]
+      Y <- MAS$X1[grepl(Y, MAS$X2) %>% which %>%  head(1)]
       Flag <- Y %in% MAS$X2
     }
     W[i] <- Y
@@ -200,7 +200,7 @@ Reactome_Category_Generator <- function(Info_File, Hierarchy_File) {
   Q <- W %>% as_tibble()
   colnames(Q) <- "value"
   Q <- Q %>% add_column(X)
-  XC <- left_join(Q, D) %>% select(-value) %>% arrange(X2)
+  XC <- left_join(Q, D, by="value") %>% select(-value) %>% arrange(X2)
   colnames(XC)[1] <- "value"
   Standard <- bind_rows(XC, D)
   Final <- left_join(Standard, Info_File, by = "value") %>%
@@ -210,7 +210,7 @@ Reactome_Category_Generator <- function(Info_File, Hierarchy_File) {
 }
 
 
-#
+
 # file1<-read_tsv("C:/Users/Akira/Documents/Reactome/ReactomePathwaysRelation.txt", col_names = FALSE)
 # file2<-read_tsv("C:/Users/Akira/Documents/Reactome/ReactomePathways.txt", col_names = FALSE)
 # file1
