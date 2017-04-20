@@ -67,10 +67,10 @@ reduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
         rownames)
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### b Cell-Gene Distance                                                    ####
-    X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal,
-        X$Dim_Red$Genes_Standard) %>% set_colnames(X$Dim_Red$Genes_Standard %>%
-        rownames) %>% set_rownames(X$Dim_Red$Cells_Principal %>%
-        rownames)
+    # X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal,
+    #     X$Dim_Red$Genes_Standard) %>% set_colnames(X$Dim_Red$Genes_Standard %>%
+    #     rownames) %>% set_rownames(X$Dim_Red$Cells_Principal %>%
+    #     rownames)
 
     X$Dim_Red$Eigen_Value <- Eig[1:Dim] %>% set_names(Component)
     EigCum <- ((Eig * 100)/(Eig %>% sum)) %>% as.data.frame() %>%
@@ -131,47 +131,55 @@ reduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
 
 
 
-Pareduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1, nproc=NULL){
-    cat("Beginning MCA...\n")
+reduce_dimension_mca2 <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
+    cat("Peforming MCA...\n")
 ##  ............................................................................
 ##  A MCA Algorithm                                                           ####
+    pb<-txtProgressBar()
     Acol <- colSums(X$Disjunctive_Matrix)
+    Y <- sweep(X$Disjunctive_Matrix,2, sqrt(Acol) ,"/")
+    setTxtProgressBar(pb, 0.1)
     Arow <- rowSums(X$Disjunctive_Matrix)
-    cl <- makeCluster(4)
-    clusterExport(cl,"Acol")
-    microbenchmark(times = 5,
-    Y    <- apply(X$Disjunctive_Matrix, 1, FUN = function(x){
-            x/sqrt(Acol)
-        }),
-    Q <-  parApply(cl = cl,X$Disjunctive_Matrix, 1, FUN = function(x){
-            x/sqrt(Acol)
-        })
-    )
-        Z <- apply(Y, 1, FUN = function(x){
-            x/sqrt(Arow)
-        })
-    Eigen <- eigen(tcrossprod(Z))
+    Z <- Y/sqrt(Arow)
+    setTxtProgressBar(pb, 0.2)
+    Ztcross <- tcrossprod(Z)
+    setTxtProgressBar(pb, 0.3)
+    Eigen <- eigen(Ztcross)
+    V <- Eigen$vectors[,-1]
+    Eig <- Eigen$values[-1]
+    setTxtProgressBar(pb, 0.4)
+
+    Zcross <- crossprod(Z)
+    Eigen  <- eigen(Zcross)
+    Dt <- (Eig %>%  sqrt %>% raise_to_power(-1) %>%   diag)
+    U <- Eigen2$vectors[,-1]
+    Eig <- Eigen2$values[-1]
+    V <- (Z %*% U) %*% Dt
 
 ##  ............................................................................
 ##  B Coordinates Calculation                                               ####
-    V <- Eigen$vectors[,-1]
-    Eig <- Eigen$values[-1]
+
     D <- Eig %>%  diag
     Dc <- (1/(sqrt(Acol/sum(X$Disjunctive_Matrix))))
     Component <- paste0("Axis", 1:Dim)
+    setTxtProgressBar(pb, 0.6)
     X$Dim_Red$Cells_Principal <- (sqrt(nrow(X$Disjunctive_Matrix)) *
         V)[, 1:Dim] %>% set_colnames(Component) %>%
         set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
+    setTxtProgressBar(pb, 0.7)
     X$Dim_Red$Cells_Standard <- (sqrt(nrow(X$Disjunctive_Matrix)) *
         (V %*% sqrt(D)))[, 1:Dim] %>% set_colnames(Component) %>%
         set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
+    setTxtProgressBar(pb, 0.8)
     X$Dim_Red$Genes_Standard <- ((t(Z) %*% V) * Dc)[,
         1:Dim] %>% set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
         colnames) %>% data.frame
+    setTxtProgressBar(pb, 0.9)
     X$Dim_Red$Genes_Principal <- sweep(X$Dim_Red$Genes_Standard,
         2, sqrt(Eig)[2:(Dim + 1)], "/") %>%  set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
         colnames) %>% data.frame
-
+    setTxtProgressBar(pb, 1)
+    close(pb)
 ##  ............................................................................
 ##  C Distance Calculation                                                  ####
 
@@ -184,13 +192,10 @@ Pareduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1, np
         rownames)
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### b Cell-Gene Distance                                                    ####
-    X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal,
-        X$Dim_Red$Genes_Standard) %>% set_colnames(X$Dim_Red$Genes_Standard %>%
-        rownames) %>% set_rownames(X$Dim_Red$Cells_Principal %>%
-        rownames)
-
-### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
-### c Eigen Value                                                           ####
+    # X$Dim_Red$Cell2Gene_Distance <- rdist(X$Dim_Red$Cells_Principal,
+    #     X$Dim_Red$Genes_Standard) %>% set_colnames(X$Dim_Red$Genes_Standard %>%
+    #     rownames) %>% set_rownames(X$Dim_Red$Cells_Principal %>%
+    #     rownames)
 
     X$Dim_Red$Eigen_Value <- Eig[1:Dim] %>% set_names(Component)
     EigCum <- ((Eig * 100)/(Eig %>% sum)) %>% as.data.frame() %>%
@@ -247,55 +252,4 @@ Pareduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1, np
     class(X) <- "MCXpress_object"
     cat("MCA is finished \n")
     return(X)
-}
-
-
-
-
-
-
-
-
-in.parallel <- function(df, FUN, multi = T) {
-    # Because lapply() and mclapply() want to pass arguments as a list, we
-    # need to provide a wrapper to call our target function via do.call()
-    DC.FUN <- function(argslist) {
-        do.call(FUN, argslist)
-    }
-
-    if (multi == T) {
-        return.list <- mclapply(split(df, rownames(df)), DC.FUN, mc.cores = detectCores())
-    } else {
-        return.list <- lapply(split(df, rownames(df)), DC.FUN)
-    }
-
-    # bind each dataframe in the returned list into one big dataframe
-    return.df <- do.call("rbind", return.list)
-    # sort the dataframe, assuming the sort column (id) is the first column
-    return.df <- return.df[do.call(order, return.df), ]
-
-    return(return.df)
-}
-
-
-
-in.parallel <- function(df, FUN, multi = T) {
-    # Because lapply() and mclapply() want to pass arguments as a list, we
-    # need to provide a wrapper to call our target function via do.call()
-    DC.FUN <- function(argslist) {
-        do.call(FUN, argslist)
-    }
-
-    if (multi == T) {
-        return.list <- mclapply(split(df, rownames(df)), DC.FUN, mc.cores = detectCores())
-    } else {
-        return.list <- lapply(split(df, rownames(df)), DC.FUN)
-    }
-
-    # bind each dataframe in the returned list into one big dataframe
-    return.df <- do.call("rbind", return.list)
-    # sort the dataframe, assuming the sort column (id) is the first column
-    return.df <- return.df[do.call(order, return.df), ]
-
-    return(return.df)
 }

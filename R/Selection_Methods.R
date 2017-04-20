@@ -36,7 +36,7 @@ select_most_variable_genes <- function(X, ngenes) {
 }
 
 
-Select_Highest_Mean <- function(X, ngenes) {
+select_highest_mean <- function(X, ngenes) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<- X$ExpressionMatrix
     High_Means <-
@@ -61,4 +61,13 @@ Select_Diptest <- function(X, pval = 0.1) {
     X$ExpressionMatrix<- exp_matrix[dipPvalSigIndex, ]
     return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
     stop(errormessage)}
+}
+
+filter_outlier <- function(X, percentage=0.05, threshold=1){
+  quant <- function(x){(x %>%  quantile(prob=1-percentage))>threshold}
+  noout <- X$ExpressionMatrix %>%
+    apply(MARGIN = 1, FUN = quant) %>%
+    which
+  X$ExpressionMatrix<-X$ExpressionMatrix[noout,]
+  return(X)
 }

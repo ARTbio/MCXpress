@@ -585,7 +585,7 @@ Create_Shiny_Cluster <- function(X) {
 
       Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>% set_colnames(c("Genes",X$ExpressionMatrix %>%  colnames)) %>%  gather("Sample","Expression",-Genes)%>% as_tibble %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample") %>% as_tibble
       output$Boxplot <-
-        (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace(type="box", split=~Cluster, jitter=0.5, pointpos=0, boxpoints="all") %>%  layout(boxmode="group",margin=list(b=100, t=25, l=50, r=50, pad=0) )))
+        (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace(type="box", color=~Cluster, jitter=0.5, pointpos=0, boxpoints="all", boxmean="sd") %>%  layout(boxmode="group",margin=list(b=100, t=25, l=50, r=50, pad=0) )))
     }
   )
   return(App)

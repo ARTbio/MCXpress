@@ -231,7 +231,7 @@ cluster_kmeans <- function(X, nCluster, maxIter = 10, nstart = 50){
 #'
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' @export
-Cluster_hclust <- function(X, method="average", k=NULL, h=NULL, members=NULL) {
+cluster_hclust <- function(X, method="average", k=NULL, h=NULL, members=NULL) {
     Distance <- X$Dim_Red$Cell2Cell_Distance %>%  as.dist
     Cluster <- Distance %>% hclust(method=method, members=members)
     Cluster<-Cluster %>% cutree(k = k, h = h)
@@ -240,6 +240,31 @@ Cluster_hclust <- function(X, method="average", k=NULL, h=NULL, members=NULL) {
     X <- Calculate_Cluster_Centroids(X)
     return(X)
 }
+
+
+##  ............................................................................
+##  G Hierarchical Clustering                                               ####
+#' Title
+#'
+#' @param X MCXpress object containing a MCXmca object
+#' @param method hclust method ("average", "ward", etc..)
+#' @param k integer indicating the number of cluster to obtain
+#' @param h numeric indicating the heights where the tree should be cut
+#' @param members
+#'
+#' @return MCXpress object containing a MCXmca and MCXcluster object
+#' @export
+cluster_k_medoids <- function(X, k = 2) {
+    Distance <- X$Dim_Red$Cell2Cell_Distance
+    Cluster <- Distance %>% as.dist %>%  pam(k=k, cluster.only = T)
+    X$cluster$Cluster_Quali <- tibble(paste0("Cluster", Cluster),(Cluster %>% names)) %>% set_names(c("Cluster", "Sample"))
+    X$cluster$nClusters <- Cluster %>% unique %>%  length
+    X <- Calculate_Cluster_Centroids(X)
+    return(X)
+}
+
+
+
 ##  ............................................................................
 #   ____________________________________________________________________________
 #   3 Misc Cluster                                                          ####

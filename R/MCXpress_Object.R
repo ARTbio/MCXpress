@@ -1,5 +1,17 @@
 print.MCXpress_object <- function(obj, ...){
-  cat("MCXpress$Dim_Red")
+   cat("\n$ExpressionMatrix\tyour input expression matrix")
+if(obj$Disjunctive_Matrix %>% is.null() %>% not()){
+  cat("\n$DisjunctiveMatrix\tgenerated Burt Matrix")
+  if(obj$Dim_Red %>% is.null() %>% not()){
+    cat("\n$Dim_Red\t\tMCA results")
+      if(obj$cluster %>% is.null() %>% not()){
+        cat("\n$cluster\t\tClustering Results")
+          if(obj$Functionnal_Analysis %>% is.null() %>% not()){
+            cat("\n$Functionnal_Analysis\tGSEA Results")
+  }
+  }
+  }
+}
 }
 
 
