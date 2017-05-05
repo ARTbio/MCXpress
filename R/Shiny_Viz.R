@@ -214,9 +214,9 @@ Create_Shiny_Dim_Red <- function(X) {
                       selectInput(
                         "Mode",
                         label = "Select Mode",
-                        choices = c("Cumul" = "Cumul", "EigenValue" =
-                                      "EigenValue"),
-                        selected = "EigenValue"
+                        choices = c("Explained_Variance" = "Explained_Variance", "Cumulative" =
+                                      "Cumulative"),
+                        selected = "Explained_Variance"
                       ),
                       sliderInput(
                         "amount_adjust",
@@ -332,19 +332,16 @@ Create_Shiny_Dim_Red <- function(X) {
                              yaxis = list(title = input$DR_CS_Axis2_3D),
                              zaxis = list(title = input$DR_CS_Axis3_3D)
                            ))})
-      output$TableGeneCor<- renderDataTable(X$Dim_Red$Axis_Gene_Cor %>% extract(1:4))
+      output$TableGeneCor<- renderDataTable(X$Dim_Red$Axis_Gene_Cor %>% extract(1:6))
       output$GeneSpace <- renderPlotly({
         if (input$Type_Gene == "Principal") {d3<-X$Dim_Red$Genes_Principal %>% rownames_to_column(var = "Genes")} else{d3<-X$Dim_Red$Genes_Standard %>% rownames_to_column(var = "Genes")}
         p<-plot_ly(data=d3, x=~d3[[input$Axis1_Gene]], y=~d3[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text", alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene))%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
         p
       })
       output$Eigen <- renderPlotly({
-        d4 <- X$Dim_Red$Cumul[X$Dim_Red$Cumul$Type == input$Mode, ]
-        d4 <- d4[1:input$amount_adjust, ]
-        (
-          d4 %>% ggplot(aes(x = Axis, y = Value)) + geom_bar(stat = "identity") + scale_x_discrete(limits =
-                                                                                                     d4$Axis)
-        ) %>% ggplotly
+        Shiny_Eigen <- X$Dim_Red$Explained_Eigen_Variance
+        Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
+        plot_ly(Shiny_Eigen) %>% add_bars(x =~Axis, y=~Shiny_Eigen[[input$Mode]], hoverinfo="text", text=~paste0("Axis: ",Axis,'</br>Explained Variance: ', Explained_Variance %>% round(3),'</br>Cumulated Explained Variance: ',Cumulative %>% round(3))) %>% layout(yaxis = list(title=input$Mode), margin=list(b=100, t=25, l=50, r=50, pad=0))
       })
     }
   )

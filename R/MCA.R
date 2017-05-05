@@ -73,16 +73,10 @@ reduce_dimension_mca <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
     #     rownames)
 
     X$Dim_Red$Eigen_Value <- Eig[1:Dim] %>% set_names(Component)
-    EigCum <- ((Eig * 100)/(Eig %>% sum)) %>% as.data.frame() %>%
-        mutate(Axis = (paste0("Axis", c(1:length(Eig))))) %>%
-        mutate(Cumul = ((Eig * 100)/(Eig %>% sum)) %>%
-            cumsum)
-    colnames(EigCum)[1] <- "EigenValue"
-    EigCum <- EigCum[c(2, 1, 3)]
-    EigCum <- EigCum[1:(X$Dim_Red$Cells_Standard %>%
-        nrow), ] %>% na.omit
-    X$Dim_Red$Cumul <- EigCum %>% gather(EigenValue,
-        Cumul, key = "Type", value = "Value")
+    Percentage_Variance <- (Eig %>% prop.table)*100
+    Percentage_Variance_Cum <- Percentage_Variance %>%  cumsum()
+    Axes <- paste0("Axis",1:length(Eig))
+    X$Dim_Red$Explained_Eigen_Variance <- tibble(factor(Axes, levels = Axes), Percentage_Variance,Percentage_Variance_Cum) %>% set_colnames(c("Axis","Explained_Variance","Cumulative"))
     X$Dim_Red$Methods <- "MCA"
 
     # Calculate Wilcoxon for Cell2CellDistance
@@ -141,21 +135,29 @@ reduce_dimension_mca2 <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
     setTxtProgressBar(pb, 0.1)
     Arow <- rowSums(X$Disjunctive_Matrix)
     Z <- Y/sqrt(Arow)
-    setTxtProgressBar(pb, 0.2)
-    Ztcross <- tcrossprod(Z)
-    setTxtProgressBar(pb, 0.3)
-    Eigen <- eigen(Ztcross)
-    V <- Eigen$vectors[,-1]
-    Eig <- Eigen$values[-1]
-    setTxtProgressBar(pb, 0.4)
 
-    Zcross <- crossprod(Z)
-    Eigen  <- eigen(Zcross)
-    Dt <- (Eig %>%  sqrt %>% raise_to_power(-1) %>%   diag)
-    U <- Eigen2$vectors[,-1]
-    Eig <- Eigen2$values[-1]
-    V <- (Z %*% U) %*% Dt
-
+    if((X$Disjunctive_Matrix %>%  ncol) %>% is_weakly_greater_than(X$Disjunctive_Matrix %>%  nrow)){
+      setTxtProgressBar(pb, 0.2)
+      Ztcross <- tcrossprod(Z)
+      setTxtProgressBar(pb, 0.3)
+      Eigen <- eigen(Ztcross)
+      Eig <- Eigen$values[-1]
+      Eig<-subset(Eig,Eig >0)
+      V <- Eigen$vectors[,2:(Eig %>% length %>% add(1))]
+      setTxtProgressBar(pb, 0.4)
+    } else{
+      setTxtProgressBar(pb, 0.2)
+      Zcross <- crossprod(Z)
+      setTxtProgressBar(pb, 0.3)
+      Eigen  <- eigen(Zcross)
+      Eig <- Eigen$values[-1]
+      Eig<-subset(Eig,Eig >0)
+      U   <- Eigen$vectors[,2:(Eig %>% length %>% add(1))]
+      if(Dim>(Eig %>% length)){Dim <- Eig %>% length}
+      Dt  <- (Eig %>%  sqrt %>% raise_to_power(-1) %>%   diag)
+      V   <- (Z %*% U) %*% Dt
+      setTxtProgressBar(pb, 0.4)
+    }
 ##  ............................................................................
 ##  B Coordinates Calculation                                               ####
 
@@ -198,35 +200,13 @@ reduce_dimension_mca2 <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
     #     rownames)
 
     X$Dim_Red$Eigen_Value <- Eig[1:Dim] %>% set_names(Component)
-    EigCum <- ((Eig * 100)/(Eig %>% sum)) %>% as.data.frame() %>%
-        mutate(Axis = (paste0("Axis", c(1:length(Eig))))) %>%
-        mutate(Cumul = ((Eig * 100)/(Eig %>% sum)) %>%
-            cumsum)
-    colnames(EigCum)[1] <- "EigenValue"
-    EigCum <- EigCum[c(2, 1, 3)]
-    EigCum <- EigCum[1:(X$Dim_Red$Cells_Standard %>%
-        nrow), ] %>% na.omit
-    X$Dim_Red$Cumul <- EigCum %>% gather(EigenValue,
-        Cumul, key = "Type", value = "Value")
+    Percentage_Variance <- (Eig %>% prop.table)*100
+    Percentage_Variance_Cum <- Percentage_Variance %>%  cumsum()
+    Axes <- paste0("Axis",1:length(Eig))
+    X$Dim_Red$Explained_Eigen_Variance <- tibble(factor(Axes, levels = Axes), Percentage_Variance,Percentage_Variance_Cum) %>% set_colnames(c("Axis","Explained_Variance","Cumulative"))
     X$Dim_Red$Methods <- "MCA"
 
-    # Calculate Wilcoxon for Cell2CellDistance
-    # cat("Calculating Distance Wilcoxon...\n")
-    # Wilcox <- vector(length = (X$Dim_Red$Cells_Standard %>%
-    #     ncol) - 1)
-    # for (i in 1:((X$Dim_Red$Cells_Standard %>% ncol) -
-    #     1)) {
-    #     dis1 <- X$Dim_Red$Cells_Standard[, 1:i] %>%
-    #         rdist %>% as.matrix %>% as.vector
-    #     dis2 <- X$Dim_Red$Cells_Standard[, 1:(i + 1)] %>%
-    #         rdist %>% as.matrix %>% as.vector
-    #     Wilcox[i] <- wilcox.test(dis1, dis2, alternative = "less",
-    #         paired = TRUE) %>% extract2("p.value")
-    #     names(Wilcox)[i] <- paste0("Axis", i, "-Axis",
-    #         i + 1)
-    # }
-    # X$Dim_Red$Wilcoxon <- tibble(Wilcox %>% names,
-    #     Wilcox) %>% set_colnames(c("Axis", "p_value"))
+
     # End Calculate Wilcoxon for Cell2CellDistance
 
     # Calculate Correlation Axis and Genes

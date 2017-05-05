@@ -205,17 +205,17 @@ cluster_supervised<- function(X, Y){
 #'
 #' @returnMCXpress object containing a MCXmca and MCXcluster object
 #' @export
-cluster_kmeans <- function(X, nCluster, maxIter = 10, nstart = 50){
-  cat("Performing Kmeans Clustering with ", nCluster, " Cluster")
+cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
+  cat("Performing Kmeans Clustering with ", k, " Cluster")
     Distance <- X$Dim_Red$Cell2Cell_Distance
-    Cluster <- Distance %>% kmeans(centers = nCluster,
+    Cluster <- Distance %>% kmeans(centers = k,
         iter.max = maxIter, nstart = nstart)
     X$cluster$Cluster_Quali <- paste0("Cluster", Cluster$cluster)
     names(X$cluster$Cluster_Quali) <- rownames(Distance)
     X$cluster$Cluster_Quali <- tibble(names(X$cluster$Cluster_Quali),
         X$cluster$Cluster_Quali) %>% set_colnames(c("Sample",
         "Cluster"))
-    X$cluster$nClusters <- nCluster
+    X$cluster$nClusters <- k
     X <- Calculate_Cluster_Centroids(X)
     return(X)
 }
