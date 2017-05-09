@@ -15,7 +15,9 @@ Depends:
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+LinkingTo:Rcpp, RcppEigen
 Imports:
+    Rcpp,
     shiny,
     fgsea,
     BiocParallel,
@@ -29,13 +31,15 @@ Imports:
     dplyr,
     splines,
     shinythemes,
+    shinydashboard,
     stats,
     ade4,
     diptest,
     fields,
     igraph,
     lazyeval,
-    fpc
+    fpc,
+    cluster
 Suggests:
     biomaRt,
     knitr,

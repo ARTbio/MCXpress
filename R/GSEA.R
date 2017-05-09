@@ -102,7 +102,7 @@ GSEA <- function(X, GMTfile, nperm = 1000,
   X$Functionnal_Analysis$AllRanking <- X$Functionnal_Analysis$RankingAxis %>%
     append(X$Functionnal_Analysis$Ranking)
   X$Functionnal_Analysis$gseaParam <- gseaParam
-  X$Functionnal_Analysis$Shiny <- Create_Shiny_Functionnal_Analysis(X)
+  X$Shiny <- Create_Dashboard3(X)
   cat(paste0("Enrichment Analysis Completed\n"))
   class(X$Functionnal_Analysis) <- "FA.object"
   return(X)

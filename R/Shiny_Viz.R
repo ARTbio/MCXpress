@@ -354,7 +354,7 @@ Create_Shiny_Cluster <- function(X) {
   dr_axis<-X$Dim_Red$Cells_Principal %>% select(contains("Axis")) %>%  colnames
   App <- shinyApp(
     ui =
-      navbarPage(theme= shinytheme("cerulean"),
+      navbarPage(theme= shinytheme("united"),
                  "Clustering", navbarMenu("Cell Space",
                  tabPanel(
                    "Clustering 2 Axis",  titlePanel("Cluster in the Cell Space"),
@@ -708,3 +708,5 @@ Create_Shiny_Functionnal_Analysis <- function(X) {
   )
   return(App)
 }
+
+

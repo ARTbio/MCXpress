@@ -76,7 +76,7 @@ Calculate_Cluster_Centroids <- function(X) {
 ##  D Cluster Object Finalisation                                           ####
     X$cluster<- list(Cluster_Quali, nClusters, Coord_Centroids, Cluster_Distance, Gene_Cluster_Distance, closest_Cluster, graph1, graph2) %>%
     set_names(c("Cluster_Quali","nClusters","Coord_Centroids", "Cluster_Distance", "Gene_Cluster_Distance", "closest_Cluster", "graph1","graph2"))
-    X$cluster$Shiny <- Create_Shiny_Cluster(X)
+    X$Shiny <- Create_Dashboard2(X)
     class(X$cluster) <- "Cluster_Object"
     return(X)
     }
