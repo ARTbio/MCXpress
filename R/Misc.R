@@ -37,4 +37,53 @@ Initialise_MCXpress <- function(X, min_reads = NULL) {
   }
 }
 
+#' Interactive plot enrichment score of a pathway
+#'
+#' Plotly version of the plotEnrichment function of the fgsea package
+#'
+#' @param pathway A single geneset
+#' @param stats Ranking of the genes
+#' @param gseaParam GSEA parameter value
+#'
+#' @return RETURN_DESCRIPTION
+#' @examples
+#' # ADD_EXAMPLES_HERE
+plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
+  rnk <- rank(-stats)
+  ord <- order(rnk)
+  statsAdj <- stats[ord]
+  statsAdj <- sign(statsAdj) * (abs(statsAdj)^gseaParam)
+  statsAdj <- statsAdj/max(abs(statsAdj))
+  name <- statsAdj[as.vector(na.omit(match(pathway, names(statsAdj))))] %>%
+    sort %>% names %>% rev
+  pathway <- unname(as.vector(na.omit(match(pathway, names(statsAdj)))))
+  pathway <- sort(pathway)
+  gseaRes <- calcGseaStat(statsAdj, selectedStats = pathway,
+    returnAllExtremes = TRUE)
+  bottoms <- gseaRes$bottoms
+  tops <- gseaRes$tops
+  n <- length(statsAdj)
+  xs <- as.vector(rbind(pathway - 1, pathway))
+  ys <- as.vector(rbind(bottoms, tops))
+  toPlot <- data.frame(x = c(0, xs, n + 1), y = c(0, ys, 0))
+  diff <- (max(tops) - min(bottoms))/8
+  x = y = NULL
+
+  data_markers <- data.frame(Genes = rep(name, each = 100),
+    x = rep(pathway, 100) %>% sort, y = rep(seq(from = diff/2,
+      to = -diff/2, length.out = 100), pathway %>% length))
+  plot_ly(data = toPlot) %>% add_lines(x = ~x, y = ~y, mode = "lines",
+    line = list(color = "rgb(154, 240, 24)", width = 2),
+    name = "Enrichment") %>% add_lines(x = ~x, y = ~min(bottoms),
+    line = list(color = "rgb(110, 193, 248)", width = 2,
+      dash = "dash"), name = "Lower limit", hoverinfo = "text",
+    text = ~round(min(bottoms), digits = 4)) %>% add_lines(x = ~x,
+    y = ~max(tops), line = list(color = "rgb(250, 150, 10)",
+      width = 2, dash = "dash"), name = "Upper limit",
+    hoverinfo = "text", text = ~round(max(tops), digits = 4)) %>%
+    add_markers(data = data_markers, x = ~x, y = ~y, marker = list(color = "rgb(0, 10, 10)",
+      size = 1), name = "Genes", hoverinfo = "text", text = ~paste0(Genes,
+      "</br>", "Rank:", x), showlegend = FALSE)
+}
+
 
