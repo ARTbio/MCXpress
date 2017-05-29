@@ -10,11 +10,25 @@
 #' @param minSize threshold for the minimum number of genes that must be in the pathway.
 #' @param maxSize threshold for the maximum number of genes that must be in the pathway.
 #' @param nproc number of processor to use for the enrichment algorithm.
-#' @param bin an integer indicating which bin to use for the enrichment analysis.
+#' @param nbin an integer indicating which bin to use for the enrichment analysis.
 #' @param naxis number of axis to perform the enrichment analysis.
 #' @param gseaParam an integer to weight the enrichment analysis.
-#' @return Return a MCXpress object containing a
+#' @return Return a MCXpress object containing a GSEA object
+#' \item{GSEA_Results}{List containing dataframes of the GSEA analysis for each Cluster}
+#' \item{Ranking}{List containing vectors of gene ranking according to their distance in MCA for each Cluster}
+#' \item{GSEA_Results_Axis}{List containing dataframes of the GSEA analysis for each Axis}
+#' \item{Ranking_Axis}{List containing vectors of gene ranking according to their MCA cells coordinate and genes expression correlation for each Axis}
+#' \item{GMTfile}{GMTfile used for GSEA}
+#' \item{Pathway}{Name of the genesets contained in the gmtfile}
+#' \item{gseaParam}{GSEA Parameter used}
 #' @examples
+#' MCX64553 <- Initialise_MCXpress(GSE64553)
+#' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+#' MCX64553 <- Discretisation_Range_01(MCX64553, scaled=FALSE)
+#' MCX64553 <- MCA(MCX64553, Dim = 5)
+#' MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#' MCX64553 <- GSEA(X = MCX64553, GMTfile = reactome_gmtfile, nperm = 10000)
+#' @export
 #   ____________________________________________________________________________
 #   Gene set enrichment analysis                                            ####
 GSEA <- function(X, GMTfile, nperm = 1000,

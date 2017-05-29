@@ -13,7 +13,6 @@ GSE64553
 }
 \description{
 The dataset contains only the value for HFF samples
-and one outlier has been removed.
+and one outlier has been removed (HFF_PD58_woRotenone2).
 }
 \keyword{datasets}
-

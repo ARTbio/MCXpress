@@ -8,7 +8,6 @@
 #'@param ngenes Number of genes to keep
 #'@return A MCXpress object with an updated Expression_Matrix
 #'@export
-#'@seealso
 select_most_variable_genes <- function(X, ngenes) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<-X$ExpressionMatrix
@@ -36,19 +35,7 @@ select_most_variable_genes <- function(X, ngenes) {
 }
 
 
-select_highest_mean <- function(X, ngenes) {
-  if(X %>%  class %>%  equals("MCXpress_object")){
-    exp_matrix<- X$ExpressionMatrix
-    High_Means <-
-      (exp_matrix %>%  rowMeans %>% sort(decreasing = TRUE) %>%  names %>% na.omit)
-    High_Means <-  High_Means[str_length(High_Means) > 0]
-    High_Means <-  High_Means[1:ngenes]
-    X$ExpressionMatrix<-exp_matrix[High_Means, ]
-    return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
-    stop(errormessage)}
-}
-
-Select_Diptest <- function(X, pval = 0.1) {
+select_diptest <- function(X, pval = 0.1) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<- X$ExpressionMatrix
     dipPval <-
@@ -63,6 +50,18 @@ Select_Diptest <- function(X, pval = 0.1) {
     stop(errormessage)}
 }
 
+
+#' Filter genes that are expressed poorly in a few cells
+#'
+#'
+#'
+#' @param X MCXpress Object with an Expression Matrix
+#' @param percentage numeric between 0 and 1 indicating the percentages of cells that must express the genes.
+#' @param threshold gene expression lower threshold.
+#'
+#' @return
+#' A filtered Expression Matrix in the MCXpressObject.
+#' @export
 filter_outlier <- function(X, percentage=0.05, threshold=1){
   quant <- function(x){(x %>%  quantile(prob=1-percentage))>threshold}
   noout <- X$ExpressionMatrix %>%

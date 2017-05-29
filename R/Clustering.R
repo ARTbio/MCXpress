@@ -1,13 +1,9 @@
 #   ____________________________________________________________________________
 #   1 Cluster Statistics                                                    ####
-#' Title
+#' Generic function to compute distances, centroids and statistics after statistics.
 #'
-#' @param X
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @param X an MCXpress object with MCA object (after MCA step)
+#' @return MCXpress object with MCA object and Clustering Object (after MCA step)
 Calculate_Cluster_Centroids <- function(X) {
 ##  ............................................................................
 ##  A Initialisation of variables                                           ####
@@ -83,109 +79,24 @@ Calculate_Cluster_Centroids <- function(X) {
 
 #   ____________________________________________________________________________
 #   2 Clustering Methods                                                    ####
-##  ............................................................................
-##  A k-nearest neighbors                                                   ####
-#' k-nearest neighbors clustering
-#'
-#' @param X MCXpress object containing MCXmca object
-#' @param mutual logical specifying if the connection between neighbors must be mutual
-#' @param k maximum order of neighbors
-#' @param rm minimum cluster size, all cluster size below will be designated as Cluster_0
-#'
-#' @return MCXpress object containing a MCXmca and MCXcluster object
-#' @export
-cluster_knn <- function(X, mutual = TRUE, k = 3, rm = 0) {
-    n <- nrow(X$Dim_Red$Cell2Cell_Distance)
-    A <- matrix(0, nrow = n, ncol = n)
-    for (i in 1:n) {
-        d <- sort(X$Dim_Red$Cell2Cell_Distance[i, ])
-        A[i, X$Dim_Red$Cell2Cell_Distance[i, ] <= d[k +
-            1]] <- 1
-    }
-    diag(A) <- 0
-    if (mutual) {
-        for (i in 1:n) {
-            A[i, ] <- A[i, ] & A[, i]
-            A[, i] <- A[i, ]
-        }
-    }
-    A <- A * X$Dim_Red$Cell2Cell_Distance
-    g <- graph.adjacency(A, weighted = TRUE, mode = "undirected")
-    cluster_info <- g %>% clusters
-        X$cluster$Cluster_Quali <- paste0("Cluster", cluster_info$membership) %>% tibble(cluster_info$membership %>%
-        names)%>% set_colnames(c("Cluster","Sample"))
-    X$cluster$nClusters <- cluster_info$no
-    g <- Calculate_Cluster_Centroids(X)
-    return(g)
-}
-##  ............................................................................
-##  B Maximum Distance                                                      ####
-#' Title
-#'
-#' @param X MCXpress object containing a MCXmca object
-#' @param mutual logical specifying if the connection between neighbors must be mutual
-#' @param max.distance
-#' @param rm
-#'
-#' @return MCXpress object containing a MCXmca and MCXcluster object
-#' @export
-cluster_max_distance <- function(X, mutual = TRUE,
-    max.distance = 0.5, rm = 0) {
-    X$Dim_Red$Cell2Cell_Distance[row(X$Dim_Red$Cell2Cell_Distance) ==
-        col(X$Dim_Red$Cell2Cell_Distance)] <- 0
-    g <- graph.adjacency(X$Dim_Red$Cell2Cell_Distance,
-        weighted = TRUE, mode = "undirected")
-    g <- delete_edges(g, which(E(g)$weight > max.distance))
-    g <- delete_edges(g, which(E(g)$weight == 0))
-    cluster_info <- g %>% clusters
-        X$cluster$Cluster_Quali <- paste0("Cluster", cluster_info$membership) %>% tibble(cluster_info$membership %>%
-        names)%>% set_colnames(c("Cluster","Sample"))
-    X$cluster$nClusters <- cluster_info$no
-    g <- Calculate_Cluster_Centroids(X)
-    return(g)
-}
-##  ............................................................................
-##  C Percentage                                                            ####
-
-#' Title
-#'
-#' @param X MCXpress object containing a MCXmca object
-#' @param mutual
-#' @param shortest.rank.percent
-#' @param rm
-#'
-#' @return MCXpress object containing a MCXmca and MCXcluster object
-#' @export
-cluster_percentage <- function(X, mutual = TRUE, shortest.rank.percent = 10,
-    rm = 0) {
-    X$Dim_Red$Cell2Cell_Distance[row(X$Dim_Red$Cell2Cell_Distance) ==
-        col(X$Dim_Red$Cell2Cell_Distance)] <- 0
-    g <- graph.adjacency(X$Dim_Red$Cell2Cell_Distance,
-        weighted = TRUE, mode = "undirected")
-    g <- delete_edges(g, which(E(g)$weight > sort(E(g)$weight)[shortest.rank.percent/100 *
-        length(E(g)$weight)]))
-    g <- delete_edges(g, which(E(g)$weight == 0))
-    cluster_info <- g %>% clusters
-        X$cluster$Cluster_Quali <- paste0("Cluster", cluster_info$membership) %>% tibble(cluster_info$membership %>%
-        names)%>% set_colnames(c("Cluster","Sample"))
-    X$cluster$nClusters <- cluster_info$no
-    g <- Calculate_Cluster_Centroids(X)
-    return(g)
-}
 
 ##  ............................................................................
-##  D Supervised Clustering                                                 ####
-#' Supervised Clustering
+##  A Supervised Clustering                                                 ####
+#' Supervised Clustering on MCA
 #'
 #' @param X MCXpress object containing Dim_Red object
 #' @param Y A vector with Sample names as name and the coresponding cluster as value.
-#'
 #' @return MCXpress object containing a MCXmca and MCXcluster object
+#' \item{Cluster_Quali}{Clustering results}
+#' \item{nClusters}{Number of Cluster}
+#' \item{Gene_Cluster_Distance}{GSEA Parameter used}
+#' \item{closest_Cluster}{Indicate the closest cluster for a gene}
+#' \item{Coord_Centroids}{GSEA Parameter used}
+#' \item{graph1}{Clustering Visualisation in the MCA cell space}
+#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_supervised<- function(X, Y){
-
     X$cluster$Cluster_Quali        <- Y
-
     names(X$cluster$Cluster_Quali) <- names(Y)
     X$cluster$Cluster_Quali        <- tibble(names(X$cluster$Cluster_Quali),
         X$cluster$Cluster_Quali) %>% set_colnames(c("Sample","Cluster"))
@@ -195,15 +106,21 @@ cluster_supervised<- function(X, Y){
 }
 
 ##  ............................................................................
-##  E K-Means Clustering                                                    ####
-#' Title
+##  B K-Means Clustering                                                    ####
+#' K-Means Clustering on MCA
 #'
 #' @param X MCXpress object containing a MCXmca object
-#' @param nCluster
-#' @param maxIter
-#' @param nstart
-#'
-#' @returnMCXpress object containing a MCXmca and MCXcluster object
+#' @param k Number of cluster to compute
+#' @param maxIter maximum number of iteration
+#' @param nstart number of random sets of initial centers
+#' @return MCXpress object containing a MCXmca and MCXcluster object
+#' \item{Cluster_Quali}{Clustering results}
+#' \item{nClusters}{Number of Cluster}
+#' \item{Gene_Cluster_Distance}{GSEA Parameter used}
+#' \item{closest_Cluster}{Indicate the closest cluster for a gene}
+#' \item{Coord_Centroids}{GSEA Parameter used}
+#' \item{graph1}{Clustering Visualisation in the MCA cell space}
+#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
   cat("Performing Kmeans Clustering with ", k, " Cluster")
@@ -220,20 +137,25 @@ cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
     return(X)
 }
 ##  ............................................................................
-##  F Hierarchical Clustering                                               ####
-#' Title
+##  C Hierarchical Clustering                                               ####
+#' Hierarchical Clustering on MCA
 #'
 #' @param X MCXpress object containing a MCXmca object
 #' @param method hclust method ("average", "ward", etc..)
 #' @param k integer indicating the number of cluster to obtain
 #' @param h numeric indicating the heights where the tree should be cut
-#' @param members
-#'
 #' @return MCXpress object containing a MCXmca and MCXcluster object
+#' \item{Cluster_Quali}{Clustering results}
+#' \item{nClusters}{Number of Cluster}
+#' \item{Gene_Cluster_Distance}{GSEA Parameter used}
+#' \item{closest_Cluster}{Indicate the closest cluster for a gene}
+#' \item{Coord_Centroids}{GSEA Parameter used}
+#' \item{graph1}{Clustering Visualisation in the MCA cell space}
+#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
 #' @export
-cluster_hclust <- function(X, method="average", k=NULL, h=NULL, members=NULL) {
+cluster_hclust <- function(X, method="average", k=NULL, h=NULL) {
     Distance <- X$Dim_Red$Cell2Cell_Distance %>%  as.dist
-    Cluster <- Distance %>% hclust(method=method, members=members)
+    Cluster <- Distance %>% hclust(method=method)
     Cluster<-Cluster %>% cutree(k = k, h = h)
     X$cluster$Cluster_Quali <- tibble(paste0("Cluster", Cluster),(Cluster %>% names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>%  length
@@ -243,16 +165,20 @@ cluster_hclust <- function(X, method="average", k=NULL, h=NULL, members=NULL) {
 
 
 ##  ............................................................................
-##  G Hierarchical Clustering                                               ####
-#' Title
+## D K_Medoids Clustering                                               ####
+#' K-Medoids Clusetering on the MCA Analysis
 #'
 #' @param X MCXpress object containing a MCXmca object
-#' @param method hclust method ("average", "ward", etc..)
 #' @param k integer indicating the number of cluster to obtain
-#' @param h numeric indicating the heights where the tree should be cut
-#' @param members
 #'
 #' @return MCXpress object containing a MCXmca and MCXcluster object
+#' \item{Cluster_Quali}{Clustering results}
+#' \item{nClusters}{Number of Cluster}
+#' \item{Gene_Cluster_Distance}{GSEA Parameter used}
+#' \item{closest_Cluster}{Indicate the closest cluster for a gene}
+#' \item{Coord_Centroids}{GSEA Parameter used}
+#' \item{graph1}{Clustering Visualisation in the MCA cell space}
+#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_k_medoids <- function(X, k = 2) {
     Distance <- X$Dim_Red$Cell2Cell_Distance
@@ -263,28 +189,3 @@ cluster_k_medoids <- function(X, k = 2) {
     return(X)
 }
 
-
-
-##  ............................................................................
-#   ____________________________________________________________________________
-#   3 Misc Cluster                                                          ####
-##  ............................................................................
-##  A Remove Small Clusters                                                 ####
-#' Title
-#'
-#' @param g
-#' @param min
-#'
-#' @return
-#' @export
-#'
-#' @examples
-removeSmallClusters = function(g, min = 1) {
-    nClusters       <- clusters(g)$no
-    cSizes          <- clusters(g)$csize
-    smallClustersId <- which(cSizes <= min)
-    cellsToRemoveId <- which(clusters(g)$membership %in% smallClustersId)
-    newG            <- delete_vertices(g, cellsToRemoveId)
-    return(newG)
-}
-##  ............................................................................

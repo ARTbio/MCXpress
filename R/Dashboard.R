@@ -1,3 +1,7 @@
+#' Create Dashboard
+#'
+#' @param X MCXpress object
+#' @return Shiny object
 Create_Dashboard1 <- function(X) {
   dr_axis<-X$Dim_Red$Cells_Principal %>% select(contains("Axis")) %>%  colnames
   ui <- dashboardPage(
@@ -357,6 +361,10 @@ output$Eigen <- renderPlotly({
 return(shinyApp(ui, server))
 }
 
+#' Create Dashboard
+#'
+#' @param X MCXpress object
+#' @return Shiny object
 Create_Dashboard2 <- function(X) {
   dr_axis<-X$Dim_Red$Cells_Principal %>% select(contains("Axis")) %>%  colnames
   ui <- dashboardPage(
@@ -954,11 +962,14 @@ output$Boxplot <-
 return(shinyApp(ui, server))
 }
 
-
+#' Create Dashboard
+#'
+#' @param X MCXpress object
+#' @return Shiny object
 Create_Dashboard3 <- function(X) {
   dr_axis<-X$Dim_Red$Cells_Principal %>% select(contains("Axis")) %>%  colnames
   ui <- dashboardPage(
-    dashboardHeader(title=h1("MCXpress"),downloadButton(icon=icon("file-pdf-o"),label = "Download", outputId=)),
+    dashboardHeader(title=h1("MCXpress")),
     dashboardSidebar(
       sidebarMenu(
         menuItem("MCA", tabName = "mca", icon = icon("arrows")),
@@ -1677,14 +1688,6 @@ output$GSEA<-renderPlotly(plotlyEnrichment(X$Functionnal_Analysis$GMTfile[[input
         ))
       ))
 
-      output$downloadData <- downloadHandler(
-  filename = function() {
-    paste('data-', Sys.Date(), '.csv', sep='')
-  },
-  content = function(con) {
-    write.csv(data, con)
-  }
-)
     }
     return(shinyApp(ui, server))
   }

@@ -17,4 +17,3 @@ A MCXpress object with an updated Expression_Matrix
 \description{
 Select most variable genes
 }
-

@@ -1,24 +1,23 @@
 #' @import magrittr
-#' @import tidyverse
 #' @import plotly
 #' @import shiny
 #' @import fgsea
 #' @import shinythemes
+#' @import shinydashboard
 #' @import ggplot2
 #' @import diptest
 #' @import dplyr
-#' @importFrom tidyr spread gather separate gather_ spread_ separate_
 #' @import tibble
+#' @importFrom tidyr spread gather separate gather_ spread_ separate_
 #' @importFrom DT datatable dataTableOutput renderDataTable
 #' @import BiocParallel
+#' @importFrom purrr map dmap
 #' @importFrom stringr str_length
 #' @import statmod
-#' @import splines
+#' @importFrom splines bs
 #' @importFrom  fields rdist
-#' @importFrom igraph graph.adjacency delete_edges clusters delete_vertices
 #' @importFrom stats cor kmeans na.omit quantile setNames var wilcox.test
 #' @import lazyeval
-#' @importFrom ade4 as.dudi prep.fuzzy.var dudi.fca
 #' @importFrom utils head
 NULL
 
@@ -30,3 +29,11 @@ NULL
 #'@format A matrix with 47966 genes (row) and 35 individuals (col)
 #'@source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE64553}
 "GSE64553"
+
+#'gmtfile from reactome pathway
+#'
+#'Contains all the geneset of the reactome pathway for human.
+#'@format A list of 1892 reactome pathway geneset with hg19 symbol.
+#'@source \url{http://www.reactome.org/pages/download-data/}
+"reactome_gmtfile"
+
