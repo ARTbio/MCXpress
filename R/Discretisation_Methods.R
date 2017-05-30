@@ -1,70 +1,24 @@
-Discretisation_Bsplines <- function(X) {
-  nbins <-  2
-  if(X %>%  class %>%  equals("MCXpress_object")){
-    exp_matrix<-X$ExpressionMatrix
-    nc = ncol(exp_matrix)
-    ng = nrow(exp_matrix)
-    discreteMatrix = array(0, dim = c(ng, nc, nbins))
-    for (counterGene in seq(ng)) {
-      j = bs(
-        scale(exp_matrix[counterGene, ]),
-        df = nbins,
-        degree = 2,
-        intercept = T
-      )
-      for (counterCondition in seq(nc)) {
-        if (nbins == 2) {
-          newJ <- cbind(rowSums(j[, 1:2]), j[, 3:dim(j)[2]])
-          discreteMatrix[counterGene, counterCondition, ] = newJ[counterCondition, ]
-        }
-        else {
-          discreteMatrix[counterGene, counterCondition, ] = j[counterCondition, ]
-        }
-      }
-    }
-    rownames(discreteMatrix) <- rownames(exp_matrix)
-    colnames(discreteMatrix) <- colnames(exp_matrix)
-    discreteMatrix<-discreteMatrix[,,rev(1:dim(discreteMatrix)[3])]
-    # Note: this is a fuzzy coded expression matrix
-    Disjunctive_Matrix <- discreteMatrix %>% Create_Disjunctive_Matrix
-    X$Disjunctive_Matrix<-Disjunctive_Matrix
-    return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
-    stop(errormessage)}
-}
 
-Discretisation_Bsplines2 <- function(X) {
-  nbins <-  4
+Discretisation_Bsplines <- function(X) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<-X$ExpressionMatrix
     nc = ncol(exp_matrix)
     ng = nrow(exp_matrix)
     discreteMatrix = array(0, dim = c(ng, nc, nbins))
     TEST <- apply(X = exp_matrix,FUN = function(x){
-      bs(
+      Bsplines <- bs(
         (x),
         df = 3,
         degree = 2,
         intercept = T
-      )} , MARGIN = 1)
-
-    for (gene_count in 1:ng) {
-      j = bs(
-        (exp_matrix[gene_count,]),
-        df = nbins,
-        degree = 2,
-        intercept = T
       )
-      for (counterCondition in (1:nc)) {
-          newJ <- cbind(rowSums(j[, 1:2]), j[, 3:dim(j)[2]])
-          discreteMatrix[gene_count, counterCondition,] = newJ[counterCondition,]
-      }
-    }
-    rownames(discreteMatrix) <- rownames(exp_matrix)
-    colnames(discreteMatrix) <- colnames(exp_matrix)
-    discreteMatrix<-discreteMatrix[,,rev(1:dim(discreteMatrix)[3])]
-    # Note: this is a fuzzy coded expression matrix
-    Disjunctive_Matrix <- discreteMatrix %>% Create_Disjunctive_Matrix
-    X$Disjunctive_Matrix<-Disjunctive_Matrix
+      cbind(Bsplines[,1:2] %>% rowSums,Bsplines[,3])
+      } , MARGIN = 1)
+      bin2 <- TEST[1:nc,] %>% set_colnames(paste0(TEST[1:nc,] %>% colnames,"-bin2")) %>% set_rownames(exp_matrix %>% colnames())
+      bin1 <- TEST[(nc+1):(2*nc),] %>% set_colnames(paste0(TEST[1:nc,] %>% colnames,"-bin1")) %>% set_rownames(exp_matrix %>% colnames())
+      Disjunctive_Matrix <- cbind(bin1,bin2)
+      Disjunctive_Matrix <- Disjunctive_Matrix[, Disjunctive_Matrix %>% colnames %>% sort]
+      X$Disjunctive_Matrix<-Disjunctive_Matrix
     return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
     stop(errormessage)}
 }

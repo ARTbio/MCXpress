@@ -54,8 +54,7 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
   statsAdj <- stats[ord]
   statsAdj <- sign(statsAdj) * (abs(statsAdj)^gseaParam)
   statsAdj <- statsAdj/max(abs(statsAdj))
-  name <- statsAdj[as.vector(na.omit(match(pathway, names(statsAdj))))] %>%
-    sort %>% names %>% rev
+  name <- rnk[(rnk %>% names) %in% pathway] %>% sort %>%  names
   pathway <- unname(as.vector(na.omit(match(pathway, names(statsAdj)))))
   pathway <- sort(pathway)
   gseaRes <- calcGseaStat(statsAdj, selectedStats = pathway,
@@ -68,10 +67,6 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
   toPlot <- data.frame(x = c(0, xs, n + 1), y = c(0, ys, 0))
   diff <- (max(tops) - min(bottoms))/8
   x = y = NULL
-
-  data_markers <- data.frame(Genes = rep(name, each = 100),
-    x = rep(pathway, 100) %>% sort, y = rep(seq(from = diff/2,
-      to = -diff/2, length.out = 100), pathway %>% length))
   plot_ly(data = toPlot) %>% add_lines(x = ~x, y = ~y, mode = "lines",
     line = list(color = "rgb(154, 240, 24)", width = 2),
     name = "Enrichment") %>% add_lines(x = ~x, y = ~min(bottoms),
@@ -80,10 +75,8 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
     text = ~round(min(bottoms), digits = 4)) %>% add_lines(x = ~x,
     y = ~max(tops), line = list(color = "rgb(250, 150, 10)",
       width = 2, dash = "dash"), name = "Upper limit",
-    hoverinfo = "text", text = ~round(max(tops), digits = 4)) %>%
-    add_markers(data = data_markers, x = ~x, y = ~y, marker = list(color = "rgb(0, 10, 10)",
-      size = 1), name = "Genes", hoverinfo = "text", text = ~paste0(Genes,
-      "</br>", "Rank:", x), showlegend = FALSE)
+    hoverinfo = "text", text = ~round(max(tops), digits = 4)) %>% add_segments(x =~pathway, xend=~pathway ,y =~diff/2 ,yend =~-diff/2, line=list(color = "rgb(0, 10, 10)",width=1), text=~paste0(name,
+      "</br>", "Rank:", pathway), showlegend = FALSE, hoverinfo="text")
 }
 
 

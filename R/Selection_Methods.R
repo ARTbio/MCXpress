@@ -1,14 +1,12 @@
 
 
-
-
 #'Select most variable genes
 #'
 #'@param X A MCXpress class object
-#'@param ngenes Number of genes to keep
+#'@param ngenes Number of genes to keep, if not specified will take an calculate the optimal number.
 #'@return A MCXpress object with an updated Expression_Matrix
 #'@export
-select_most_variable_genes <- function(X, ngenes) {
+select_most_variable_genes <- function(X, ngenes=NULL) {
   if(X %>%  class %>%  equals("MCXpress_object")){
     exp_matrix<-X$ExpressionMatrix
     means <- exp_matrix %>%  rowMeans
@@ -29,11 +27,12 @@ select_most_variable_genes <- function(X, ngenes) {
     varFitRatio <- vars / (afit * means ^ 2)
     varorder  <- order(varFitRatio, decreasing = T)
     oed <- exp_matrix[varorder, ]
-    X$ExpressionMatrix <- exp_matrix[varorder[1:ngenes],]
+    if(ngenes %>% is.null()){X$ExpressionMatrix <- exp_matrix[varorder[1:((varFitRatio>1) %>% which %>% length)],]}
+    else{X$ExpressionMatrix <- exp_matrix[varorder[1:ngenes],]}
     return(X)}else{errormessage<-"The input is not a MCXpress object, apply the function Initialise_MCXpress on your expression matrix first."
     stop(errormessage)}
 }
-
+(varFitRatio<1) %>% which
 
 select_diptest <- function(X, pval = 0.1) {
   if(X %>%  class %>%  equals("MCXpress_object")){
