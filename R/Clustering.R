@@ -7,8 +7,8 @@
 Calculate_Cluster_Centroids <- function(X) {
 ##  ............................................................................
 ##  A Initialisation of variables                                           ####
-    cells_coord <- X$Dim_Red$Cells_Principal
-    genes_coord <- X$Dim_Red$Genes_Standard
+    cells_coord <- X$MCA$Cells_Principal
+    genes_coord <- X$MCA$Genes_Standard
     Cluster_Quali<-X$cluster$Cluster_Quali
     nClusters<- X$cluster$nClusters
 
@@ -53,16 +53,16 @@ Calculate_Cluster_Centroids <- function(X) {
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### a Cell Space GGplot                                                     ####
-    graph1 <- ggplot(cells_coord %>%  rownames_to_column(var="Sample") %>%  inner_join(X$cluster$Cluster_Quali, by="Sample"),
-        aes(x = Axis1, y = Axis2)) + geom_point(aes(colour = Cluster)) + theme_bw() + guides(colour = guide_legend(title = "Cluster")) +
-        ggtitle("Clustering Results in standard cell space") + theme(legend.text = element_text(colour = "black",
+    graph1 <- ggplot2::ggplot(cells_coord %>%  rownames_to_column(var="Sample") %>%  inner_join(X$cluster$Cluster_Quali, by="Sample"),
+        ggplot2::aes(x = Axis1, y = Axis2)) + geom_point(ggplot2::aes(colour = Cluster)) + ggplot2::theme_bw() + ggplot2::guides(colour = ggplot2::guide_legend(title = "Cluster")) +
+        ggplot2::ggtitle("Clustering Results in standard cell space") + ggplot2::theme(legend.text = ggplot2::element_text(colour = "black",
         size = 8))
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### b Gene Space with Centroids GGplot                                      ####
-   graph2 <- ggplot(genes_coord,
-        aes(x = Axis1, y = Axis2)) + geom_point(alpha = 0.5) +
-        theme_bw() + ggtitle("Genes Low Dimensional Space") +
+   graph2 <- ggplot2::ggplot(genes_coord,
+        ggplot2::aes(x = Axis1, y = Axis2)) + ggplot2::geom_point(alpha = 0.5) +
+        ggplot2::theme_bw() + ggplot2::ggtitle("Genes Low Dimensional Space") +
         geom_point(data = Coord_Centroids,
             aes(x = Axis1, y = Axis2, colour = Cluster),
             size = 3, alpha = 1) + theme(legend.text = element_text(colour = "black",
@@ -84,7 +84,7 @@ Calculate_Cluster_Centroids <- function(X) {
 ##  A Supervised Clustering                                                 ####
 #' Supervised Clustering on MCA
 #'
-#' @param X MCXpress object containing Dim_Red object
+#' @param X MCXpress object containing MCA object
 #' @param Y A vector with Sample names as name and the coresponding cluster as value.
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' \item{Cluster_Quali}{Clustering results}
@@ -124,7 +124,7 @@ cluster_supervised<- function(X, Y){
 #' @export
 cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
   cat("Performing Kmeans Clustering with ", k, " Cluster")
-    Distance <- X$Dim_Red$Cell2Cell_Distance
+    Distance <- X$MCA$Cell2Cell_Distance
     Cluster <- Distance %>% kmeans(centers = k,
         iter.max = maxIter, nstart = nstart)
     X$cluster$Cluster_Quali <- paste0("Cluster", Cluster$cluster)
@@ -154,7 +154,7 @@ cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
 #' \item{graph2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_hclust <- function(X, method="average", k=NULL, h=NULL) {
-    Distance <- X$Dim_Red$Cell2Cell_Distance %>%  as.dist
+    Distance <- X$MCA$Cell2Cell_Distance %>%  as.dist
     Cluster <- Distance %>% hclust(method=method)
     Cluster<-Cluster %>% cutree(k = k, h = h)
     X$cluster$Cluster_Quali <- tibble(paste0("Cluster", Cluster),(Cluster %>% names)) %>% set_names(c("Cluster", "Sample"))
@@ -181,7 +181,7 @@ cluster_hclust <- function(X, method="average", k=NULL, h=NULL) {
 #' \item{graph2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_k_medoids <- function(X, k = 2) {
-    Distance <- X$Dim_Red$Cell2Cell_Distance
+    Distance <- X$MCA$Cell2Cell_Distance
     Cluster <- Distance %>% as.dist %>%  pam(k=k, cluster.only = T)
     X$cluster$Cluster_Quali <- tibble(paste0("Cluster", Cluster),(Cluster %>% names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>%  length

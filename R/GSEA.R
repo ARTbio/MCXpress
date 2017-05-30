@@ -41,7 +41,7 @@ GSEA <- function(X, GMTfile, nperm = 1000,
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### a Filtering of bin                                                      ####
-  df <- X$Dim_Red$Axis_Gene_Cor[, 1:(naxis + 1)] %>% separate(col = Genes,
+  df <- X$MCA$Axis_Gene_Cor[, 1:(naxis + 1)] %>% separate(col = Genes,
     into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
     filter(bin == 1) %>% select(-bin)
 
@@ -107,18 +107,18 @@ GSEA <- function(X, GMTfile, nperm = 1000,
 ##  ............................................................................
 ##  C GSEA finalisation                                                       ####
 
-  X$Functionnal_Analysis$GSEA_Results_Axis <- axis_gsea
-  X$Functionnal_Analysis$RankingAxis <- axis_rank
-  X$Functionnal_Analysis$GSEA_Results <- cluster_gsea
-  X$Functionnal_Analysis$Ranking <- cluster_rank
-  X$Functionnal_Analysis$GMTfile <- GMTfile
-  X$Functionnal_Analysis$Pathways <- axis_gsea$Axis1$pathway
-  X$Functionnal_Analysis$AllRanking <- X$Functionnal_Analysis$RankingAxis %>%
-    append(X$Functionnal_Analysis$Ranking)
-  X$Functionnal_Analysis$gseaParam <- gseaParam
+  X$GSEA$GSEA_Results_Axis <- axis_gsea
+  X$GSEA$RankingAxis <- axis_rank
+  X$GSEA$GSEA_Results <- cluster_gsea
+  X$GSEA$Ranking <- cluster_rank
+  X$GSEA$GMTfile <- GMTfile
+  X$GSEA$Pathways <- axis_gsea$Axis1$pathway
+  X$GSEA$AllRanking <- X$GSEA$RankingAxis %>%
+    append(X$GSEA$Ranking)
+  X$GSEA$gseaParam <- gseaParam
   X$Shiny <- Create_Dashboard3(X)
   cat(paste0("Enrichment Analysis Completed\n"))
-  class(X$Functionnal_Analysis) <- "FA.object"
+  class(X$GSEA) <- "GSEA_Object"
   return(X)
 }
 

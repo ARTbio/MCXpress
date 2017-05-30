@@ -9,16 +9,15 @@
 #' @import dplyr
 #' @import tibble
 #' @importFrom tidyr spread gather separate gather_ spread_ separate_
-#' @importFrom DT datatable dataTableOutput renderDataTable
 #' @import BiocParallel
 #' @importFrom purrr map dmap
 #' @importFrom stringr str_length
 #' @import statmod
 #' @importFrom splines bs
 #' @importFrom  fields rdist
-#' @importFrom stats cor kmeans na.omit quantile setNames var wilcox.test
+#' @importFrom stats cor kmeans na.omit quantile setNames var wilcox.test as.dist cutree hclust
 #' @import lazyeval
-#' @importFrom utils head
+#' @importFrom utils head setTxtProgressBar txtProgressBar
 NULL
 
 #'Expression Matrix from GEO ID: GSE64553

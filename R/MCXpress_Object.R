@@ -2,12 +2,12 @@ print.MCXpress_object <- function(obj, ...){
    cat("\n$ExpressionMatrix\tyour input expression matrix")
 if(obj$Disjunctive_Matrix %>% is.null() %>% not()){
   cat("\n$DisjunctiveMatrix\tgenerated Burt Matrix")
-  if(obj$Dim_Red %>% is.null() %>% not()){
-    cat("\n$Dim_Red\t\tMCA results")
+  if(obj$MCA %>% is.null() %>% not()){
+    cat("\n$MCA\t\tMCA results")
       if(obj$cluster %>% is.null() %>% not()){
         cat("\n$cluster\t\tClustering Results")
-          if(obj$Functionnal_Analysis %>% is.null() %>% not()){
-            cat("\n$Functionnal_Analysis\tGSEA Results")
+          if(obj$GSEA %>% is.null() %>% not()){
+            cat("\n$GSEA\tGSEA Results")
   }
   }
   }
@@ -15,7 +15,7 @@ if(obj$Disjunctive_Matrix %>% is.null() %>% not()){
 }
 
 
-print.Dim_Red_Object <- function(obj, ...) {
+print.MCA_Object <- function(obj, ...) {
   cat(obj$Methods, 'Dimension Reduction Results', "\n", "\n")
   NAME <-
     c(
@@ -39,7 +39,7 @@ print.Dim_Red_Object <- function(obj, ...) {
       "Genes raw coordinate",
       "Genes normalised coordinate",
       "Distance Between Individuals in the Euclidean Space",
-      "Pearson Correlation between Individuals Coordinate on Axis and Gene Expression",
+      "Pearson Correlation between cells coordinate and Gene Expression",
       "Plot of Cell space",
       "eigenvalue",
       "Wilcoxon Test p-value for the number of axis to keep",
@@ -58,32 +58,33 @@ print.Cluster_Object <- function(obj, ...) {
       "$Closest_Cluster",
       "$Coord_Centroids",
       "$Graph1",
-      "$Graph2",
-      "$Shiny"
+      "$Graph2"
     )
   DESCRIPTION <-
     c(
       "",
       "Number of Cluster",
       "A vector indicating the cluster for each samples",
-      "Table indicating for each genes the cluster that is expressing the most",
+      "Table indicating for each genes the closest cluster centroids",
       "Coordinates of the Cluster Centroids",
       "Cluster Plot in Cell Space",
-      "Centroids of cluster plotted in Genespace",
-      "Interactive Plot"
+      "Centroids of cluster plotted in Genespace"
     )
   tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
 }
 
-print.FA_Object <- function(obj, ...) {
-  cat('Functionnal Analysis Results', "\n", "\n")
-  NAME <- c("", "$Ranking", "$GSEA_Results", "$Shiny")
+print.GSEA_Object <- function(obj, ...) {
+  cat('Gene Set Enrichment Analysis Results', "\n", "\n")
+  NAME <- c("", "$Ranking", "$GSEA_Results","$Ranking_Axis", "$GSEA_Results_Axis","$GMTfile", "$gseaParam")
   DESCRIPTION <-
     c(
       "",
-      "Table with Gene Ranking for each cluster",
+      "Gene Ranking for each cluster",
       "fgsea package Gene Set Enrichment Analysis Results for each cluster",
-      "Interactive Plot"
+      "Gene Ranking for each axis",
+      "fgsea package Gene Set Enrichment Analysis Results for each axis",
+      "GMTfile used for GSEA",
+      "GSEA Parameter"
     )
   tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
 }
