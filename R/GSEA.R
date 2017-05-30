@@ -74,7 +74,7 @@ GSEA <- function(X, GMTfile, nperm = 1000,
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### a Filter Bin                                                            ####
- df2 <- X$cluster$Gene_Cluster_Distance %>% tidyr::separate(col = Genes,
+ df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
     into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
     dplyr::filter(bin %in% nbin) %>% dplyr::group_by(Genes) %>% dplyr::summarise_at(.cols = -(1:2),
     .funs = min)

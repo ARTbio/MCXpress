@@ -890,9 +890,9 @@ output$Eigen <- renderPlotly({
 options(warn=-1)
 output$CellSpace_Clus <- renderPlotly({
   d3 <-
-  X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
+  X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$labels, by = "Sample")
   d4 <-
-  X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
+  X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$labels, by = "Sample")
 
   if (input$Type == "Principal") {
     p<-plot_ly(data=d3, x=~d3[[input$Axis1_Clus]], y=~d3[[input$Axis2_Clus]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha_Clus, marker = list(size = input$Size_Clus))%>% layout(xaxis = list(title=input$Axis1_Clus), yaxis = list(title=input$Axis2_Clus))
@@ -906,7 +906,7 @@ output$CellSpace_Clus <- renderPlotly({
 
 output$GeneSpace_Clus <- renderPlotly({
   Genes <- X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>% set_colnames(c("Genes", "AP1","AP2"))
-  Centroids <- X$cluster$Coord_Centroids %>% select_("Cluster",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%  set_colnames(c("Cluster", "AC1","AC2"))
+  Centroids <- X$cluster$coord_centroids %>% select_("Cluster",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%  set_colnames(c("Cluster", "AC1","AC2"))
   p<-plot_ly(data=Genes, x=~AP1, y=~AP2) %>%
   add_markers(name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene_Clus, color= "black", alpha= input$Alpha_Gene_Clus)) %>%
   add_markers(data=Centroids, x=~AC1, y=~AC2, color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
@@ -916,7 +916,7 @@ output$GeneSpace_Clus <- renderPlotly({
 
 output$CellSpace3D_Clus <- renderPlotly(
   plot_ly(
-    X$MCA$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$Cluster_Quali, by="Sample"),
+    X$MCA$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
     color = ~Cluster,
     mode = 'markers',
     text = ~paste(Cluster," ", Sample)
@@ -945,7 +945,7 @@ output$CellSpace3D_Clus <- renderPlotly(
 
 output$DTBOX<-DT::renderDataTable({
   DTboxplot<-data_frame()
-  Data<-X$cluster$Gene_Cluster_Distance %>%  gather("Cluster", "Distance", -Genes)
+  Data<-X$cluster$gene_cluster_distances %>%  gather("Cluster", "Distance", -Genes)
   for(i in (Data$Cluster %>% unique))
   {
     Cluster<-i
@@ -955,7 +955,7 @@ output$DTBOX<-DT::renderDataTable({
   }
   return(DTboxplot %>% DT::datatable(rownames = FALSE))})
 
-Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>% set_colnames(c("Genes",X$ExpressionMatrix %>%  colnames)) %>%  gather("Sample","Expression",-Genes)%>% as_tibble %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample") %>% as_tibble
+Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>% set_colnames(c("Genes",X$ExpressionMatrix %>%  colnames)) %>%  gather("Sample","Expression",-Genes)%>% as_tibble %>%  arrange(Sample)  %>%  inner_join(X$cluster$labels, by="Sample") %>% as_tibble
 output$Boxplot <-
 (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace(type="box", color=~Cluster, jitter=0.5, pointpos=0, boxpoints="all", boxmean="sd") %>%  layout(boxmode="group",margin=list(b=100, t=25, l=50, r=50, pad=0) )))
 }
@@ -1580,9 +1580,9 @@ output$Eigen <- renderPlotly({
 options(warn=-1)
 output$CellSpace_Clus <- renderPlotly({
   d3 <-
-  X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
+  X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$labels, by = "Sample")
   d4 <-
-  X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$Cluster_Quali, by = "Sample")
+  X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$labels, by = "Sample")
 
   if (input$Type == "Principal") {
     p<-plot_ly(data=d3, x=~d3[[input$Axis1_Clus]], y=~d3[[input$Axis2_Clus]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha_Clus, marker = list(size = input$Size_Clus))%>% layout(xaxis = list(title=input$Axis1_Clus), yaxis = list(title=input$Axis2_Clus))
@@ -1596,7 +1596,7 @@ output$CellSpace_Clus <- renderPlotly({
 
 output$GeneSpace_Clus <- renderPlotly({
   Genes <- X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>% set_colnames(c("Genes", "AP1","AP2"))
-  Centroids <- X$cluster$Coord_Centroids %>% select_("Cluster",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%  set_colnames(c("Cluster", "AC1","AC2"))
+  Centroids <- X$cluster$coord_centroids %>% select_("Cluster",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%  set_colnames(c("Cluster", "AC1","AC2"))
   p<-plot_ly(data=Genes, x=~AP1, y=~AP2) %>%
   add_markers(name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene_Clus, color= "black", alpha= input$Alpha_Gene_Clus)) %>%
   add_markers(data=Centroids, x=~AC1, y=~AC2, color=~Cluster, text=~Cluster, hoverinfo="text", marker=list(size=10)) %>%
@@ -1606,7 +1606,7 @@ output$GeneSpace_Clus <- renderPlotly({
 
 output$CellSpace3D_Clus <- renderPlotly(
   plot_ly(
-    X$MCA$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$Cluster_Quali, by="Sample"),
+    X$MCA$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
     color = ~Cluster,
     mode = 'markers',
     text = ~paste(Cluster," ", Sample)
@@ -1635,7 +1635,7 @@ output$CellSpace3D_Clus <- renderPlotly(
 
 output$DTBOX<-DT::renderDataTable({
   DTboxplot<-data_frame()
-  Data<-X$cluster$Gene_Cluster_Distance %>%  gather("Cluster", "Distance", -Genes)
+  Data<-X$cluster$gene_cluster_distances %>%  gather("Cluster", "Distance", -Genes)
   for(i in (Data$Cluster %>% unique))
   {
     Cluster<-i
@@ -1645,7 +1645,7 @@ output$DTBOX<-DT::renderDataTable({
   }
   return(DTboxplot %>% DT::datatable(rownames = FALSE))})
 
-Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>% set_colnames(c("Genes",X$ExpressionMatrix %>%  colnames)) %>%  gather("Sample","Expression",-Genes)%>% as_tibble %>%  arrange(Sample)  %>%  inner_join(X$cluster$Cluster_Quali, by="Sample") %>% as_tibble
+Boxplot<-X$ExpressionMatrix %>%  data.frame %>%  rownames_to_column(var="Genes") %>% set_colnames(c("Genes",X$ExpressionMatrix %>%  colnames)) %>%  gather("Sample","Expression",-Genes)%>% as_tibble %>%  arrange(Sample)  %>%  inner_join(X$cluster$labels, by="Sample") %>% as_tibble
 output$Boxplot <-
 (renderPlotly(Boxplot %>% filter(Genes %in% input$Genes_Boxplot) %>%  plot_ly(x=~Genes, y=~Expression) %>% add_trace(type="box", color=~Cluster, jitter=0.5, pointpos=0, boxpoints="all", boxmean="sd") %>%  layout(boxmode="group",margin=list(b=100, t=25, l=50, r=50, pad=0) )))
 

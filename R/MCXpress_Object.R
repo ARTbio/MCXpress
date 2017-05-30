@@ -54,9 +54,9 @@ print.Cluster_Object <- function(obj, ...) {
     c(
       "",
       "$nClusters",
-      "$Cluster_Quali",
-      "$Closest_Cluster",
-      "$Coord_Centroids",
+      "$labels",
+      "$closest_cluster",
+      "$coord_centroids",
       "$Graph1",
       "$Graph2"
     )
@@ -74,17 +74,14 @@ print.Cluster_Object <- function(obj, ...) {
 }
 
 print.GSEA_Object <- function(obj, ...) {
-  cat('Gene Set Enrichment Analysis Results', "\n", "\n")
-  NAME <- c("", "$Ranking", "$GSEA_Results","$Ranking_Axis", "$GSEA_Results_Axis","$GMTfile", "$gseaParam")
+  cat('Functionnal Analysis Results', "\n", "\n")
+  NAME <- c("", "$Ranking", "$GSEA_Results", "$Shiny")
   DESCRIPTION <-
     c(
       "",
-      "Gene Ranking for each cluster",
+      "Table with Gene Ranking for each cluster",
       "fgsea package Gene Set Enrichment Analysis Results for each cluster",
-      "Gene Ranking for each axis",
-      "fgsea package Gene Set Enrichment Analysis Results for each axis",
-      "GMTfile used for GSEA",
-      "GSEA Parameter"
+      "Interactive Plot"
     )
   tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
 }
