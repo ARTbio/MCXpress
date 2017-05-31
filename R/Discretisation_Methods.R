@@ -4,7 +4,6 @@ discretisation_bsplines <- function(X) {
     exp_matrix<-X$ExpressionMatrix
     nc = ncol(exp_matrix)
     ng = nrow(exp_matrix)
-    discreteMatrix = array(0, dim = c(ng, nc, nbins))
     TEST <- apply(X = exp_matrix,FUN = function(x){
       Bsplines <- bs(
         (x),
