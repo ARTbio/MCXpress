@@ -25,6 +25,6 @@ and keep the axis with the most informative variance
 \examples{
 MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
-MCX64553 <- Discretisation_Range_01(MCX64553, scaled=FALSE)
+MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553, Dim = 5)
 }

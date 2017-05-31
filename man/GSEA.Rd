@@ -44,7 +44,7 @@ on the cluster and the axis using the ranking of the distance between the cluste
 \examples{
 MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
-MCX64553 <- Discretisation_Range_01(MCX64553, scaled=FALSE)
+MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553, Dim = 5)
 MCX64553 <- cluster_kmeans(MCX64553, k=6)
 MCX64553 <- GSEA(X = MCX64553, GMTfile = reactome_gmtfile, nperm = 10000)

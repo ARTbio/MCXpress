@@ -4,7 +4,6 @@
 #' @import fgsea
 #' @import shinythemes
 #' @import shinydashboard
-#' @import ggplot2 except=c(last_plot)
 #' @import diptest
 #' @import dplyr
 #' @import tibble
