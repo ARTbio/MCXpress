@@ -4,12 +4,12 @@
 \alias{select_most_variable_genes}
 \title{Select most variable genes}
 \usage{
-select_most_variable_genes(X, ngenes)
+select_most_variable_genes(X, ngenes = NULL)
 }
 \arguments{
 \item{X}{A MCXpress class object}
 
-\item{ngenes}{Number of genes to keep}
+\item{ngenes}{Number of genes to keep, if not specified will take an  optimal number.}
 }
 \value{
 A MCXpress object with an updated Expression_Matrix

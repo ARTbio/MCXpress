@@ -36,7 +36,6 @@ MCX64553 <- Discretisation_Range_01(MCX64553, scaled = FALSE)
 ## Multiple Corespondence Analysis
 ```{r}
 MCX64553 <- MCA(MCX64553)
-MCX64553$MCA
 MCX64553$MCA$Plot
 #MCX64553$Shiny
 ```

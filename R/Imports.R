@@ -4,7 +4,7 @@
 #' @import fgsea
 #' @import shinythemes
 #' @import shinydashboard
-#' @import ggplot2
+#' @import ggplot2 except=c(last_plot)
 #' @import diptest
 #' @import dplyr
 #' @import tibble
@@ -13,6 +13,7 @@
 #' @importFrom purrr map dmap
 #' @importFrom stringr str_length
 #' @import statmod
+#' @importFrom cluster pam
 #' @importFrom splines bs
 #' @importFrom  fields rdist
 #' @importFrom stats cor kmeans na.omit quantile setNames var wilcox.test as.dist cutree hclust
