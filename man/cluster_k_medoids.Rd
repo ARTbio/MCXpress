@@ -18,8 +18,8 @@ MCXpress object containing a MCXmca and MCXcluster object
 \item{gene_cluster_distances}{GSEA Parameter used}
 \item{closest_cluster}{Indicate the closest cluster for a gene}
 \item{coord_centroids}{GSEA Parameter used}
-\item{graph1}{Clustering Visualisation in the MCA cell space}
-\item{graph2}{Visualisation of the centroids in the MCA gene space}
+\item{plot1}{Clustering Visualisation in the MCA cell space}
+\item{plot2}{Visualisation of the centroids in the MCA gene space}
 }
 \description{
 K-Medoids Clusetering on the MCA Analysis

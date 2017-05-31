@@ -20,14 +20,14 @@ print.MCA_Object <- function(obj, ...) {
   NAME <-
     c(
       "",
-      "$Cells_Standard",
-      "$Cells_Principal",
-      "$Genes_Standard",
-      "$Genes_Principal",
+      "$cells_standard",
+      "$cells_principal",
+      "$genes_standard",
+      "$genes_principal",
       "$Cell2Cell_Distance",
       "$Axis_Gene_Correlation",
-      "$Graph",
-      "$Eigen_Value",
+      "$plot",
+      "$eigen_value",
       "$Wilcoxon",
       "$Shiny"
     )
@@ -40,7 +40,7 @@ print.MCA_Object <- function(obj, ...) {
       "Genes normalised coordinate",
       "Distance Between Individuals in the Euclidean Space",
       "Pearson Correlation between cells coordinate and Gene Expression",
-      "Plot of Cell space",
+      "plot of Cell space",
       "eigenvalue",
       "Wilcoxon Test p-value for the number of axis to keep",
       "Interactive Visualisation of the MCA Results"
@@ -57,8 +57,8 @@ print.Cluster_Object <- function(obj, ...) {
       "$labels",
       "$closest_cluster",
       "$coord_centroids",
-      "$Graph1",
-      "$Graph2"
+      "$plot1",
+      "$plot2"
     )
   DESCRIPTION <-
     c(
@@ -67,7 +67,7 @@ print.Cluster_Object <- function(obj, ...) {
       "A vector indicating the cluster for each samples",
       "Table indicating for each genes the closest cluster centroids",
       "Coordinates of the Cluster Centroids",
-      "Cluster Plot in Cell Space",
+      "Cluster plot in Cell Space",
       "Centroids of cluster plotted in Genespace"
     )
   tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
@@ -81,7 +81,7 @@ print.GSEA_Object <- function(obj, ...) {
       "",
       "Table with Gene Ranking for each cluster",
       "fgsea package Gene Set Enrichment Analysis Results for each cluster",
-      "Interactive Plot"
+      "Interactive plot"
     )
   tibble(NAME, DESCRIPTION) %>%  print.data.frame(row.names = F, right = F)
 }

@@ -1,23 +1,24 @@
 #' @import magrittr
 #' @import plotly
+#' @import ggplot2
 #' @import shiny
-#' @import fgsea
-#' @import shinythemes
 #' @import shinydashboard
-#' @import diptest
-#' @import dplyr
-#' @import tibble
-#' @importFrom tidyr spread gather separate gather_ spread_ separate_
+#' @import shinythemes
 #' @import BiocParallel
+#' @import fgsea
+#' @import statmod
+#' @import diptest
+#' @importFrom splines bs
+#' @importFrom cluster pam
+#' @importFrom  fields rdist
+#' @import tibble
+#' @import dplyr
+#' @importFrom tidyr spread gather separate gather_ spread_ separate_
 #' @importFrom purrr map dmap
 #' @importFrom stringr str_length
-#' @import statmod
-#' @importFrom cluster pam
-#' @importFrom splines bs
-#' @importFrom  fields rdist
+#' @importFrom utils head setTxtProgressBar txtProgressBar
 #' @importFrom stats cor kmeans na.omit quantile setNames var wilcox.test as.dist cutree hclust
 #' @import lazyeval
-#' @importFrom utils head setTxtProgressBar txtProgressBar
 NULL
 
 #'Expression Matrix from GEO ID: GSE64553

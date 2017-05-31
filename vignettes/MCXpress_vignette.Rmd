@@ -56,7 +56,7 @@ MCX64553 <- discretisation_01(MCX64553, scaled = FALSE)
 Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 ```{r}
 MCX64553 <- MCA(MCX64553)
-MCX64553$MCA$Plot
+MCX64553$MCA$plot
 #Visualise your data interactively with MCX64553$Shiny
 ```
 
@@ -66,7 +66,7 @@ To distinguish the different subtypes of cell in the data
 ```{r, fig.show='hold'}
 MCX64553 <- cluster_kmeans(MCX64553, k = 6)
 MCX64553$cluster$labels
-MCX64553$cluster$graph1
+MCX64553$cluster$plot1
 ```
 
 ## GSEA

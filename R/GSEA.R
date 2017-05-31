@@ -116,7 +116,7 @@ GSEA <- function(X, GMTfile, nperm = 1000,
   X$GSEA$AllRanking <- X$GSEA$RankingAxis %>%
     append(X$GSEA$Ranking)
   X$GSEA$gseaParam <- gseaParam
-  X$Shiny <- Create_Dashboard3(X)
+  X$Shiny <- create_dashboard3(X)
   cat(paste0("Enrichment Analysis Completed\n"))
   class(X$GSEA) <- "GSEA_Object"
   return(X)

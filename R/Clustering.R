@@ -4,11 +4,11 @@
 #'
 #' @param X an MCXpress object with MCA object (after MCA step)
 #' @return MCXpress object with MCA object and Clustering Object (after MCA step)
-Calculate_Cluster_Centroids <- function(X) {
+calculate_cluster_centroids <- function(X) {
 ##  ............................................................................
 ##  A Initialisation of variables                                           ####
-    cells_coord <- X$MCA$Cells_Principal
-    genes_coord <- X$MCA$Genes_Standard
+    cells_coord <- X$MCA$cells_principal
+    genes_coord <- X$MCA$genes_standard
     labels<-X$cluster$labels
     nClusters<- X$cluster$nClusters
 
@@ -53,14 +53,14 @@ Calculate_Cluster_Centroids <- function(X) {
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### a Cell Space GGplot                                                     ####
-    graph1 <- ggplot2::ggplot(cells_coord %>%  rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
+    plot1 <- ggplot2::ggplot(cells_coord %>%  rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
         ggplot2::aes(x = Axis1, y = Axis2)) + geom_point(ggplot2::aes(colour = Cluster)) + ggplot2::theme_bw() + ggplot2::guides(colour = ggplot2::guide_legend(title = "Cluster")) +
         ggplot2::ggtitle("Clustering Results in standard cell space") + ggplot2::theme(legend.text = ggplot2::element_text(colour = "black",
         size = 8))
 
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### b Gene Space with Centroids GGplot                                      ####
-   graph2 <- ggplot2::ggplot(genes_coord,
+   plot2 <- ggplot2::ggplot(genes_coord,
         ggplot2::aes(x = Axis1, y = Axis2)) + ggplot2::geom_point(alpha = 0.5) +
         ggplot2::theme_bw() + ggplot2::ggtitle("Genes Low Dimensional Space") +
         geom_point(data = coord_centroids,
@@ -70,9 +70,9 @@ Calculate_Cluster_Centroids <- function(X) {
 
 ##  ............................................................................
 ##  D Cluster Object Finalisation                                           ####
-    X$cluster<- list(labels, nClusters, coord_centroids, cluster_distances, gene_cluster_distances, closest_cluster, graph1, graph2) %>%
-    set_names(c("labels","nClusters","coord_centroids", "cluster_distances", "gene_cluster_distances", "closest_cluster", "graph1","graph2"))
-    X$Shiny <- Create_Dashboard2(X)
+    X$cluster<- list(labels, nClusters, coord_centroids, cluster_distances, gene_cluster_distances, closest_cluster, plot1, plot2) %>%
+    set_names(c("labels","nClusters","coord_centroids", "cluster_distances", "gene_cluster_distances", "closest_cluster", "plot1","plot2"))
+    X$Shiny <- create_dashboard2(X)
     class(X$cluster) <- "Cluster_Object"
     return(X)
     }
@@ -92,8 +92,8 @@ Calculate_Cluster_Centroids <- function(X) {
 #' \item{gene_cluster_distances}{GSEA Parameter used}
 #' \item{closest_cluster}{Indicate the closest cluster for a gene}
 #' \item{coord_centroids}{GSEA Parameter used}
-#' \item{graph1}{Clustering Visualisation in the MCA cell space}
-#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
+#' \item{plot1}{Clustering Visualisation in the MCA cell space}
+#' \item{plot2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_supervised<- function(X, Y){
     X$cluster$labels        <- Y
@@ -101,7 +101,7 @@ cluster_supervised<- function(X, Y){
     X$cluster$labels        <- tibble(names(X$cluster$labels),
         X$cluster$labels) %>% set_colnames(c("Sample","Cluster"))
     X$cluster$nClusters            <- X$cluster$labels$Cluster %>%  unique %>%  length
-    X                              <- Calculate_Cluster_Centroids(X)
+    X                              <- calculate_cluster_centroids(X)
     return(X)
 }
 
@@ -119,8 +119,8 @@ cluster_supervised<- function(X, Y){
 #' \item{gene_cluster_distances}{GSEA Parameter used}
 #' \item{closest_cluster}{Indicate the closest cluster for a gene}
 #' \item{coord_centroids}{GSEA Parameter used}
-#' \item{graph1}{Clustering Visualisation in the MCA cell space}
-#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
+#' \item{plot1}{Clustering Visualisation in the MCA cell space}
+#' \item{plot2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
   cat("Performing Kmeans Clustering with ", k, " Cluster")
@@ -133,7 +133,7 @@ cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
         X$cluster$labels) %>% set_colnames(c("Sample",
         "Cluster"))
     X$cluster$nClusters <- k
-    X <- Calculate_Cluster_Centroids(X)
+    X <- calculate_cluster_centroids(X)
     return(X)
 }
 ##  ............................................................................
@@ -150,8 +150,8 @@ cluster_kmeans <- function(X, k=2, maxIter = 10, nstart = 50){
 #' \item{gene_cluster_distances}{GSEA Parameter used}
 #' \item{closest_cluster}{Indicate the closest cluster for a gene}
 #' \item{coord_centroids}{GSEA Parameter used}
-#' \item{graph1}{Clustering Visualisation in the MCA cell space}
-#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
+#' \item{plot1}{Clustering Visualisation in the MCA cell space}
+#' \item{plot2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_hclust <- function(X, method="average", k=NULL, h=NULL) {
     Distance <- X$MCA$Cell2Cell_Distance %>%  as.dist
@@ -159,7 +159,7 @@ cluster_hclust <- function(X, method="average", k=NULL, h=NULL) {
     Cluster<-Cluster %>% cutree(k = k, h = h)
     X$cluster$labels <- tibble(paste0("Cluster", Cluster),(Cluster %>% names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>%  length
-    X <- Calculate_Cluster_Centroids(X)
+    X <- calculate_cluster_centroids(X)
     return(X)
 }
 
@@ -177,15 +177,15 @@ cluster_hclust <- function(X, method="average", k=NULL, h=NULL) {
 #' \item{gene_cluster_distances}{GSEA Parameter used}
 #' \item{closest_cluster}{Indicate the closest cluster for a gene}
 #' \item{coord_centroids}{GSEA Parameter used}
-#' \item{graph1}{Clustering Visualisation in the MCA cell space}
-#' \item{graph2}{Visualisation of the centroids in the MCA gene space}
+#' \item{plot1}{Clustering Visualisation in the MCA cell space}
+#' \item{plot2}{Visualisation of the centroids in the MCA gene space}
 #' @export
 cluster_k_medoids <- function(X, k = 2) {
     Distance <- X$MCA$Cell2Cell_Distance
     Cluster <- Distance %>% as.dist %>%  pam(k=k, cluster.only = T)
     X$cluster$labels <- tibble(paste0("Cluster", Cluster),(Cluster %>% names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>%  length
-    X <- Calculate_Cluster_Centroids(X)
+    X <- calculate_cluster_centroids(X)
     return(X)
 }
 

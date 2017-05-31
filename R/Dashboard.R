@@ -2,8 +2,8 @@
 #'
 #' @param X MCXpress object
 #' @return Shiny object
-Create_Dashboard1 <- function(X) {
-  dr_axis<-X$MCA$Cells_Principal %>% select(contains("Axis")) %>%  colnames
+create_dashboard1 <- function(X) {
+  dr_axis<-X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
   ui <- dashboardPage(
     dashboardHeader(title=h1("MCXpress")),
     dashboardSidebar(
@@ -135,14 +135,14 @@ plotlyOutput("CellSpace3D", width = "100%", height ="100%"
       selectInput(
        "DR_CS_AC_Axis_x",
        label = "Select x Axis",
-       choices = X$MCA$Cells_Principal %>%  rownames_to_column(var =
+       choices = X$MCA$cells_principal %>%  rownames_to_column(var =
          "Sample") %>% select(contains("Axis")) %>%  colnames,
        selected = "Axis1"
        ),
       selectInput(
        "DR_CS_AC_Axis_y",
        label = "Select y Axis",
-       choices = X$MCA$Cells_Principal %>%  rownames_to_column(var =
+       choices = X$MCA$cells_principal %>%  rownames_to_column(var =
          "Sample") %>% select(contains("Axis")) %>%  colnames,
        selected = "Axis2"
        )
@@ -234,8 +234,8 @@ tabPanel(
     "amount_adjust",
     label = "Amount",
     min = 1,
-    max = X$MCA$Cells_Principal %>% ncol ,
-    value = if(X$MCA$Cells_Principal %>% ncol %>% is_greater_than(5)){5} else{1},
+    max = X$MCA$cells_principal %>% ncol ,
+    value = if(X$MCA$cells_principal %>% ncol %>% is_greater_than(5)){5} else{1},
     step = 1
     ),
   plotlyOutput("Eigen")
@@ -247,54 +247,54 @@ tabPanel(
 )
 
 server <- function(input, output,clientData, session) {
-  DR_axis_name <- X$MCA$Cells_Principal %>% select(contains("Axis")) %>%  colnames
+  DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
 
   output$CellSpaceGeneCor<- renderPlotly({
    if (input$DR_CS_AC_Type == "Principal"){
-     axis_cor <- X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+     axis_cor <- X$MCA$cells_principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
      p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_AC_Axis_x), yaxis = list(title=input$DR_CS_AC_Axis_y))
      p
    }
    else{
-     axis_cor <- X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+     axis_cor <- X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
      p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
      p
      }})
 output$CellSpace2D <- renderPlotly({
  if (input$DR_CS_2D_Type == "Principal"){
-   d3 <- X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample")
+   d3 <- X$MCA$cells_principal %>%  rownames_to_column(var = "Sample")
    p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
    p
  }
  else{
-   d3 <- X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")
+   d3 <- X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")
    p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text", alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
    p
    }})
 
 output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
  plot_ly(
-   X$MCA$Cells_Standard,
+   X$MCA$cells_standard,
    mode = 'markers',
    text = ~ paste(
-     rownames(X$MCA$Cells_Standard),
+     rownames(X$MCA$cells_standard),
      '</br>',
      input$DR_CS_Axis1_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
+     X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
      '</br>',
      input$Axis2_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
+     X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
      '</br>',
      input$Axis3_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
+     X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
      )
    ,
-   x = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis1_3D]],
-   y = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis2_3D]],
-   z = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis3_3D]],
+   x = ~ X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
+   y = ~ X$MCA$cells_standard[[input$DR_CS_Axis2_3D]],
+   z = ~ X$MCA$cells_standard[[input$DR_CS_Axis3_3D]],
    hoverinfo = "text",
    marker = list(
      opacity=input$DR_CS_Alpha_3D,
@@ -311,27 +311,27 @@ output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
      zaxis = list(title = input$DR_CS_Axis3_3D)
      )
    )} else{plot_ly(
-     X$MCA$Cells_Standard,
+     X$MCA$cells_standard,
      mode = 'markers',
      text = ~ paste(
-       rownames(X$MCA$Cells_Principal),
+       rownames(X$MCA$cells_principal),
        '</br>',
        input$DR_CS_Axis1_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
+       X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
        '</br>',
        input$DR_CS_Axis2_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
+       X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
        '</br>',
        input$DR_CS_Axis3_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
+       X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
        )
      ,
-     x = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis1_3D]],
-     y = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis2_3D]],
-     z = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis3_3D]],
+     x = ~ X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
+     y = ~ X$MCA$cells_principal[[input$DR_CS_Axis2_3D]],
+     z = ~ X$MCA$cells_principal[[input$DR_CS_Axis3_3D]],
      hoverinfo = "text",
      marker = list(
        opacity=input$DR_CS_Alpha_3D,
@@ -349,12 +349,12 @@ output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
        ))})
 output$TableGeneCor<- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>% extract(1:6))
 output$GeneSpace <- renderPlotly({
-  if (input$Type_Gene == "Principal") {d3<-X$MCA$Genes_Principal %>% rownames_to_column(var = "Genes")} else{d3<-X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes")}
+  if (input$Type_Gene == "Principal") {d3<-X$MCA$genes_principal %>% rownames_to_column(var = "Genes")} else{d3<-X$MCA$genes_standard %>% rownames_to_column(var = "Genes")}
   p<-plot_ly(data=d3, x=~d3[[input$Axis1_Gene]], y=~d3[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text", alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene))%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
   p
   })
 output$Eigen <- renderPlotly({
-  Shiny_Eigen <- X$MCA$Explained_Eigen_Variance
+  Shiny_Eigen <- X$MCA$explained_eigen_variance
   Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
   plot_ly(Shiny_Eigen) %>% add_bars(x =~Axis, y=~Shiny_Eigen[[input$Mode]], hoverinfo="text", text=~paste0("Axis: ",Axis,'</br>Explained Variance: ', Explained_Variance %>% round(3),'</br>Cumulated Explained Variance: ',Cumulative %>% round(3))) %>% layout(yaxis = list(title=input$Mode), margin=list(b=100, t=25, l=50, r=50, pad=0))
   })}
@@ -365,8 +365,8 @@ return(shinyApp(ui, server))
 #'
 #' @param X MCXpress object
 #' @return Shiny object
-Create_Dashboard2 <- function(X) {
-  dr_axis<-X$MCA$Cells_Principal %>% select(contains("Axis")) %>%  colnames
+create_dashboard2 <- function(X) {
+  dr_axis<-X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
   ui <- dashboardPage(
     dashboardHeader(title=h1("MCXpress")),
     dashboardSidebar(
@@ -499,14 +499,14 @@ plotlyOutput("CellSpace3D", width = "100%", height ="100%"
       selectInput(
        "DR_CS_AC_Axis_x",
        label = "Select x Axis",
-       choices = X$MCA$Cells_Principal %>%  rownames_to_column(var =
+       choices = X$MCA$cells_principal %>%  rownames_to_column(var =
          "Sample") %>% select(contains("Axis")) %>%  colnames,
        selected = "Axis1"
        ),
       selectInput(
        "DR_CS_AC_Axis_y",
        label = "Select y Axis",
-       choices = X$MCA$Cells_Principal %>%  rownames_to_column(var =
+       choices = X$MCA$cells_principal %>%  rownames_to_column(var =
          "Sample") %>% select(contains("Axis")) %>%  colnames,
        selected = "Axis2"
        )
@@ -598,8 +598,8 @@ tabPanel(
     "amount_adjust",
     label = "Amount",
     min = 1,
-    max = X$MCA$Cells_Principal %>% ncol ,
-    value = if(X$MCA$Cells_Principal %>% ncol %>% is_greater_than(5)){5} else{1},
+    max = X$MCA$cells_principal %>% ncol ,
+    value = if(X$MCA$cells_principal %>% ncol %>% is_greater_than(5)){5} else{1},
     step = 1
     ),
   plotlyOutput("Eigen")
@@ -771,54 +771,54 @@ tabPanel(
 )
 
 server <- function(input, output,clientData, session) {
-  DR_axis_name <- X$MCA$Cells_Principal %>% select(contains("Axis")) %>%  colnames
+  DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
 
   output$CellSpaceGeneCor<- renderPlotly({
    if (input$DR_CS_AC_Type == "Principal"){
-     axis_cor <- X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+     axis_cor <- X$MCA$cells_principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
      p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_AC_Axis_x), yaxis = list(title=input$DR_CS_AC_Axis_y))
      p
    }
    else{
-     axis_cor <- X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+     axis_cor <- X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
      p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
      p
      }})
 output$CellSpace2D <- renderPlotly({
  if (input$DR_CS_2D_Type == "Principal"){
-   d3 <- X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample")
+   d3 <- X$MCA$cells_principal %>%  rownames_to_column(var = "Sample")
    p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
    p
  }
  else{
-   d3 <- X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")
+   d3 <- X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")
    p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text", alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
    p
    }})
 
 output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
  plot_ly(
-   X$MCA$Cells_Standard,
+   X$MCA$cells_standard,
    mode = 'markers',
    text = ~ paste(
-     rownames(X$MCA$Cells_Standard),
+     rownames(X$MCA$cells_standard),
      '</br>',
      input$DR_CS_Axis1_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
+     X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
      '</br>',
      input$Axis2_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
+     X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
      '</br>',
      input$Axis3_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
+     X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
      )
    ,
-   x = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis1_3D]],
-   y = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis2_3D]],
-   z = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis3_3D]],
+   x = ~ X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
+   y = ~ X$MCA$cells_standard[[input$DR_CS_Axis2_3D]],
+   z = ~ X$MCA$cells_standard[[input$DR_CS_Axis3_3D]],
    hoverinfo = "text",
    marker = list(
      opacity=input$DR_CS_Alpha_3D,
@@ -835,27 +835,27 @@ output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
      zaxis = list(title = input$DR_CS_Axis3_3D)
      )
    )} else{plot_ly(
-     X$MCA$Cells_Standard,
+     X$MCA$cells_standard,
      mode = 'markers',
      text = ~ paste(
-       rownames(X$MCA$Cells_Principal),
+       rownames(X$MCA$cells_principal),
        '</br>',
        input$DR_CS_Axis1_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
+       X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
        '</br>',
        input$DR_CS_Axis2_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
+       X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
        '</br>',
        input$DR_CS_Axis3_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
+       X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
        )
      ,
-     x = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis1_3D]],
-     y = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis2_3D]],
-     z = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis3_3D]],
+     x = ~ X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
+     y = ~ X$MCA$cells_principal[[input$DR_CS_Axis2_3D]],
+     z = ~ X$MCA$cells_principal[[input$DR_CS_Axis3_3D]],
      hoverinfo = "text",
      marker = list(
        opacity=input$DR_CS_Alpha_3D,
@@ -873,12 +873,12 @@ output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
        ))})
 output$TableGeneCor<- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>% extract(1:6))
 output$GeneSpace <- renderPlotly({
-  if (input$Type_Gene == "Principal") {d3<-X$MCA$Genes_Principal %>% rownames_to_column(var = "Genes")} else{d3<-X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes")}
+  if (input$Type_Gene == "Principal") {d3<-X$MCA$genes_principal %>% rownames_to_column(var = "Genes")} else{d3<-X$MCA$genes_standard %>% rownames_to_column(var = "Genes")}
   p<-plot_ly(data=d3, x=~d3[[input$Axis1_Gene]], y=~d3[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text", alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene))%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
   p
   })
 output$Eigen <- renderPlotly({
-  Shiny_Eigen <- X$MCA$Explained_Eigen_Variance
+  Shiny_Eigen <- X$MCA$explained_eigen_variance
   Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
   plot_ly(Shiny_Eigen) %>% add_bars(x =~Axis, y=~Shiny_Eigen[[input$Mode]], hoverinfo="text", text=~paste0("Axis: ",Axis,'</br>Explained Variance: ', Explained_Variance %>% round(3),'</br>Cumulated Explained Variance: ',Cumulative %>% round(3))) %>% layout(yaxis = list(title=input$Mode), margin=list(b=100, t=25, l=50, r=50, pad=0))
   })
@@ -890,9 +890,9 @@ output$Eigen <- renderPlotly({
 options(warn=-1)
 output$CellSpace_Clus <- renderPlotly({
   d3 <-
-  X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$labels, by = "Sample")
+  X$MCA$cells_principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$labels, by = "Sample")
   d4 <-
-  X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$labels, by = "Sample")
+  X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$labels, by = "Sample")
 
   if (input$Type == "Principal") {
     p<-plot_ly(data=d3, x=~d3[[input$Axis1_Clus]], y=~d3[[input$Axis2_Clus]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha_Clus, marker = list(size = input$Size_Clus))%>% layout(xaxis = list(title=input$Axis1_Clus), yaxis = list(title=input$Axis2_Clus))
@@ -905,7 +905,7 @@ output$CellSpace_Clus <- renderPlotly({
   })
 
 output$GeneSpace_Clus <- renderPlotly({
-  Genes <- X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>% set_colnames(c("Genes", "AP1","AP2"))
+  Genes <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>% set_colnames(c("Genes", "AP1","AP2"))
   Centroids <- X$cluster$coord_centroids %>% select_("Cluster",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%  set_colnames(c("Cluster", "AC1","AC2"))
   p<-plot_ly(data=Genes, x=~AP1, y=~AP2) %>%
   add_markers(name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene_Clus, color= "black", alpha= input$Alpha_Gene_Clus)) %>%
@@ -916,14 +916,14 @@ output$GeneSpace_Clus <- renderPlotly({
 
 output$CellSpace3D_Clus <- renderPlotly(
   plot_ly(
-    X$MCA$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
+    X$MCA$cells_principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
     color = ~Cluster,
     mode = 'markers',
     text = ~paste(Cluster," ", Sample)
     ,
-    x = ~ X$MCA$Cells_Principal[[input$Axis1_3D_Clus]],
-    y = ~ X$MCA$Cells_Principal[[input$Axis2_3D_Clus]],
-    z = ~ X$MCA$Cells_Principal[[input$Axis3_3D_Clus]],
+    x = ~ X$MCA$cells_principal[[input$Axis1_3D_Clus]],
+    y = ~ X$MCA$cells_principal[[input$Axis2_3D_Clus]],
+    z = ~ X$MCA$cells_principal[[input$Axis3_3D_Clus]],
     hoverinfo = "text",
     marker = list(
       opacity= input$Alpha_3D_Clus,
@@ -966,8 +966,8 @@ return(shinyApp(ui, server))
 #'
 #' @param X MCXpress object
 #' @return Shiny object
-Create_Dashboard3 <- function(X) {
-  dr_axis<-X$MCA$Cells_Principal %>% select(contains("Axis")) %>%  colnames
+create_dashboard3 <- function(X) {
+  dr_axis<-X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
   ui <- dashboardPage(
     dashboardHeader(title=h1("MCXpress")),
     dashboardSidebar(
@@ -1101,14 +1101,14 @@ plotlyOutput("CellSpace3D", width = "100%", height ="100%"
       selectInput(
        "DR_CS_AC_Axis_x",
        label = "Select x Axis",
-       choices = X$MCA$Cells_Principal %>%  rownames_to_column(var =
+       choices = X$MCA$cells_principal %>%  rownames_to_column(var =
          "Sample") %>% select(contains("Axis")) %>%  colnames,
        selected = "Axis1"
        ),
       selectInput(
        "DR_CS_AC_Axis_y",
        label = "Select y Axis",
-       choices = X$MCA$Cells_Principal %>%  rownames_to_column(var =
+       choices = X$MCA$cells_principal %>%  rownames_to_column(var =
          "Sample") %>% select(contains("Axis")) %>%  colnames,
        selected = "Axis2"
        )
@@ -1200,8 +1200,8 @@ tabPanel(
     "amount_adjust",
     label = "Amount",
     min = 1,
-    max = X$MCA$Cells_Principal %>% ncol ,
-    value = if(X$MCA$Cells_Principal %>% ncol %>% is_greater_than(5)){5} else{1},
+    max = X$MCA$cells_principal %>% ncol ,
+    value = if(X$MCA$cells_principal %>% ncol %>% is_greater_than(5)){5} else{1},
     step = 1
     ),
   plotlyOutput("Eigen")
@@ -1461,54 +1461,54 @@ tabItem(tabName = "gsea",
 )
 
 server <- function(input, output,clientData, session) {
-  DR_axis_name <- X$MCA$Cells_Principal %>% select(contains("Axis")) %>%  colnames
+  DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
 
   output$CellSpaceGeneCor<- renderPlotly({
    if (input$DR_CS_AC_Type == "Principal"){
-     axis_cor <- X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+     axis_cor <- X$MCA$cells_principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
      p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_AC_Axis_x), yaxis = list(title=input$DR_CS_AC_Axis_y))
      p
    }
    else{
-     axis_cor <- X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
+     axis_cor <- X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")%>%  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,] %>% data.frame() %>% tibble::rownames_to_column() %>%  set_colnames(c("Sample", "Expression")), by="Sample")
      p<-plot_ly(data=axis_cor, x=~axis_cor[[input$DR_CS_AC_Axis_x]], y=~axis_cor[[input$DR_CS_AC_Axis_y]]) %>% add_markers(text=~Sample, hoverinfo="text",alpha= input$DR_CS_AC_Alpha, color=~Expression, marker = list(size = input$DR_CS_AC_Size)) %>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
      p
      }})
 output$CellSpace2D <- renderPlotly({
  if (input$DR_CS_2D_Type == "Principal"){
-   d3 <- X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample")
+   d3 <- X$MCA$cells_principal %>%  rownames_to_column(var = "Sample")
    p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
    p
  }
  else{
-   d3 <- X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")
+   d3 <- X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")
    p<-plot_ly(data=d3, x=~d3[[input$DR_CS_Axis_x]], y=~d3[[input$DR_CS_Axis_y]], type = "scatter", mode = "markers", text=~Sample, hoverinfo="text", alpha= input$Alpha, marker = list(size = input$Size))%>% layout(xaxis = list(title=input$DR_CS_Axis_x), yaxis = list(title=input$DR_CS_Axis_y))
    p
    }})
 
 output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
  plot_ly(
-   X$MCA$Cells_Standard,
+   X$MCA$cells_standard,
    mode = 'markers',
    text = ~ paste(
-     rownames(X$MCA$Cells_Standard),
+     rownames(X$MCA$cells_standard),
      '</br>',
      input$DR_CS_Axis1_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
+     X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
      '</br>',
      input$Axis2_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
+     X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
      '</br>',
      input$Axis3_3D,
      ': ',
-     X$MCA$Cells_Standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
+     X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
      )
    ,
-   x = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis1_3D]],
-   y = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis2_3D]],
-   z = ~ X$MCA$Cells_Standard[[input$DR_CS_Axis3_3D]],
+   x = ~ X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
+   y = ~ X$MCA$cells_standard[[input$DR_CS_Axis2_3D]],
+   z = ~ X$MCA$cells_standard[[input$DR_CS_Axis3_3D]],
    hoverinfo = "text",
    marker = list(
      opacity=input$DR_CS_Alpha_3D,
@@ -1525,27 +1525,27 @@ output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
      zaxis = list(title = input$DR_CS_Axis3_3D)
      )
    )} else{plot_ly(
-     X$MCA$Cells_Standard,
+     X$MCA$cells_standard,
      mode = 'markers',
      text = ~ paste(
-       rownames(X$MCA$Cells_Principal),
+       rownames(X$MCA$cells_principal),
        '</br>',
        input$DR_CS_Axis1_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
+       X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%  signif(digits = 4),
        '</br>',
        input$DR_CS_Axis2_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
+       X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%  signif(digits = 4),
        '</br>',
        input$DR_CS_Axis3_3D,
        ': ',
-       X$MCA$Cells_Principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
+       X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%  signif(digits = 4)
        )
      ,
-     x = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis1_3D]],
-     y = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis2_3D]],
-     z = ~ X$MCA$Cells_Principal[[input$DR_CS_Axis3_3D]],
+     x = ~ X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
+     y = ~ X$MCA$cells_principal[[input$DR_CS_Axis2_3D]],
+     z = ~ X$MCA$cells_principal[[input$DR_CS_Axis3_3D]],
      hoverinfo = "text",
      marker = list(
        opacity=input$DR_CS_Alpha_3D,
@@ -1563,12 +1563,12 @@ output$CellSpace3D<- renderPlotly(if(input$DR_CS_3D_Type == "Standard"){
        ))})
 output$TableGeneCor<- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>% extract(1:6))
 output$GeneSpace <- renderPlotly({
-  if (input$Type_Gene == "Principal") {d3<-X$MCA$Genes_Principal %>% rownames_to_column(var = "Genes")} else{d3<-X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes")}
+  if (input$Type_Gene == "Principal") {d3<-X$MCA$genes_principal %>% rownames_to_column(var = "Genes")} else{d3<-X$MCA$genes_standard %>% rownames_to_column(var = "Genes")}
   p<-plot_ly(data=d3, x=~d3[[input$Axis1_Gene]], y=~d3[[input$Axis2_Gene]], type = "scatter", mode = "markers", text=~Genes, hoverinfo="text", alpha= input$Alpha_Gene, marker = list(size = input$Size_Gene))%>% layout(xaxis = list(title=input$Axis1_Gene), yaxis = list(title=input$Axis2_Gene))
   p
   })
 output$Eigen <- renderPlotly({
-  Shiny_Eigen <- X$MCA$Explained_Eigen_Variance
+  Shiny_Eigen <- X$MCA$explained_eigen_variance
   Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
   plot_ly(Shiny_Eigen) %>% add_bars(x =~Axis, y=~Shiny_Eigen[[input$Mode]], hoverinfo="text", text=~paste0("Axis: ",Axis,'</br>Explained Variance: ', Explained_Variance %>% round(3),'</br>Cumulated Explained Variance: ',Cumulative %>% round(3))) %>% layout(yaxis = list(title=input$Mode), margin=list(b=100, t=25, l=50, r=50, pad=0))
   })
@@ -1580,9 +1580,9 @@ output$Eigen <- renderPlotly({
 options(warn=-1)
 output$CellSpace_Clus <- renderPlotly({
   d3 <-
-  X$MCA$Cells_Principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$labels, by = "Sample")
+  X$MCA$cells_principal %>%  rownames_to_column(var = "Sample") %>%  inner_join(X$cluster$labels, by = "Sample")
   d4 <-
-  X$MCA$Cells_Standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$labels, by = "Sample")
+  X$MCA$cells_standard %>%  rownames_to_column(var = "Sample")  %>%  inner_join(X$cluster$labels, by = "Sample")
 
   if (input$Type == "Principal") {
     p<-plot_ly(data=d3, x=~d3[[input$Axis1_Clus]], y=~d3[[input$Axis2_Clus]], color =~Cluster, type = "scatter", mode = "markers", text=~Sample, hoverinfo="text",alpha= input$Alpha_Clus, marker = list(size = input$Size_Clus))%>% layout(xaxis = list(title=input$Axis1_Clus), yaxis = list(title=input$Axis2_Clus))
@@ -1595,7 +1595,7 @@ output$CellSpace_Clus <- renderPlotly({
   })
 
 output$GeneSpace_Clus <- renderPlotly({
-  Genes <- X$MCA$Genes_Standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>% set_colnames(c("Genes", "AP1","AP2"))
+  Genes <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes") %>%  select_("Genes",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>% set_colnames(c("Genes", "AP1","AP2"))
   Centroids <- X$cluster$coord_centroids %>% select_("Cluster",input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%  set_colnames(c("Cluster", "AC1","AC2"))
   p<-plot_ly(data=Genes, x=~AP1, y=~AP2) %>%
   add_markers(name="Genes", text=~Genes, hoverinfo="text", marker=list(size=input$Size_Gene_Clus, color= "black", alpha= input$Alpha_Gene_Clus)) %>%
@@ -1606,14 +1606,14 @@ output$GeneSpace_Clus <- renderPlotly({
 
 output$CellSpace3D_Clus <- renderPlotly(
   plot_ly(
-    X$MCA$Cells_Principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
+    X$MCA$cells_principal %>% rownames_to_column(var="Sample") %>%  inner_join(X$cluster$labels, by="Sample"),
     color = ~Cluster,
     mode = 'markers',
     text = ~paste(Cluster," ", Sample)
     ,
-    x = ~ X$MCA$Cells_Principal[[input$Axis1_3D_Clus]],
-    y = ~ X$MCA$Cells_Principal[[input$Axis2_3D_Clus]],
-    z = ~ X$MCA$Cells_Principal[[input$Axis3_3D_Clus]],
+    x = ~ X$MCA$cells_principal[[input$Axis1_3D_Clus]],
+    y = ~ X$MCA$cells_principal[[input$Axis2_3D_Clus]],
+    z = ~ X$MCA$cells_principal[[input$Axis3_3D_Clus]],
     hoverinfo = "text",
     marker = list(
       opacity= input$Alpha_3D_Clus,

@@ -60,22 +60,22 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
     Component <- paste0("Axis", 1:Dim)
     setTxtProgressBar(pb, 0.6)
 
-    X$MCA$Cells_Principal <- (sqrt(nrow(X$Disjunctive_Matrix)) *
+    X$MCA$cells_principal <- (sqrt(nrow(X$Disjunctive_Matrix)) *
         V)[, 1:Dim] %>% set_colnames(Component) %>%
         set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
 
     setTxtProgressBar(pb, 0.7)
 
-    X$MCA$Cells_Standard <- (sqrt(nrow(X$Disjunctive_Matrix)) *
+    X$MCA$cells_standard <- (sqrt(nrow(X$Disjunctive_Matrix)) *
         (V %*% sqrt(D)))[, 1:Dim] %>% set_colnames(Component) %>%
         set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
 
     setTxtProgressBar(pb, 0.8)
-    X$MCA$Genes_Standard <- ((t(Z) %*% V) * Dc)[,
+    X$MCA$genes_standard <- ((t(Z) %*% V) * Dc)[,
         1:Dim] %>% set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
         colnames) %>% data.frame
     setTxtProgressBar(pb, 0.9)
-    X$MCA$Genes_Principal <- sweep(X$MCA$Genes_Standard,
+    X$MCA$genes_principal <- sweep(X$MCA$genes_standard,
         2, sqrt(Eig)[1:(Dim)], "/") %>%  set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
         colnames) %>% data.frame
     setTxtProgressBar(pb, 1)
@@ -86,22 +86,22 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### a Cell-Cell Distance                                                    ####
     cat("Calculating Cell to Cell Distance...\n")
-    X$MCA$Cell2Cell_Distance <- X$MCA$Cells_Standard[,
-        1:Dim] %>% rdist %>% set_colnames(X$MCA$Cells_Principal %>%
-        rownames) %>% set_rownames(X$MCA$Cells_Principal %>%
+    X$MCA$Cell2Cell_Distance <- X$MCA$cells_standard[,
+        1:Dim] %>% rdist %>% set_colnames(X$MCA$cells_principal %>%
+        rownames) %>% set_rownames(X$MCA$cells_principal %>%
         rownames)
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### b Cell-Gene Distance                                                    ####
-    # X$MCA$Cell2Gene_Distance <- rdist(X$MCA$Cells_Principal,
-    #     X$MCA$Genes_Standard) %>% set_colnames(X$MCA$Genes_Standard %>%
-    #     rownames) %>% set_rownames(X$MCA$Cells_Principal %>%
+    # X$MCA$Cell2Gene_Distance <- rdist(X$MCA$cells_principal,
+    #     X$MCA$genes_standard) %>% set_colnames(X$MCA$genes_standard %>%
+    #     rownames) %>% set_rownames(X$MCA$cells_principal %>%
     #     rownames)
 
-    X$MCA$Eigen_Value <- Eig[1:Dim] %>% set_names(Component)
+    X$MCA$eigen_value <- Eig[1:Dim] %>% set_names(Component)
     Percentage_Variance <- (Eig %>% prop.table)*100
     Percentage_Variance_Cum <- Percentage_Variance %>%  cumsum()
     Axes <- paste0("Axis",1:length(Eig))
-    X$MCA$Explained_Eigen_Variance <- tibble(factor(Axes, levels = Axes), Percentage_Variance,Percentage_Variance_Cum) %>% set_colnames(c("Axis","Explained_Variance","Cumulative"))
+    X$MCA$explained_eigen_variance <- tibble(factor(Axes, levels = Axes), Percentage_Variance,Percentage_Variance_Cum) %>% set_colnames(c("Axis","Explained_Variance","Cumulative"))
     X$MCA$Methods <- "MCA"
 
 
@@ -112,17 +112,17 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>%  ncol)-1){
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Axis and Gene Correlation                                               ####
     X$MCA$Axis_Gene_Cor <- cor(X$Disjunctive_Matrix,
-        X$MCA$Cells_Principal, method="spearman") %>% data.frame() %>%
+        X$MCA$cells_principal, method="spearman") %>% data.frame() %>%
         rownames_to_column(var = "Genes") %>% as_tibble()
     X$MCA$Axis_Gene_Cor[,-1] <- X$MCA$Axis_Gene_Cor[,-1] %>%  dmap(.f = round , digits=3)
     # End Calculate Correlation Axis and Genes
 ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ..
 ### Cell Principal Space                                                    ####
 
-    X$MCA$Plot <- X$MCA$Cells_Principal %>%
+    X$MCA$plot <- X$MCA$cells_principal %>%
         ggplot2::ggplot(ggplot2::aes(x = Axis1, y = Axis2)) + ggplot2::geom_point() +
         ggplot2::theme_light()
-    X$Shiny <- X %>% Create_Dashboard1()
+    X$Shiny <- X %>% create_dashboard1()
     class(X$MCA) <- "MCA_Object"
     class(X) <- "MCXpress_object"
     cat("MCA is finished \n")
