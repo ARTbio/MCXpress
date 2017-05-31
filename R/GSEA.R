@@ -24,7 +24,7 @@
 #' @examples
 #' MCX64553 <- Initialise_MCXpress(GSE64553)
 #' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
-#' MCX64553 <- Discretisation_Range_01(MCX64553, scaled=FALSE)
+#' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553, Dim = 5)
 #' MCX64553 <- cluster_kmeans(MCX64553, k=6)
 #' MCX64553 <- GSEA(X = MCX64553, GMTfile = reactome_gmtfile, nperm = 10000)
@@ -120,45 +120,5 @@ GSEA <- function(X, GMTfile, nperm = 1000,
   cat(paste0("Enrichment Analysis Completed\n"))
   class(X$GSEA) <- "GSEA_Object"
   return(X)
-}
-
-#' Interactive plot enrichment score of a pathway
-#'
-#' Plotly version of the plotEnrichment function of the fgsea package
-#'
-#' @param pathway A single geneset
-#' @param stats Ranking of the genes
-#' @param gseaParam GSEA parameter value
-#'
-#' @return RETURN_DESCRIPTION
-plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
-  rnk <- rank(-stats)
-  ord <- order(rnk)
-  statsAdj <- stats[ord]
-  statsAdj <- sign(statsAdj) * (abs(statsAdj)^gseaParam)
-  statsAdj <- statsAdj/max(abs(statsAdj))
-  name <- rnk[(rnk %>% names) %in% pathway] %>% sort %>%  names
-  pathway <- unname(as.vector(na.omit(match(pathway, names(statsAdj)))))
-  pathway <- sort(pathway)
-  gseaRes <- calcGseaStat(statsAdj, selectedStats = pathway,
-    returnAllExtremes = TRUE)
-  bottoms <- gseaRes$bottoms
-  tops <- gseaRes$tops
-  n <- length(statsAdj)
-  xs <- as.vector(rbind(pathway - 1, pathway))
-  ys <- as.vector(rbind(bottoms, tops))
-  toPlot <- data.frame(x = c(0, xs, n + 1), y = c(0, ys, 0))
-  diff <- (max(tops) - min(bottoms))/8
-  x = y = NULL
-  plot_ly(data = toPlot) %>% add_lines(x = ~x, y = ~y, mode = "lines",
-    line = list(color = "rgb(154, 240, 24)", width = 2),
-    name = "Enrichment") %>% add_lines(x = ~x, y = ~min(bottoms),
-    line = list(color = "rgb(110, 193, 248)", width = 2,
-      dash = "dash"), name = "Lower limit", hoverinfo = "text",
-    text = ~round(min(bottoms), digits = 4)) %>% add_lines(x = ~x,
-    y = ~max(tops), line = list(color = "rgb(250, 150, 10)",
-      width = 2, dash = "dash"), name = "Upper limit",
-    hoverinfo = "text", text = ~round(max(tops), digits = 4)) %>% add_segments(x =~pathway, xend=~pathway ,y =~diff/2 ,yend =~-diff/2, line=list(color = "rgb(0, 10, 10)",width=1), text=~paste0(name,
-      "</br>", "Rank:", pathway), showlegend = FALSE, hoverinfo="text")
 }
 

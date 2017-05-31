@@ -37,9 +37,9 @@ Discretisation_Bsplines <- function(X) {
 #'
 #' @examples
 #' MCX64553 <- Initialise_MCXpress(GSE64553)
-#' MCX64553 <- Discretisation_Range_01(MCX64553)
+#' MCX64553 <- discretisation_01(MCX64553)
 #' MCX64553$Disjunctive_Matrix
-Discretisation_Range_01 <- function(X, scaled=TRUE){
+discretisation_01 <- function(X, scaled=TRUE){
   if(scaled==TRUE){
   Scale01 <-X$ExpressionMatrix %>% apply(MARGIN = 1, FUN = function(x) {(x - min(x)) / (max(x) - min(x))}) %>% t #Scale from 0 to 1
   Scale01bin1 <-  Scale01 %>%  set_rownames(Scale01 %>%  rownames %>% paste0("-bin1"))
@@ -58,7 +58,7 @@ Discretisation_Range_01 <- function(X, scaled=TRUE){
   return(X)
 }
 
-ParDiscretisation_Range_01 <- function(X, scaled=TRUE, nproc=NULL){
+Pardiscretisation_01 <- function(X, scaled=TRUE, nproc=NULL){
   clproc=makeCluster(nproc)
   on.exit(stopCluster(clproc))
   if(scaled==TRUE){

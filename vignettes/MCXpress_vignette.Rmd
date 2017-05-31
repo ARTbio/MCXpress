@@ -26,9 +26,9 @@ MCX64553 <- select_most_variable_genes(X = MCX64553, ngenes = 10000)
 ```
 
 ## Disjunctive Matrix Creation
-In order to analyse the expression matrix with MCA a transformation into a disjunctive matrix is required. The function `Discretisation_Range_01` performs a simple scaling of the expression value from 0 to 1.
+In order to analyse the expression matrix with MCA a transformation into a disjunctive matrix is required. The function `discretisation_01` performs a simple scaling of the expression value from 0 to 1.
 ```{r}
-MCX64553 <- Discretisation_Range_01(MCX64553, scaled = FALSE)
+MCX64553 <- discretisation_01(MCX64553, scaled = FALSE)
 #MCX64553$ExpressionMatrix
 ```
 
