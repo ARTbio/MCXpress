@@ -14,7 +14,7 @@
 #' @import tibble
 #' @import dplyr
 #' @importFrom tidyr spread gather separate gather_ spread_ separate_
-#' @importFrom purrr map dmap
+#' @importFrom purrr map map_df
 #' @importFrom stringr str_length
 #' @importFrom utils head setTxtProgressBar txtProgressBar
 #' @importFrom stats cor kmeans na.omit quantile setNames var wilcox.test as.dist cutree hclust
