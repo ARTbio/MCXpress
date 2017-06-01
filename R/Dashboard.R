@@ -11,7 +11,7 @@ create_dashboard1 <- function(X) {
         menuItem("MCA", tabName = "mca", icon = icon("arrows"))
         )
       ),
-    dashboardBody(includeCSS("C:/Users/Akira/Documents/MCXpress/R/www/custom.css"),
+    dashboardBody(
 #   ____________________________________________________________________________
 #   MCA UI                                                                  ####
 tabItems(
@@ -247,6 +247,7 @@ tabPanel(
 )
 
 server <- function(input, output,clientData, session) {
+  options(warn=-1)
   DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%  colnames
 
   output$CellSpaceGeneCor<- renderPlotly({
@@ -375,7 +376,7 @@ create_dashboard2 <- function(X) {
         menuItem("Clustering", tabName = "clus", icon = icon("object-group"))
         )
       ),
-    dashboardBody(includeCSS("C:/Users/Akira/Documents/MCXpress/R/www/custom.css"),
+    dashboardBody(
 #   ____________________________________________________________________________
 #   MCA UI                                                                  ####
 tabItems(
@@ -977,7 +978,7 @@ create_dashboard3 <- function(X) {
         menuItem("GSEA", tabName = "gsea", icon = icon("gears"))
         )
       ),
-    dashboardBody(includeCSS("C:/Users/Akira/Documents/MCXpress/R/www/custom.css"),
+    dashboardBody(
 #   ____________________________________________________________________________
 #   MCA UI                                                                  ####
 tabItems(

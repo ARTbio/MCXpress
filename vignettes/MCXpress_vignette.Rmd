@@ -13,7 +13,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 ## Installation of MCXpress
-MCXpress is still under development but can be installed via github using the devtools library.
+## Installation of MCXpress
+MCXpress is still under development but  can be installed via github using the devtools library.
 ```{r, eval=FALSE}
 library(devtools)
 install_github("Cortalak/MCXpress", ref = "master")
