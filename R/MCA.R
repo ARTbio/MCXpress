@@ -10,7 +10,7 @@
 #' @param Dim Number of Dimension to keep.
 #' @return A MCXpress object containing a MCXmca object.
 #' \itemize{
-#'   \item{'parameter 1'}{Stuff}
+#'   \item{'cells_principal'}{Stuff}
 #'   \item{'parameter 2'}{Stuff}
 #'  }
 #' @examples
