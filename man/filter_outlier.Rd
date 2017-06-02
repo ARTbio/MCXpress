@@ -19,3 +19,7 @@ A filtered Expression Matrix in the MCXpressObject.
 \description{
 Filter genes that are expressed poorly in a few cells
 }
+\examples{
+MCX64553 <- Initialise_MCXpress(GSE64553)
+MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+}

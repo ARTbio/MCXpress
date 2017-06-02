@@ -14,8 +14,8 @@ MCA(X, Dim = (X$ExpressionMatrix \%>\% ncol) - 1)
 \value{
 A MCXpress object containing a MCXmca object.
 \itemize{
-  \item{"parameter 1"}{Stuff}
-  \item{"parameter 2"}{Stuff}
+  \item{'parameter 1'}{Stuff}
+  \item{'parameter 2'}{Stuff}
  }
 }
 \description{
