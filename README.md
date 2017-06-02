@@ -34,7 +34,7 @@ MCXpress is still under development but can be installed via github
 using the devtools library.
 
     library(devtools)
-    install_github("Cortalak/MCXpress", ref = "master")
+    install_github("cbl-imagine/MCXpress", ref = "master")
     library(MCXpress)
 
 Initialisation of MCXpress object
