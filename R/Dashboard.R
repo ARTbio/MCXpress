@@ -30,175 +30,175 @@ create_dashboard1 <- function(X) {
                   selected = "Axis2"), selectInput("DR_CS_Axis3_3D",
                   label = "Select z Axis", choices = dr_axis,
                   selected = "Axis3")), column(4, sliderInput("DR_CS_Size_3D",
-                  label = "Point Size", min = 0, max = 10, value = 5,
-                  step = 0.1), sliderInput("DR_CS_Alpha_3D",
-                  label = "Transparency", min = 0, max = 1, value = 1,
-                  step = 0.1)))), mainPanel(width = 12, align = "center",
-                  plotlyOutput("CellSpace3D", width = "100%",
-                    height = "100%"))), tabPanel("Axis & Gene Correlation",
-                wellPanel(fluidRow(column(4, selectInput("DR_CS_AC_Type",
-                  label = "Type", choices = c("Principal", "Standard"),
-                  selected = "Principal"), selectInput("DR_CS_AC_Gene",
-                  label = "Gene", choices = X$ExpressionMatrix %>%
-                    rownames)), column(4, selectInput("DR_CS_AC_Axis_x",
-                  label = "Select x Axis", choices = X$MCA$cells_principal %>%
-                    rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
-                    colnames, selected = "Axis1"), selectInput("DR_CS_AC_Axis_y",
-                  label = "Select y Axis", choices = X$MCA$cells_principal %>%
-                    rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
-                    colnames, selected = "Axis2")), column(4,
-                  sliderInput("DR_CS_AC_Size", label = "Point Size",
-                    min = 0, max = 10, value = 5, step = 1),
-                  sliderInput("DR_CS_AC_Alpha", label = "Transparency",
-                    min = 0, max = 1, value = 1, step = 0.1)))),
-                mainPanel(width = 12, plotlyOutput("CellSpaceGeneCor",
-                  width = "100%", height = "100%")), mainPanel(width = 12,
-                  DT::dataTableOutput("TableGeneCor", width = "100%",
-                    height = "100%")))), tabPanel(title = "Gene Space",
-                fluidRow(column(5, wellPanel(selectInput("Axis1_Gene",
-                  label = "Select x Axis1", choices = dr_axis,
-                  selected = "Axis1"), selectInput("Axis2_Gene",
-                  label = "Select y Axis", choices = dr_axis,
-                  selected = "Axis2"), selectInput("Type_Gene",
-                  label = "Type", choices = c("Principal", "Standard"),
-                  selected = "Principal"))), column(5, offset = 2,
-                  wellPanel(sliderInput("Size_Gene", label = "Point Size",
-                    min = 0, max = 5, value = 2, step = 1), sliderInput("Alpha_Gene",
-                    label = "Transparency", min = 0, max = 1,
-                    value = 1, step = 0.1)))), mainPanel(width = 12,
-                  plotlyOutput("GeneSpace"))), tabPanel(title = "Eigen Value",
-                selectInput("Mode", label = "Select Mode", choices = c(Explained_Variance = "Explained_Variance",
-                  Cumulative = "Cumulative"), selected = "Explained_Variance"),
-                sliderInput("amount_adjust", label = "Amount",
-                  min = 1, max = X$MCA$cells_principal %>% ncol,
-                  value = if (X$MCA$cells_principal %>% ncol %>%
-                    is_greater_than(5)) {
-                    5
-                  } else {
-                    1
-                  }, step = 1), plotlyOutput("Eigen")))))))
+                                                              label = "Point Size", min = 0, max = 10, value = 5,
+                                                              step = 0.1), sliderInput("DR_CS_Alpha_3D",
+                                                                                       label = "Transparency", min = 0, max = 1, value = 1,
+                                                                                       step = 0.1)))), mainPanel(width = 12, align = "center",
+                                                                                                                 plotlyOutput("CellSpace3D", width = "100%",
+                                                                                                                              height = "100%"))), tabPanel("Axis & Gene Correlation",
+                                                                                                                                                           wellPanel(fluidRow(column(4, selectInput("DR_CS_AC_Type",
+                                                                                                                                                                                                    label = "Type", choices = c("Principal", "Standard"),
+                                                                                                                                                                                                    selected = "Principal"), selectInput("DR_CS_AC_Gene",
+                                                                                                                                                                                                                                         label = "Gene", choices = X$ExpressionMatrix %>%
+                                                                                                                                                                                                                                           rownames)), column(4, selectInput("DR_CS_AC_Axis_x",
+                                                                                                                                                                                                                                                                             label = "Select x Axis", choices = X$MCA$cells_principal %>%
+                                                                                                                                                                                                                                                                               rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
+                                                                                                                                                                                                                                                                               colnames, selected = "Axis1"), selectInput("DR_CS_AC_Axis_y",
+                                                                                                                                                                                                                                                                                                                          label = "Select y Axis", choices = X$MCA$cells_principal %>%
+                                                                                                                                                                                                                                                                                                                            rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
+                                                                                                                                                                                                                                                                                                                            colnames, selected = "Axis2")), column(4,
+                                                                                                                                                                                                                                                                                                                                                                   sliderInput("DR_CS_AC_Size", label = "Point Size",
+                                                                                                                                                                                                                                                                                                                                                                               min = 0, max = 10, value = 5, step = 1),
+                                                                                                                                                                                                                                                                                                                                                                   sliderInput("DR_CS_AC_Alpha", label = "Transparency",
+                                                                                                                                                                                                                                                                                                                                                                               min = 0, max = 1, value = 1, step = 0.1)))),
+                                                                                                                                                           mainPanel(width = 12, plotlyOutput("CellSpaceGeneCor",
+                                                                                                                                                                                              width = "100%", height = "100%")), mainPanel(width = 12,
+                                                                                                                                                                                                                                           DT::dataTableOutput("TableGeneCor", width = "100%",
+                                                                                                                                                                                                                                                               height = "100%")))), tabPanel(title = "Gene Space",
+                                                                                                                                                                                                                                                                                             fluidRow(column(5, wellPanel(selectInput("Axis1_Gene",
+                                                                                                                                                                                                                                                                                                                                      label = "Select x Axis1", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                      selected = "Axis1"), selectInput("Axis2_Gene",
+                                                                                                                                                                                                                                                                                                                                                                       label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                       selected = "Axis2"), selectInput("Type_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                        label = "Type", choices = c("Principal", "Standard"),
+                                                                                                                                                                                                                                                                                                                                                                                                        selected = "Principal"))), column(5, offset = 2,
+                                                                                                                                                                                                                                                                                                                                                                                                                                          wellPanel(sliderInput("Size_Gene", label = "Point Size",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                min = 0, max = 5, value = 2, step = 1), sliderInput("Alpha_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    label = "Transparency", min = 0, max = 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    value = 1, step = 0.1)))), mainPanel(width = 12,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         plotlyOutput("GeneSpace"))), tabPanel(title = "Eigen Value",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               selectInput("Mode", label = "Select Mode", choices = c(Explained_Variance = "Explained_Variance",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Cumulative = "Cumulative"), selected = "Explained_Variance"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               sliderInput("amount_adjust", label = "Amount",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           min = 1, max = X$MCA$cells_principal %>% ncol,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           value = if (X$MCA$cells_principal %>% ncol %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       is_greater_than(5)) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             5
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           } else {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             1
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           }, step = 1), plotlyOutput("Eigen")))))))
 
     server <- function(input, output, clientData, session) {
-        options(warn = -1)
-        DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%
-            colnames
+      options(warn = -1)
+      DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%
+        colnames
 
-        output$CellSpaceGeneCor <- renderPlotly({
-            if (input$DR_CS_AC_Type == "Principal") {
-                axis_cor <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
-                  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
-                    ] %>% data.frame() %>% tibble::rownames_to_column() %>%
-                    set_colnames(c("Sample", "Expression")),
-                    by = "Sample")
-                p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
-                  y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
-                  add_markers(text = ~Sample, hoverinfo = "text",
-                    alpha = input$DR_CS_AC_Alpha, color = ~Expression,
-                    marker = list(size = input$DR_CS_AC_Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_AC_Axis_x),
-                    yaxis = list(title = input$DR_CS_AC_Axis_y))
-                p
-            } else {
-                axis_cor <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
-                  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
-                    ] %>% data.frame() %>% tibble::rownames_to_column() %>%
-                    set_colnames(c("Sample", "Expression")),
-                    by = "Sample")
-                p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
-                  y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
-                  add_markers(text = ~Sample, hoverinfo = "text",
-                    alpha = input$DR_CS_AC_Alpha, color = ~Expression,
-                    marker = list(size = input$DR_CS_AC_Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_Axis_x),
-                    yaxis = list(title = input$DR_CS_Axis_y))
-                p
-            }
-        })
-        output$CellSpace2D <- renderPlotly({
-            if (input$DR_CS_2D_Type == "Principal") {
-                d3 <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample")
-                p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
-                  y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
-                  mode = "markers", text = ~Sample, hoverinfo = "text",
-                  alpha = input$Alpha, marker = list(size = input$Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_Axis_x),
-                    yaxis = list(title = input$DR_CS_Axis_y))
-                p
-            } else {
-                d3 <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample")
-                p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
-                  y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
-                  mode = "markers", text = ~Sample, hoverinfo = "text",
-                  alpha = input$Alpha, marker = list(size = input$Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_Axis_x),
-                    yaxis = list(title = input$DR_CS_Axis_y))
-                p
-            }
-        })
+      output$CellSpaceGeneCor <- renderPlotly({
+        if (input$DR_CS_AC_Type == "Principal") {
+          axis_cor <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
+            inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
+                                          ] %>% data.frame() %>% tibble::rownames_to_column() %>%
+                         set_colnames(c("Sample", "Expression")),
+                       by = "Sample")
+          p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
+                       y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
+            add_markers(text = ~Sample, hoverinfo = "text",
+                        alpha = input$DR_CS_AC_Alpha, color = ~Expression,
+                        marker = list(size = input$DR_CS_AC_Size)) %>%
+            layout(xaxis = list(title = input$DR_CS_AC_Axis_x),
+                   yaxis = list(title = input$DR_CS_AC_Axis_y))
+          p
+        } else {
+          axis_cor <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
+            inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
+                                          ] %>% data.frame() %>% tibble::rownames_to_column() %>%
+                         set_colnames(c("Sample", "Expression")),
+                       by = "Sample")
+          p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
+                       y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
+            add_markers(text = ~Sample, hoverinfo = "text",
+                        alpha = input$DR_CS_AC_Alpha, color = ~Expression,
+                        marker = list(size = input$DR_CS_AC_Size)) %>%
+            layout(xaxis = list(title = input$DR_CS_Axis_x),
+                   yaxis = list(title = input$DR_CS_Axis_y))
+          p
+        }
+      })
+      output$CellSpace2D <- renderPlotly({
+        if (input$DR_CS_2D_Type == "Principal") {
+          d3 <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample")
+          p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
+                       y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
+                       mode = "markers", text = ~Sample, hoverinfo = "text",
+                       alpha = input$Alpha, marker = list(size = input$Size)) %>%
+            layout(xaxis = list(title = input$DR_CS_Axis_x),
+                   yaxis = list(title = input$DR_CS_Axis_y))
+          p
+        } else {
+          d3 <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample")
+          p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
+                       y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
+                       mode = "markers", text = ~Sample, hoverinfo = "text",
+                       alpha = input$Alpha, marker = list(size = input$Size)) %>%
+            layout(xaxis = list(title = input$DR_CS_Axis_x),
+                   yaxis = list(title = input$DR_CS_Axis_y))
+          p
+        }
+      })
 
-        output$CellSpace3D <- renderPlotly(if (input$DR_CS_3D_Type ==
-            "Standard") {
-            plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_standard),
-                "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%
-                  signif(digits = 4), "</br>", input$Axis2_3D,
-                ": ", X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%
-                  signif(digits = 4), "</br>", input$Axis3_3D,
-                ": ", X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%
-                  signif(digits = 4)), x = ~X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
+      output$CellSpace3D <- renderPlotly(if (input$DR_CS_3D_Type ==
+                                             "Standard") {
+        plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_standard),
+                                                                      "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%
+                                                                        signif(digits = 4), "</br>", input$Axis2_3D,
+                                                                      ": ", X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%
+                                                                        signif(digits = 4), "</br>", input$Axis3_3D,
+                                                                      ": ", X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%
+                                                                        signif(digits = 4)), x = ~X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
                 y = ~X$MCA$cells_standard[[input$DR_CS_Axis2_3D]],
                 z = ~X$MCA$cells_standard[[input$DR_CS_Axis3_3D]],
                 hoverinfo = "text", marker = list(opacity = input$DR_CS_Alpha_3D,
-                  size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
-                    width = 2))) %>% add_markers() %>% layout(autosize = FALSE,
-                scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
-                  yaxis = list(title = input$DR_CS_Axis2_3D),
-                  zaxis = list(title = input$DR_CS_Axis3_3D)))
-        } else {
-            plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_principal),
-                "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%
-                  signif(digits = 4), "</br>", input$DR_CS_Axis2_3D,
-                ": ", X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%
-                  signif(digits = 4), "</br>", input$DR_CS_Axis3_3D,
-                ": ", X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%
-                  signif(digits = 4)), x = ~X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
+                                                  size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
+                                                                                          width = 2))) %>% add_markers() %>% layout(autosize = FALSE,
+                                                                                                                                    scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
+                                                                                                                                                 yaxis = list(title = input$DR_CS_Axis2_3D),
+                                                                                                                                                 zaxis = list(title = input$DR_CS_Axis3_3D)))
+      } else {
+        plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_principal),
+                                                                      "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%
+                                                                        signif(digits = 4), "</br>", input$DR_CS_Axis2_3D,
+                                                                      ": ", X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%
+                                                                        signif(digits = 4), "</br>", input$DR_CS_Axis3_3D,
+                                                                      ": ", X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%
+                                                                        signif(digits = 4)), x = ~X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
                 y = ~X$MCA$cells_principal[[input$DR_CS_Axis2_3D]],
                 z = ~X$MCA$cells_principal[[input$DR_CS_Axis3_3D]],
                 hoverinfo = "text", marker = list(opacity = input$DR_CS_Alpha_3D,
-                  size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
-                    width = 2))) %>% add_markers() %>% layout(margin = list(b = 50,
-                t = 50, l = 50, r = 100, pad = 0), autosize = FALSE,
-                scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
-                  yaxis = list(title = input$DR_CS_Axis2_3D),
-                  zaxis = list(title = input$DR_CS_Axis3_3D)))
-        })
-        output$TableGeneCor <- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>%
-            extract(1:6))
-        output$GeneSpace <- renderPlotly({
-            if (input$Type_Gene == "Principal") {
-                d3 <- X$MCA$genes_principal %>% rownames_to_column(var = "Genes")
-            } else {
-                d3 <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes")
-            }
-            p <- plot_ly(data = d3, x = ~d3[[input$Axis1_Gene]],
-                y = ~d3[[input$Axis2_Gene]], type = "scatter",
-                mode = "markers", text = ~Genes, hoverinfo = "text",
-                alpha = input$Alpha_Gene, marker = list(size = input$Size_Gene)) %>%
-                layout(xaxis = list(title = input$Axis1_Gene),
-                  yaxis = list(title = input$Axis2_Gene))
-            p
-        })
-        output$Eigen <- renderPlotly({
-            Shiny_Eigen <- X$MCA$explained_eigen_variance
-            Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,
-                ]
-            plot_ly(Shiny_Eigen) %>% add_bars(x = ~Axis, y = ~Shiny_Eigen[[input$Mode]],
-                hoverinfo = "text", text = ~paste0("Axis: ",
-                  Axis, "</br>Explained Variance: ", Explained_Variance %>%
-                    round(3), "</br>Cumulated Explained Variance: ",
-                  Cumulative %>% round(3))) %>% layout(yaxis = list(title = input$Mode),
-                margin = list(b = 100, t = 25, l = 50, r = 50,
-                  pad = 0))
-        })
+                                                  size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
+                                                                                          width = 2))) %>% add_markers() %>% layout(margin = list(b = 50,
+                                                                                                                                                  t = 50, l = 50, r = 100, pad = 0), autosize = FALSE,
+                                                                                                                                    scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
+                                                                                                                                                 yaxis = list(title = input$DR_CS_Axis2_3D),
+                                                                                                                                                 zaxis = list(title = input$DR_CS_Axis3_3D)))
+      })
+      output$TableGeneCor <- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>%
+                                                   extract(1:6))
+      output$GeneSpace <- renderPlotly({
+        if (input$Type_Gene == "Principal") {
+          d3 <- X$MCA$genes_principal %>% rownames_to_column(var = "Genes")
+        } else {
+          d3 <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes")
+        }
+        p <- plot_ly(data = d3, x = ~d3[[input$Axis1_Gene]],
+                     y = ~d3[[input$Axis2_Gene]], type = "scatter",
+                     mode = "markers", text = ~Genes, hoverinfo = "text",
+                     alpha = input$Alpha_Gene, marker = list(size = input$Size_Gene)) %>%
+          layout(xaxis = list(title = input$Axis1_Gene),
+                 yaxis = list(title = input$Axis2_Gene))
+        p
+      })
+      output$Eigen <- renderPlotly({
+        Shiny_Eigen <- X$MCA$explained_eigen_variance
+        Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,
+                                   ]
+        plot_ly(Shiny_Eigen) %>% add_bars(x = ~Axis, y = ~Shiny_Eigen[[input$Mode]],
+                                          hoverinfo = "text", text = ~paste0("Axis: ",
+                                                                             Axis, "</br>Explained Variance: ", Explained_Variance %>%
+                                                                               round(3), "</br>Cumulated Explained Variance: ",
+                                                                             Cumulative %>% round(3))) %>% layout(yaxis = list(title = input$Mode),
+                                                                                                                  margin = list(b = 100, t = 25, l = 50, r = 50,
+                                                                                                                                pad = 0))
+      })
     }
     return(shinyApp(ui, server))
 }
@@ -208,304 +208,304 @@ create_dashboard1 <- function(X) {
 #' @param X MCXpress object
 #' @return Shiny object
 create_dashboard2 <- function(X) {
-    dr_axis <- X$MCA$cells_principal %>% select(contains("Axis")) %>%
-        colnames
-    ui <- dashboardPage(dashboardHeader(title = h1("MCXpress")),
-        dashboardSidebar(sidebarMenu(menuItem("MCA", tabName = "mca",
-            icon = icon("arrows")), menuItem("Clustering", tabName = "clus",
-            icon = icon("object-group")))), dashboardBody(tabItems(tabItem(tabName = "mca",
-            navbarPage("MCA", navbarMenu("Cell Space", tabPanel("2 Axis",
-                wellPanel(fluidRow(column(6, selectInput("DR_CS_2D_Type",
-                  label = "Type", choices = c("Principal", "Standard"),
-                  selected = "Principal"), selectInput("DR_CS_Axis_x",
-                  label = "Select x Axis", choices = dr_axis,
-                  selected = "Axis1"), selectInput("DR_CS_Axis_y",
-                  label = "Select y Axis", choices = dr_axis,
-                  selected = "Axis2")), column(6, sliderInput("Size",
-                  label = "Point Size", min = 0, max = 10, value = 5,
-                  step = 1), sliderInput("Alpha", label = "Transparency",
-                  min = 0, max = 1, value = 1, step = 0.1)))),
-                mainPanel(width = 12, plotlyOutput("CellSpace2D",
-                  width = "95%", height = "100%"))), tabPanel("3 Axis",
-                wellPanel(fluidRow(column(4, selectInput("DR_CS_3D_Type",
-                  label = "Type", choices = c("Principal", "Standard"),
-                  selected = "Principal"), selectInput("DR_CS_Axis1_3D",
-                  label = "Select x Axis", choices = dr_axis,
-                  selected = "Axis1")), column(4, selectInput("DR_CS_Axis2_3D",
-                  label = "Select y Axis", choices = dr_axis,
-                  selected = "Axis2"), selectInput("DR_CS_Axis3_3D",
-                  label = "Select z Axis", choices = dr_axis,
-                  selected = "Axis3")), column(4, sliderInput("DR_CS_Size_3D",
-                  label = "Point Size", min = 0, max = 10, value = 5,
-                  step = 0.1), sliderInput("DR_CS_Alpha_3D",
-                  label = "Transparency", min = 0, max = 1, value = 1,
-                  step = 0.1)))), mainPanel(width = 12, align = "center",
-                  plotlyOutput("CellSpace3D", width = "100%",
-                    height = "100%"))), tabPanel("Axis & Gene Correlation",
-                wellPanel(fluidRow(column(4, selectInput("DR_CS_AC_Type",
-                  label = "Type", choices = c("Principal", "Standard"),
-                  selected = "Principal"), selectInput("DR_CS_AC_Gene",
-                  label = "Gene", choices = X$ExpressionMatrix %>%
-                    rownames)), column(4, selectInput("DR_CS_AC_Axis_x",
-                  label = "Select x Axis", choices = X$MCA$cells_principal %>%
-                    rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
-                    colnames, selected = "Axis1"), selectInput("DR_CS_AC_Axis_y",
-                  label = "Select y Axis", choices = X$MCA$cells_principal %>%
-                    rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
-                    colnames, selected = "Axis2")), column(4,
-                  sliderInput("DR_CS_AC_Size", label = "Point Size",
-                    min = 0, max = 10, value = 5, step = 1),
-                  sliderInput("DR_CS_AC_Alpha", label = "Transparency",
-                    min = 0, max = 1, value = 1, step = 0.1)))),
-                mainPanel(width = 12, plotlyOutput("CellSpaceGeneCor",
-                  width = "100%", height = "100%")), mainPanel(width = 12,
-                  DT::dataTableOutput("TableGeneCor", width = "100%",
-                    height = "100%")))), tabPanel(title = "Gene Space",
-                fluidRow(column(5, wellPanel(selectInput("Axis1_Gene",
-                  label = "Select x Axis1", choices = dr_axis,
-                  selected = "Axis1"), selectInput("Axis2_Gene",
-                  label = "Select y Axis", choices = dr_axis,
-                  selected = "Axis2"), selectInput("Type_Gene",
-                  label = "Type", choices = c("Principal", "Standard"),
-                  selected = "Principal"))), column(5, offset = 2,
-                  wellPanel(sliderInput("Size_Gene", label = "Point Size",
-                    min = 0, max = 5, value = 2, step = 1), sliderInput("Alpha_Gene",
-                    label = "Transparency", min = 0, max = 1,
-                    value = 1, step = 0.1)))), mainPanel(width = 12,
-                  plotlyOutput("GeneSpace"))), tabPanel(title = "Eigen Value",
-                selectInput("Mode", label = "Select Mode", choices = c(Explained_Variance = "Explained_Variance",
-                  Cumulative = "Cumulative"), selected = "Explained_Variance"),
-                sliderInput("amount_adjust", label = "Amount",
-                  min = 1, max = X$MCA$cells_principal %>% ncol,
-                  value = if (X$MCA$cells_principal %>% ncol %>%
-                    is_greater_than(5)) {
-                    5
-                  } else {
-                    1
-                  }, step = 1), plotlyOutput("Eigen")))), tabItem(tabName = "clus",
-            navbarPage("Clustering", navbarMenu("Cell Space",
-                tabPanel("Clustering 2 Axis", titlePanel("Cluster in the Cell Space"),
-                  wellPanel(fluidRow(column(5, selectInput("Axis1_Clus",
-                    label = "Select x Axis", choices = dr_axis,
-                    selected = "Axis1"), selectInput("Axis2_Clus",
-                    label = "Select y Axis", choices = dr_axis,
-                    selected = "Axis2"), selectInput("Type",
-                    label = "Type", choices = c("Principal",
-                      "Standard"), selected = "Principal")),
-                    column(5, offset = 1, sliderInput("Size_Clus",
-                      label = "Point Size", min = 0, max = 10,
-                      value = 5, step = 1), sliderInput("Alpha_Clus",
-                      label = "Transparency", min = 0, max = 1,
-                      value = 1, step = 0.1)))), plotlyOutput("CellSpace_Clus",
-                    width = "100%", height = "100%")), tabPanel("Clustering 3 Axis",
-                  wellPanel(fluidRow(column(5, selectInput("Axis1_3D_Clus",
-                    label = "Select x Axis", choices = dr_axis,
-                    selected = "Axis1"), selectInput("Axis2_3D_Clus",
-                    label = "Select y Axis", choices = dr_axis,
-                    selected = "Axis2"), selectInput("Axis3_3D_Clus",
-                    label = "Select z Axis", choices = dr_axis,
-                    selected = "Axis3")), column(5, offset = 1,
-                    sliderInput("Size_3D_Clus", label = "Point Size",
-                      min = 0, max = 10, value = 5, step = 0.1),
-                    sliderInput("Alpha_3D_Clus", label = "Transparency",
-                      min = 0, max = 1, value = 1, step = 0.1)))),
-                  mainPanel(width = 12, align = "center", plotlyOutput("CellSpace3D_Clus",
-                    width = "100%", height = "100%")))), tabPanel(title = "Gene Space",
-                titlePanel("Genespace with Cluster Centroids"),
-                wellPanel(fluidRow(column(5, selectInput("Axis1_Gene_Clus",
-                  label = "Select x Axis", choices = dr_axis,
-                  selected = "Axis1"), selectInput("Axis2_Gene_Clus",
-                  label = "Select y Axis", choices = dr_axis,
-                  selected = "Axis2")), column(5, offset = 1,
-                  sliderInput("Size_Gene_Clus", label = "Point Size",
-                    min = 0, max = 2, value = 1, step = 0.1),
-                  sliderInput("Alpha_Gene_Clus", label = "Transparency",
-                    min = 0, max = 1, value = 1, step = 0.1)))),
-                mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))),
-                tabPanel(title = "Boxplot", fluidPage(titlePanel("Genes Expression by Cluster"),
-                  fluidRow(column(width = 6, selectInput("Genes_Boxplot",
-                    "Choose a Gene:", choices = (X$ExpressionMatrix %>%
-                      rownames %>% sort), selectize = TRUE, multiple = TRUE,
-                    selected = (X$ExpressionMatrix %>% rownames)[1])))),
-                  mainPanel(width = 12, h3("Boxplot"), plotlyOutput("Boxplot",
-                    width = "100%", height = "100%"), h3("Genes Specific to Cluster"),
-                    DT::dataTableOutput("DTBOX"))))))))
+  dr_axis <- X$MCA$cells_principal %>% select(contains("Axis")) %>%
+    colnames
+  ui <- dashboardPage(dashboardHeader(title = h1("MCXpress")),
+                      dashboardSidebar(sidebarMenu(menuItem("MCA", tabName = "mca",
+                                                            icon = icon("arrows")), menuItem("Clustering", tabName = "clus",
+                                                                                             icon = icon("object-group")))), dashboardBody(tabItems(tabItem(tabName = "mca",
+                                                                                                                                                            navbarPage("MCA", navbarMenu("Cell Space", tabPanel("2 Axis",
+                                                                                                                                                                                                                wellPanel(fluidRow(column(6, selectInput("DR_CS_2D_Type",
+                                                                                                                                                                                                                                                         label = "Type", choices = c("Principal", "Standard"),
+                                                                                                                                                                                                                                                         selected = "Principal"), selectInput("DR_CS_Axis_x",
+                                                                                                                                                                                                                                                                                              label = "Select x Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                              selected = "Axis1"), selectInput("DR_CS_Axis_y",
+                                                                                                                                                                                                                                                                                                                               label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                               selected = "Axis2")), column(6, sliderInput("Size",
+                                                                                                                                                                                                                                                                                                                                                                           label = "Point Size", min = 0, max = 10, value = 5,
+                                                                                                                                                                                                                                                                                                                                                                           step = 1), sliderInput("Alpha", label = "Transparency",
+                                                                                                                                                                                                                                                                                                                                                                                                  min = 0, max = 1, value = 1, step = 0.1)))),
+                                                                                                                                                                                                                mainPanel(width = 12, plotlyOutput("CellSpace2D",
+                                                                                                                                                                                                                                                   width = "95%", height = "100%"))), tabPanel("3 Axis",
+                                                                                                                                                                                                                                                                                               wellPanel(fluidRow(column(4, selectInput("DR_CS_3D_Type",
+                                                                                                                                                                                                                                                                                                                                        label = "Type", choices = c("Principal", "Standard"),
+                                                                                                                                                                                                                                                                                                                                        selected = "Principal"), selectInput("DR_CS_Axis1_3D",
+                                                                                                                                                                                                                                                                                                                                                                             label = "Select x Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                             selected = "Axis1")), column(4, selectInput("DR_CS_Axis2_3D",
+                                                                                                                                                                                                                                                                                                                                                                                                                         label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                         selected = "Axis2"), selectInput("DR_CS_Axis3_3D",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                          label = "Select z Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                          selected = "Axis3")), column(4, sliderInput("DR_CS_Size_3D",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      label = "Point Size", min = 0, max = 10, value = 5,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      step = 0.1), sliderInput("DR_CS_Alpha_3D",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               label = "Transparency", min = 0, max = 1, value = 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               step = 0.1)))), mainPanel(width = 12, align = "center",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         plotlyOutput("CellSpace3D", width = "100%",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      height = "100%"))), tabPanel("Axis & Gene Correlation",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   wellPanel(fluidRow(column(4, selectInput("DR_CS_AC_Type",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            label = "Type", choices = c("Principal", "Standard"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            selected = "Principal"), selectInput("DR_CS_AC_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 label = "Gene", choices = X$ExpressionMatrix %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   rownames)), column(4, selectInput("DR_CS_AC_Axis_x",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     label = "Select x Axis", choices = X$MCA$cells_principal %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       colnames, selected = "Axis1"), selectInput("DR_CS_AC_Axis_y",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  label = "Select y Axis", choices = X$MCA$cells_principal %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    rownames_to_column(var = "Sample") %>% select(contains("Axis")) %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    colnames, selected = "Axis2")), column(4,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           sliderInput("DR_CS_AC_Size", label = "Point Size",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       min = 0, max = 10, value = 5, step = 1),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           sliderInput("DR_CS_AC_Alpha", label = "Transparency",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       min = 0, max = 1, value = 1, step = 0.1)))),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   mainPanel(width = 12, plotlyOutput("CellSpaceGeneCor",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      width = "100%", height = "100%")), mainPanel(width = 12,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   DT::dataTableOutput("TableGeneCor", width = "100%",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       height = "100%")))), tabPanel(title = "Gene Space",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     fluidRow(column(5, wellPanel(selectInput("Axis1_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              label = "Select x Axis1", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              selected = "Axis1"), selectInput("Axis2_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               selected = "Axis2"), selectInput("Type_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                label = "Type", choices = c("Principal", "Standard"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                selected = "Principal"))), column(5, offset = 2,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  wellPanel(sliderInput("Size_Gene", label = "Point Size",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        min = 0, max = 5, value = 2, step = 1), sliderInput("Alpha_Gene",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            label = "Transparency", min = 0, max = 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            value = 1, step = 0.1)))), mainPanel(width = 12,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 plotlyOutput("GeneSpace"))), tabPanel(title = "Eigen Value",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       selectInput("Mode", label = "Select Mode", choices = c(Explained_Variance = "Explained_Variance",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              Cumulative = "Cumulative"), selected = "Explained_Variance"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       sliderInput("amount_adjust", label = "Amount",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   min = 1, max = X$MCA$cells_principal %>% ncol,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   value = if (X$MCA$cells_principal %>% ncol %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               is_greater_than(5)) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     5
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   } else {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     1
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   }, step = 1), plotlyOutput("Eigen")))), tabItem(tabName = "clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   navbarPage("Clustering", navbarMenu("Cell Space",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       tabPanel("Clustering 2 Axis", titlePanel("Cluster in the Cell Space"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                wellPanel(fluidRow(column(5, selectInput("Axis1_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         label = "Select x Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         selected = "Axis1"), selectInput("Axis2_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          selected = "Axis2"), selectInput("Type",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           label = "Type", choices = c("Principal",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       "Standard"), selected = "Principal")),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   column(5, offset = 1, sliderInput("Size_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     label = "Point Size", min = 0, max = 10,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     value = 5, step = 1), sliderInput("Alpha_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       label = "Transparency", min = 0, max = 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       value = 1, step = 0.1)))), plotlyOutput("CellSpace_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               width = "100%", height = "100%")), tabPanel("Clustering 3 Axis",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           wellPanel(fluidRow(column(5, selectInput("Axis1_3D_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    label = "Select x Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    selected = "Axis1"), selectInput("Axis2_3D_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     selected = "Axis2"), selectInput("Axis3_3D_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      label = "Select z Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      selected = "Axis3")), column(5, offset = 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   sliderInput("Size_3D_Clus", label = "Point Size",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               min = 0, max = 10, value = 5, step = 0.1),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   sliderInput("Alpha_3D_Clus", label = "Transparency",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               min = 0, max = 1, value = 1, step = 0.1)))),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           mainPanel(width = 12, align = "center", plotlyOutput("CellSpace3D_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                width = "100%", height = "100%")))), tabPanel(title = "Gene Space",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              titlePanel("Genespace with Cluster Centroids"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              wellPanel(fluidRow(column(5, selectInput("Axis1_Gene_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       label = "Select x Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       selected = "Axis1"), selectInput("Axis2_Gene_Clus",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        label = "Select y Axis", choices = dr_axis,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        selected = "Axis2")), column(5, offset = 1,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     sliderInput("Size_Gene_Clus", label = "Point Size",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 min = 0, max = 2, value = 1, step = 0.1),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     sliderInput("Alpha_Gene_Clus", label = "Transparency",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 min = 0, max = 1, value = 1, step = 0.1)))),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              tabPanel(title = "Boxplot", fluidPage(titlePanel("Genes Expression by Cluster"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    fluidRow(column(width = 6, selectInput("Genes_Boxplot",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           "Choose a Gene:", choices = (X$ExpressionMatrix %>%
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          rownames %>% sort), selectize = TRUE, multiple = TRUE,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           selected = (X$ExpressionMatrix %>% rownames)[1])))),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       mainPanel(width = 12, h3("Boxplot"), plotlyOutput("Boxplot",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         width = "100%", height = "100%"), h3("Genes Specific to Cluster"),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 DT::dataTableOutput("DTBOX"))))))))
 
-    server <- function(input, output, clientData, session) {
-        DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%
-            colnames
+  server <- function(input, output, clientData, session) {
+    DR_axis_name <- X$MCA$cells_principal %>% select(contains("Axis")) %>%
+      colnames
 
-        output$CellSpaceGeneCor <- renderPlotly({
-            if (input$DR_CS_AC_Type == "Principal") {
-                axis_cor <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
-                  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
-                    ] %>% data.frame() %>% tibble::rownames_to_column() %>%
-                    set_colnames(c("Sample", "Expression")),
-                    by = "Sample")
-                p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
-                  y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
-                  add_markers(text = ~Sample, hoverinfo = "text",
-                    alpha = input$DR_CS_AC_Alpha, color = ~Expression,
-                    marker = list(size = input$DR_CS_AC_Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_AC_Axis_x),
-                    yaxis = list(title = input$DR_CS_AC_Axis_y))
-                p
-            } else {
-                axis_cor <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
-                  inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
-                    ] %>% data.frame() %>% tibble::rownames_to_column() %>%
-                    set_colnames(c("Sample", "Expression")),
-                    by = "Sample")
-                p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
-                  y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
-                  add_markers(text = ~Sample, hoverinfo = "text",
-                    alpha = input$DR_CS_AC_Alpha, color = ~Expression,
-                    marker = list(size = input$DR_CS_AC_Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_Axis_x),
-                    yaxis = list(title = input$DR_CS_Axis_y))
-                p
-            }
-        })
-        output$CellSpace2D <- renderPlotly({
-            if (input$DR_CS_2D_Type == "Principal") {
-                d3 <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample")
-                p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
-                  y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
-                  mode = "markers", text = ~Sample, hoverinfo = "text",
-                  alpha = input$Alpha, marker = list(size = input$Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_Axis_x),
-                    yaxis = list(title = input$DR_CS_Axis_y))
-                p
-            } else {
-                d3 <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample")
-                p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
-                  y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
-                  mode = "markers", text = ~Sample, hoverinfo = "text",
-                  alpha = input$Alpha, marker = list(size = input$Size)) %>%
-                  layout(xaxis = list(title = input$DR_CS_Axis_x),
-                    yaxis = list(title = input$DR_CS_Axis_y))
-                p
-            }
-        })
+    output$CellSpaceGeneCor <- renderPlotly({
+      if (input$DR_CS_AC_Type == "Principal") {
+        axis_cor <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
+          inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
+                                        ] %>% data.frame() %>% tibble::rownames_to_column() %>%
+                       set_colnames(c("Sample", "Expression")),
+                     by = "Sample")
+        p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
+                     y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
+          add_markers(text = ~Sample, hoverinfo = "text",
+                      alpha = input$DR_CS_AC_Alpha, color = ~Expression,
+                      marker = list(size = input$DR_CS_AC_Size)) %>%
+          layout(xaxis = list(title = input$DR_CS_AC_Axis_x),
+                 yaxis = list(title = input$DR_CS_AC_Axis_y))
+        p
+      } else {
+        axis_cor <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
+          inner_join(X$ExpressionMatrix[input$DR_CS_AC_Gene,
+                                        ] %>% data.frame() %>% tibble::rownames_to_column() %>%
+                       set_colnames(c("Sample", "Expression")),
+                     by = "Sample")
+        p <- plot_ly(data = axis_cor, x = ~axis_cor[[input$DR_CS_AC_Axis_x]],
+                     y = ~axis_cor[[input$DR_CS_AC_Axis_y]]) %>%
+          add_markers(text = ~Sample, hoverinfo = "text",
+                      alpha = input$DR_CS_AC_Alpha, color = ~Expression,
+                      marker = list(size = input$DR_CS_AC_Size)) %>%
+          layout(xaxis = list(title = input$DR_CS_Axis_x),
+                 yaxis = list(title = input$DR_CS_Axis_y))
+        p
+      }
+    })
+    output$CellSpace2D <- renderPlotly({
+      if (input$DR_CS_2D_Type == "Principal") {
+        d3 <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample")
+        p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
+                     y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
+                     mode = "markers", text = ~Sample, hoverinfo = "text",
+                     alpha = input$Alpha, marker = list(size = input$Size)) %>%
+          layout(xaxis = list(title = input$DR_CS_Axis_x),
+                 yaxis = list(title = input$DR_CS_Axis_y))
+        p
+      } else {
+        d3 <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample")
+        p <- plot_ly(data = d3, x = ~d3[[input$DR_CS_Axis_x]],
+                     y = ~d3[[input$DR_CS_Axis_y]], type = "scatter",
+                     mode = "markers", text = ~Sample, hoverinfo = "text",
+                     alpha = input$Alpha, marker = list(size = input$Size)) %>%
+          layout(xaxis = list(title = input$DR_CS_Axis_x),
+                 yaxis = list(title = input$DR_CS_Axis_y))
+        p
+      }
+    })
 
-        output$CellSpace3D <- renderPlotly(if (input$DR_CS_3D_Type ==
-            "Standard") {
-            plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_standard),
-                "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%
-                  signif(digits = 4), "</br>", input$Axis2_3D,
-                ": ", X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%
-                  signif(digits = 4), "</br>", input$Axis3_3D,
-                ": ", X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%
-                  signif(digits = 4)), x = ~X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
-                y = ~X$MCA$cells_standard[[input$DR_CS_Axis2_3D]],
-                z = ~X$MCA$cells_standard[[input$DR_CS_Axis3_3D]],
-                hoverinfo = "text", marker = list(opacity = input$DR_CS_Alpha_3D,
-                  size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
-                    width = 2))) %>% add_markers() %>% layout(autosize = FALSE,
-                scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
-                  yaxis = list(title = input$DR_CS_Axis2_3D),
-                  zaxis = list(title = input$DR_CS_Axis3_3D)))
-        } else {
-            plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_principal),
-                "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%
-                  signif(digits = 4), "</br>", input$DR_CS_Axis2_3D,
-                ": ", X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%
-                  signif(digits = 4), "</br>", input$DR_CS_Axis3_3D,
-                ": ", X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%
-                  signif(digits = 4)), x = ~X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
-                y = ~X$MCA$cells_principal[[input$DR_CS_Axis2_3D]],
-                z = ~X$MCA$cells_principal[[input$DR_CS_Axis3_3D]],
-                hoverinfo = "text", marker = list(opacity = input$DR_CS_Alpha_3D,
-                  size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
-                    width = 2))) %>% add_markers() %>% layout(margin = list(b = 50,
-                t = 50, l = 50, r = 100, pad = 0), autosize = FALSE,
-                scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
-                  yaxis = list(title = input$DR_CS_Axis2_3D),
-                  zaxis = list(title = input$DR_CS_Axis3_3D)))
-        })
-        output$TableGeneCor <- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>%
-            extract(1:6))
-        output$GeneSpace <- renderPlotly({
-            if (input$Type_Gene == "Principal") {
-                d3 <- X$MCA$genes_principal %>% rownames_to_column(var = "Genes")
-            } else {
-                d3 <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes")
-            }
-            p <- plot_ly(data = d3, x = ~d3[[input$Axis1_Gene]],
-                y = ~d3[[input$Axis2_Gene]], type = "scatter",
-                mode = "markers", text = ~Genes, hoverinfo = "text",
-                alpha = input$Alpha_Gene, marker = list(size = input$Size_Gene)) %>%
-                layout(xaxis = list(title = input$Axis1_Gene),
-                  yaxis = list(title = input$Axis2_Gene))
-            p
-        })
-        output$Eigen <- renderPlotly({
-            Shiny_Eigen <- X$MCA$explained_eigen_variance
-            Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,
-                ]
-            plot_ly(Shiny_Eigen) %>% add_bars(x = ~Axis, y = ~Shiny_Eigen[[input$Mode]],
-                hoverinfo = "text", text = ~paste0("Axis: ",
-                  Axis, "</br>Explained Variance: ", Explained_Variance %>%
-                    round(3), "</br>Cumulated Explained Variance: ",
-                  Cumulative %>% round(3))) %>% layout(yaxis = list(title = input$Mode),
-                margin = list(b = 100, t = 25, l = 50, r = 50,
-                  pad = 0))
-        })
+    output$CellSpace3D <- renderPlotly(if (input$DR_CS_3D_Type ==
+                                           "Standard") {
+      plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_standard),
+                                                                    "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_standard[[input$DR_CS_Axis1_3D]] %>%
+                                                                      signif(digits = 4), "</br>", input$Axis2_3D,
+                                                                    ": ", X$MCA$cells_standard[[input$DR_CS_Axis2_3D]] %>%
+                                                                      signif(digits = 4), "</br>", input$Axis3_3D,
+                                                                    ": ", X$MCA$cells_standard[[input$DR_CS_Axis3_3D]] %>%
+                                                                      signif(digits = 4)), x = ~X$MCA$cells_standard[[input$DR_CS_Axis1_3D]],
+              y = ~X$MCA$cells_standard[[input$DR_CS_Axis2_3D]],
+              z = ~X$MCA$cells_standard[[input$DR_CS_Axis3_3D]],
+              hoverinfo = "text", marker = list(opacity = input$DR_CS_Alpha_3D,
+                                                size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
+                                                                                        width = 2))) %>% add_markers() %>% layout(autosize = FALSE,
+                                                                                                                                  scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
+                                                                                                                                               yaxis = list(title = input$DR_CS_Axis2_3D),
+                                                                                                                                               zaxis = list(title = input$DR_CS_Axis3_3D)))
+    } else {
+      plot_ly(X$MCA$cells_standard, mode = "markers", text = ~paste(rownames(X$MCA$cells_principal),
+                                                                    "</br>", input$DR_CS_Axis1_3D, ": ", X$MCA$cells_principal[[input$DR_CS_Axis1_3D]] %>%
+                                                                      signif(digits = 4), "</br>", input$DR_CS_Axis2_3D,
+                                                                    ": ", X$MCA$cells_principal[[input$DR_CS_Axis2_3D]] %>%
+                                                                      signif(digits = 4), "</br>", input$DR_CS_Axis3_3D,
+                                                                    ": ", X$MCA$cells_principal[[input$DR_CS_Axis3_3D]] %>%
+                                                                      signif(digits = 4)), x = ~X$MCA$cells_principal[[input$DR_CS_Axis1_3D]],
+              y = ~X$MCA$cells_principal[[input$DR_CS_Axis2_3D]],
+              z = ~X$MCA$cells_principal[[input$DR_CS_Axis3_3D]],
+              hoverinfo = "text", marker = list(opacity = input$DR_CS_Alpha_3D,
+                                                size = input$DR_CS_Size_3D, line = list(color = "rgba(0, 0, 0, .8)",
+                                                                                        width = 2))) %>% add_markers() %>% layout(margin = list(b = 50,
+                                                                                                                                                t = 50, l = 50, r = 100, pad = 0), autosize = FALSE,
+                                                                                                                                  scene = list(xaxis = list(title = input$DR_CS_Axis1_3D),
+                                                                                                                                               yaxis = list(title = input$DR_CS_Axis2_3D),
+                                                                                                                                               zaxis = list(title = input$DR_CS_Axis3_3D)))
+    })
+    output$TableGeneCor <- DT::renderDataTable(X$MCA$Axis_Gene_Cor %>%
+                                                 extract(1:6))
+    output$GeneSpace <- renderPlotly({
+      if (input$Type_Gene == "Principal") {
+        d3 <- X$MCA$genes_principal %>% rownames_to_column(var = "Genes")
+      } else {
+        d3 <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes")
+      }
+      p <- plot_ly(data = d3, x = ~d3[[input$Axis1_Gene]],
+                   y = ~d3[[input$Axis2_Gene]], type = "scatter",
+                   mode = "markers", text = ~Genes, hoverinfo = "text",
+                   alpha = input$Alpha_Gene, marker = list(size = input$Size_Gene)) %>%
+        layout(xaxis = list(title = input$Axis1_Gene),
+               yaxis = list(title = input$Axis2_Gene))
+      p
+    })
+    output$Eigen <- renderPlotly({
+      Shiny_Eigen <- X$MCA$explained_eigen_variance
+      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,
+                                 ]
+      plot_ly(Shiny_Eigen) %>% add_bars(x = ~Axis, y = ~Shiny_Eigen[[input$Mode]],
+                                        hoverinfo = "text", text = ~paste0("Axis: ",
+                                                                           Axis, "</br>Explained Variance: ", Explained_Variance %>%
+                                                                             round(3), "</br>Cumulated Explained Variance: ",
+                                                                           Cumulative %>% round(3))) %>% layout(yaxis = list(title = input$Mode),
+                                                                                                                margin = list(b = 100, t = 25, l = 50, r = 50,
+                                                                                                                              pad = 0))
+    })
 
 
-        # ____________________________________________________________________________
-        # Clus server ####
+    # ____________________________________________________________________________
+    # Clus server ####
 
-        options(warn = -1)
-        output$CellSpace_Clus <- renderPlotly({
-            d3 <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
-                inner_join(X$cluster$labels, by = "Sample")
-            d4 <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
-                inner_join(X$cluster$labels, by = "Sample")
+    options(warn = -1)
+    output$CellSpace_Clus <- renderPlotly({
+      d3 <- X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
+        inner_join(X$cluster$labels, by = "Sample")
+      d4 <- X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
+        inner_join(X$cluster$labels, by = "Sample")
 
-            if (input$Type == "Principal") {
-                p <- plot_ly(data = d3, x = ~d3[[input$Axis1_Clus]],
-                  y = ~d3[[input$Axis2_Clus]], color = ~Cluster,
-                  type = "scatter", mode = "markers", text = ~Sample,
-                  hoverinfo = "text", alpha = input$Alpha_Clus,
-                  marker = list(size = input$Size_Clus)) %>%
-                  layout(xaxis = list(title = input$Axis1_Clus),
-                    yaxis = list(title = input$Axis2_Clus))
-                p
-            } else {
-                p <- plot_ly(data = d4, x = ~d4[[input$Axis1_Clus]],
-                  y = ~d4[[input$Axis2_Clus]], color = ~Cluster,
-                  type = "scatter", mode = "markers", text = ~Sample,
-                  hoverinfo = "text", alpha = input$Alpha_Clus,
-                  marker = list(size = input$Size_Clus)) %>%
-                  layout(xaxis = list(title = input$Axis1_Clus),
-                    yaxis = list(title = input$Axis2_Clus))
-                p
-            }
-        })
+      if (input$Type == "Principal") {
+        p <- plot_ly(data = d3, x = ~d3[[input$Axis1_Clus]],
+                     y = ~d3[[input$Axis2_Clus]], color = ~Cluster,
+                     type = "scatter", mode = "markers", text = ~Sample,
+                     hoverinfo = "text", alpha = input$Alpha_Clus,
+                     marker = list(size = input$Size_Clus)) %>%
+          layout(xaxis = list(title = input$Axis1_Clus),
+                 yaxis = list(title = input$Axis2_Clus))
+        p
+      } else {
+        p <- plot_ly(data = d4, x = ~d4[[input$Axis1_Clus]],
+                     y = ~d4[[input$Axis2_Clus]], color = ~Cluster,
+                     type = "scatter", mode = "markers", text = ~Sample,
+                     hoverinfo = "text", alpha = input$Alpha_Clus,
+                     marker = list(size = input$Size_Clus)) %>%
+          layout(xaxis = list(title = input$Axis1_Clus),
+                 yaxis = list(title = input$Axis2_Clus))
+        p
+      }
+    })
 
-        output$GeneSpace_Clus <- renderPlotly({
-            Genes <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes") %>%
-                select_("Genes", input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%
-                set_colnames(c("Genes", "AP1", "AP2"))
-            Centroids <- X$cluster$coord_centroids %>% select_("Cluster",
-                input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%
-                set_colnames(c("Cluster", "AC1", "AC2"))
-            p <- plot_ly(data = Genes, x = ~AP1, y = ~AP2) %>%
-                add_markers(name = "Genes", text = ~Genes, hoverinfo = "text",
-                  marker = list(size = input$Size_Gene_Clus,
-                    color = "black", alpha = input$Alpha_Gene_Clus)) %>%
-                add_markers(data = Centroids, x = ~AC1, y = ~AC2,
-                  color = ~Cluster, text = ~Cluster, hoverinfo = "text",
-                  marker = list(size = 10)) %>% layout(xaxis = list(title = input$Axis1_Gene_Clus),
-                yaxis = list(title = input$Axis2_Gene_Clus))
-            return(p)
-        })
+    output$GeneSpace_Clus <- renderPlotly({
+      Genes <- X$MCA$genes_standard %>% rownames_to_column(var = "Genes") %>%
+        select_("Genes", input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%
+        set_colnames(c("Genes", "AP1", "AP2"))
+      Centroids <- X$cluster$coord_centroids %>% select_("Cluster",
+                                                         input$Axis1_Gene_Clus, input$Axis2_Gene_Clus) %>%
+        set_colnames(c("Cluster", "AC1", "AC2"))
+      p <- plot_ly(data = Genes, x = ~AP1, y = ~AP2) %>%
+        add_markers(name = "Genes", text = ~Genes, hoverinfo = "text",
+                    marker = list(size = input$Size_Gene_Clus,
+                                  color = "black", alpha = input$Alpha_Gene_Clus)) %>%
+        add_markers(data = Centroids, x = ~AC1, y = ~AC2,
+                    color = ~Cluster, text = ~Cluster, hoverinfo = "text",
+                    marker = list(size = 10)) %>% layout(xaxis = list(title = input$Axis1_Gene_Clus),
+                                                         yaxis = list(title = input$Axis2_Gene_Clus))
+      return(p)
+    })
 
-        output$CellSpace3D_Clus <- renderPlotly(plot_ly(X$MCA$cells_principal %>%
-            rownames_to_column(var = "Sample") %>% inner_join(X$cluster$labels,
-            by = "Sample"), color = ~Cluster, mode = "markers",
-            text = ~paste(Cluster, " ", Sample), x = ~X$MCA$cells_principal[[input$Axis1_3D_Clus]],
+    output$CellSpace3D_Clus <- renderPlotly(plot_ly(X$MCA$cells_principal %>%
+                                                      rownames_to_column(var = "Sample") %>% inner_join(X$cluster$labels,
+                                                                                                        by = "Sample"), color = ~Cluster, mode = "markers",
+                                                    text = ~paste(Cluster, " ", Sample), x = ~X$MCA$cells_principal[[input$Axis1_3D_Clus]],
             y = ~X$MCA$cells_principal[[input$Axis2_3D_Clus]],
             z = ~X$MCA$cells_principal[[input$Axis3_3D_Clus]],
             hoverinfo = "text", marker = list(opacity = input$Alpha_3D_Clus,
@@ -969,3 +969,5 @@ create_dashboard3 <- function(X) {
     }
     return(shinyApp(ui, server))
 }
+
+
