@@ -7,7 +7,7 @@
 cluster_kmeans(X, k = 2, maxIter = 10, nstart = 50)
 }
 \arguments{
-\item{X}{MCXpress object containing a MCXmca object}
+\item{X}{MCXpress object containing MCA object}
 
 \item{k}{Number of cluster to compute}
 
@@ -27,4 +27,11 @@ MCXpress object containing a MCXmca and MCXcluster object
 }
 \description{
 K-Means Clustering on MCA
+}
+\examples{
+MCX64553 <- Initialise_MCXpress(GSE64553)
+MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+MCX64553 <- MCA(MCX64553)
+MCX64553 <- cluster_kmeans(MCX64553, k=6)
 }

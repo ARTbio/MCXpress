@@ -7,7 +7,7 @@
 cluster_k_medoids(X, k = 2)
 }
 \arguments{
-\item{X}{MCXpress object containing a MCXmca object}
+\item{X}{MCXpress object containing MCA object}
 
 \item{k}{integer indicating the number of cluster to obtain}
 }
@@ -23,4 +23,11 @@ MCXpress object containing a MCXmca and MCXcluster object
 }
 \description{
 K-Medoids Clusetering on the MCA Analysis
+}
+\examples{
+MCX64553 <- Initialise_MCXpress(GSE64553)
+MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+MCX64553 <- MCA(MCX64553)
+MCX64553 <- cluster_k_medoids(MCX64553, k=6)
 }
