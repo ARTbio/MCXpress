@@ -1,4 +1,3 @@
-
 # ____________________________________________________________________________
 # MCA Dimension Reduction ####
 #' Dimensional reduction using multiple corespondence analysis.
@@ -19,7 +18,7 @@
 #' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553, Dim = 5)
 #' @export
-MCA <- function(X, Dim = (X$ExpressionMatrix %>% ncol) - 1)
+MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>%  min) - 1)
 {
     cat("Peforming MCA...\n")
     ## ............................................................................
@@ -53,7 +52,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% ncol) - 1)
         U <- Eigen$vectors[, 2:(Eig %>% length %>% add(1))]
         if (Dim > (Eig %>% length))
         {
-            Dim <- Eig %>% length
+          Dim <- Eig %>% length
         }
         Dt <- (Eig %>% sqrt %>% raise_to_power(-1) %>% diag)
         V <- (Z %*% U) %*% Dt
@@ -68,14 +67,14 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% ncol) - 1)
     setTxtProgressBar(pb, 0.6)
 
     X$MCA$cells_principal <- (sqrt(nrow(X$Disjunctive_Matrix)) *
-        V)[, 1:Dim] %>% set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
-        rownames) %>% data.frame
+                                V)[, 1:Dim] %>% set_colnames(Component) %>% set_rownames(X$Disjunctive_Matrix %>%
+                                                                                           rownames) %>% data.frame
 
     setTxtProgressBar(pb, 0.7)
 
     X$MCA$cells_standard <- (sqrt(nrow(X$Disjunctive_Matrix)) *
-        (V %*% sqrt(D)))[, 1:Dim] %>% set_colnames(Component) %>%
-        set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
+                               (V %*% sqrt(D)))[, 1:Dim] %>% set_colnames(Component) %>%
+      set_rownames(X$Disjunctive_Matrix %>% rownames) %>% data.frame
 
     setTxtProgressBar(pb, 0.8)
     X$MCA$genes_standard <- ((t(Z) %*% V) * Dc)[, 1:Dim] %>%

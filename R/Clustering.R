@@ -141,13 +141,13 @@ cluster_supervised <- function(X, Y) {
 #' MCX64553 <- MCA(MCX64553)
 #' MCX64553 <- cluster_kmeans(MCX64553, k=6)
 #' @export
-cluster_kmeans <- function(X, k = 2, maxIter = 10, nstart = 50) {
+cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
     cat("Performing Kmeans Clustering with ", k, " Cluster")
-    Distance <- X$MCA$Cell2Cell_Distance
-    Cluster <- Distance %>% kmeans(centers = k, iter.max = maxIter,
+
+    Cluster <- X$MCA$cells_standard[,1:dim] %>% kmeans(centers = k, iter.max = maxIter,
         nstart = nstart)
     X$cluster$labels <- paste0("Cluster", Cluster$cluster)
-    names(X$cluster$labels) <- rownames(Distance)
+    names(X$cluster$labels) <- rownames(X$MCA$cells_standard)
     X$cluster$labels <- tibble(names(X$cluster$labels), X$cluster$labels) %>%
         set_colnames(c("Sample", "Cluster"))
     X$cluster$nClusters <- k
@@ -210,13 +210,28 @@ cluster_hclust <- function(X, method = "average", k = NULL, h = NULL) {
 #' MCX64553 <- MCA(MCX64553)
 #' MCX64553 <- cluster_k_medoids(MCX64553, k=6)
 #'@export
-cluster_k_medoids <- function(X, k = 2) {
-    Distance <- X$MCA$Cell2Cell_Distance
-    Cluster <- Distance %>% as.dist %>% pam(k = k, cluster.only = TRUE)
+cluster_k_medoids <- function(X, k = 2, dim=2) {
+    Distance <-
+    Cluster <-  X$MCA$cells_standard[,1:dim] %>% pam(k = k, cluster.only = TRUE)
     X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
         names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>% length
     X <- calculate_cluster_centroids(X)
     return(X)
 }
+
+
+cluster_mclust <- function(X, k, dim) {
+  Cluster <- X$MCA$cells_standard[,1:dim] %>%
+    mclust::Mclust(G=k) %>%
+    use_series(classification) %>%
+    set_names(nm = X$MCA$cells_standard %>% rownames)
+  X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
+                                                            names)) %>% set_names(c("Cluster", "Sample"))
+  X$cluster$nClusters <- Cluster %>% unique %>% length
+  X <- calculate_cluster_centroids(X)
+  return(X)
+}
+
+
 

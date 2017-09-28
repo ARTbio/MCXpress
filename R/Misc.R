@@ -12,12 +12,12 @@
 #' @export
 Initialise_MCXpress <- function(X, min_reads = NULL)
 {
-    if (X %>% is.matrix)
+  if (X %>% is.matrix)
+  {
+    if ((X %>% rownames %>% is.null) | (X %>% colnames %>%
+                                        is.null))
     {
-        if ((X %>% rownames %>% is.null) | (X %>% colnames %>%
-            is.null))
-            {
-            errormessage <- "Gene name should be the rownames of the matrix and Sample name the column name"
+      errormessage <- "Gene name should be the rownames of the matrix and Sample name the column name"
             stop(errormessage)
         } else
         {

@@ -50,7 +50,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     cat("Calculating ranking of genes correlation for each axis \n")
     axis_rank <- df %>% select(-Genes) %>% purrr::map(function(x)
     {
-        x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "first") %>%
+        x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "random") %>%
             sort
     })
 
@@ -79,14 +79,14 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ### . . . . . . . ..  a Filter Bin ####
     df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
         into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
-        dplyr::filter(bin %in% nbin) %>% dplyr::group_by(Genes) %>%
-        dplyr::summarise_at(.cols = -(1:2), .funs = min)
+        dplyr::filter(bin %in% nbin)
+    #%>%dplyr::summarise_at(.cols = -(1:2), .funs = min)
 
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     ### . . . . . . . ..  b Calculate Rank for Cluster ####
 
     cat("\nCalculating ranking of genes for each clusters \n")
-    cluster_rank <- df2 %>% select(-Genes) %>% purrr::map(function(x)
+    cluster_rank <- df2 %>% select(-Genes,-bin) %>% purrr::map(function(x)
     {
         x %>% abs %>% multiply_by(-1) %>% set_names(df2$Genes) %>%
             rank(ties.method = "first") %>% sort
@@ -113,12 +113,12 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ## C GSEA finalisation ####
 
     X$GSEA$GSEA_Results_Axis <- axis_gsea
-    X$GSEA$RankingAxis <- axis_rank
+    X$GSEA$RankingAxis <- axis_rank %>% purrr::map(.f=function(x){x %>% set_names(x %>% rev %>% names())})
     X$GSEA$GSEA_Results <- cluster_gsea
-    X$GSEA$Ranking <- cluster_rank
+    X$GSEA$Ranking <- cluster_rank %>% purrr::map(.f=function(x){x %>% set_names(x %>% rev %>% names())})
     X$GSEA$GMTfile <- GMTfile
     X$GSEA$Pathways <- axis_gsea$Axis1$pathway
-    X$GSEA$AllRanking <- X$GSEA$RankingAxis %>% append(X$GSEA$Ranking)
+    X$GSEA$AllRanking <- axis_rank %>% append(cluster_rank)
     X$GSEA$gseaParam <- gseaParam
     X$Shiny <- create_dashboard3(X)
     cat(paste0("Enrichment Analysis Completed\n"))
