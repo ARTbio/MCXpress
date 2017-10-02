@@ -153,9 +153,9 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0)
     diff <- (max(tops) - min(bottoms))/8
     x = y = NULL
     plot_ly(data = toPlot) %>% add_lines(x = ~x, y = ~y, mode = "lines",
-        line = list(color = "rgb(154, 240, 24)", width = 2),
+        line = list(color = "rgb(150, 240, 30)", width = 2),
         name = "Enrichment") %>% add_lines(x = ~x, y = ~min(bottoms),
-        line = list(color = "rgb(110, 193, 248)", width = 2,
+        line = list(color = "rgb(110, 190, 250)", width = 2,
             dash = "dash"), name = "Lower limit", hoverinfo = "text",
         text = ~round(min(bottoms), digits = 4)) %>% add_lines(x = ~x,
         y = ~max(tops), line = list(color = "rgb(250, 150, 10)",

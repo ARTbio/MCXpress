@@ -10,7 +10,7 @@
 #' @examples
 #' MCX64553 <- Initialise_MCXpress(GSE64553)
 #' @export
-Initialise_MCXpress <- function(X, min_reads = NULL)
+Initialise_MCXpress <- function(X)
 {
   if (X %>% is.matrix)
   {
@@ -24,18 +24,13 @@ Initialise_MCXpress <- function(X, min_reads = NULL)
             MCXpress <- list()
             X <- as.matrix((X[apply(X, 1, var) > 0, ]))
             X <- X[str_length(X %>% rownames) > 0, ]
-            X <- X %>% subset(X %>% rownames %>% duplicated %>%
-                not)
+            X <- X %>% subset(X %>% rownames %>% duplicated %>% not)
             colnames(X) <- gsub(pattern = " ", replacement = "_",
                 x = colnames(X))
             colnames(X) <- gsub(pattern = "-", replacement = "_",
                 x = colnames(X))
             colnames(X) <- gsub(pattern = "\\.", replacement = "_",
                 x = colnames(X))
-            if (min_reads %>% is.numeric())
-            {
-                X <- X[rowSums(X) > min_reads, ]
-            }
             MCXpress$ExpressionMatrix <- X
             class(MCXpress) <- "MCXpress_object"
             return(MCXpress)
@@ -47,4 +42,78 @@ Initialise_MCXpress <- function(X, min_reads = NULL)
     }
 }
 
+
+Df_To_Mat <- function(x) {
+  Dframe <- x[,-1] %>% as.matrix %>% set_rownames(x[,1])
+  return(Dframe)
+}
+
+#' Title
+#'
+#' @param x
+#' @param namecol
+#'
+#' @return
+#'
+#' @examples
+Mat_To_Df <- function(x, namecol="Sample") {
+  Mat <- x %>%  as.data.frame() %>% tibble::rownames_to_column(var = namecol) %>%  as_tibble
+  return(Mat)
+}
+
+#' Title
+#'
+#' @param x
+#' @param namecol
+#'
+#' @return
+#'
+#' @examples
+Vec_To_Df <- function(x, namecol=c("X1","X2")){
+  Dframe <- x %>%  as.data.frame() %>% tibble::rownames_to_column() %>%  as_tibble
+  return(Dframe)
+}
+
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#'
+#' @examples
+Num_Axis_Broken_Stick <- function(x){
+  vari<- x$MCA$explained_eigen_variance$Explained_Variance
+  vari <- vari/100
+  broken <- sum(1/1:(vari %>% length))/(vari %>% length)
+  (vari>broken) %>%  which %>%  length
+}
+
+#' Title
+#'
+#' @param x
+#'
+#' @return
+#'
+#' @examples
+SC_Pseudo_Cluster <- function(x){
+  x<- x$ExpressionMatrix %>%  colnames() %>%  set_names(.,.)
+  return(x)
+}
+
+
+#' Title
+#'
+#' @param X
+#'
+#' @return
+#'
+#' @examples
+Num_Axis_Eigen_Distance <- function(X){
+  eig <- X$MCA$eigen_value
+  A <- (eig[1]-eig[length(eig)])/(1-eig %>% length)
+  B <- eig[1]-A
+  Affine <- function(x){(A*x+B-eig) %>% which.max()}
+  return(Affine(1:(eig %>% length)))
+}
 

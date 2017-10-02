@@ -107,3 +107,4 @@ filter_outlier <- function(X, percentage = 0.05, threshold = 1)
     X$ExpressionMatrix <- X$ExpressionMatrix[noout, ]
     return(X)
 }
+
