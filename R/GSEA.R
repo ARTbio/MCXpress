@@ -58,10 +58,10 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ### each Axis ####
 
     cat("Beginning enrichment analysis for axis \n")
-    axis_gsea <- axis_rank %>% purrr::map2(.y = axis_rank %>%
-        names, .f = function(x, y)
+    pb <- txtProgressBar(width = 50, style=3, char = "+")
+    axis_gsea <- axis_rank %>% purrr::map2(.y = seq(from=0, to=1, length.out = (axis_rank %>%  length)), .f = function(x, y)
         {
-        cat(paste("processing:", y, "\n"))
+        setTxtProgressBar(pb, y)
         gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
             maxSize = maxSize, minSize = minSize, nproc = nproc,
             BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
@@ -70,6 +70,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
         val <- gsea %>% magrittr::inset(, 2:5, value = ins)
         return(val)
     })
+    close(pb)
 
     ## ............................................................................
     ## B Gene Set Enrichment Analysis on Cluster ####
@@ -92,11 +93,11 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     ### . . . . . . . ..  c fgsea analysis for cluster ####
 
-    cat("Beginning enrichment analysis for clusters\n")
-    cluster_gsea <- cluster_rank %>% purrr::map2(.y = cluster_rank %>%
-        names, .f = function(x, y)
+    cat("Beginning enrichment analysis for clusters\n\n")
+    pb <- txtProgressBar(width = 50, style=3, char = "+")
+    cluster_gsea <- cluster_rank %>% purrr::map2(.y = seq(from=0, to=1, length.out = (cluster_rank %>%  length)), .f = function(x,y)
         {
-        cat(paste("processing:", y, "\n"))
+        setTxtProgressBar(pb, y)
         gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
             maxSize = maxSize, minSize = minSize, nproc = nproc,
             BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
@@ -105,10 +106,12 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
         val <- gsea %>% magrittr::inset(, 2:5, value = ins)
         return(val)
     })
+    close(pb)
 
     ## ............................................................................
     ## C GSEA finalisation ####
 
+    cat(paste0("Creating Enrichment Analysis Object\n"))
     X$GSEA$GSEA_Results_Axis <- axis_gsea
     X$GSEA$RankingAxis <- axis_rank
     X$GSEA$GSEA_Results <- cluster_gsea

@@ -23,7 +23,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>%  min) - 1)
     cat("Peforming MCA...\n")
     ## ............................................................................
     ## A MCA Algorithm ####
-    pb <- txtProgressBar()
+    pb <- txtProgressBar(width = 50, style=3, char = "+")
     Acol <- colSums(X$Disjunctive_Matrix)
     Y <- sweep(X$Disjunctive_Matrix, 2, sqrt(Acol), "/")
     setTxtProgressBar(pb, 0.1)

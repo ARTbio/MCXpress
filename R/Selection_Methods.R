@@ -73,7 +73,7 @@ select_diptest <- function(X, pval = 0.05)
         diptest::dip.test() %>%
         use_series(p.value)
     }
-    dipPval <-exp_mat  %>% apply(MARGIN = 1,FUN = Dip_Test)
+    dipPval <-exp_mat  %>% pbapply::pbapply(MARGIN = 1,FUN = Dip_Test)
     X$ExpressionMatrix <- exp_mat[(dipPval < pval) %>% which,]
     return(X)
     } else
