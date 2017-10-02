@@ -66,14 +66,15 @@ select_diptest <- function(X, pval = 0.05)
 {
   if (X %>% class %>% equals("MCXpress_object"))
   {
+    exp_mat <- X$ExpressionMatrix
     Dip_Test <- function(x){
       x %>%
         as.numeric() %>%
-        dip.test() %>%
+        diptest::dip.test() %>%
         use_series(p.value)
     }
-    dipPval <- exp_matrix %>% apply(MARGIN = 1,FUN = Dip_Test )
-    X$ExpressionMatrix <- exp_matrix[(dipPval < pval) %>% which,]
+    dipPval <-exp_mat  %>% apply(MARGIN = 1,FUN = Dip_Test)
+    X$ExpressionMatrix <- exp_mat[(dipPval < pval) %>% which,]
     return(X)
     } else
   {
