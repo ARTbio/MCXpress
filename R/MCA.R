@@ -82,19 +82,6 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     setTxtProgressBar(pb, 1)
     close(pb)
     ## ............................................................................  C
-    ## Distance Calculation ####
-
-    ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . ..
-    ### a Cell-Cell Distance ####
-    cat("Calculating Cell to Cell Distance...\n")
-    X$MCA$Cell2Cell_Distance <- X$MCA$cells_standard[, 1:Dim] %>% rdist %>% set_colnames(X$MCA$cells_principal %>%
-        rownames) %>% set_rownames(X$MCA$cells_principal %>% rownames)
-    ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . ..
-    ### b Cell-Gene Distance #### X$MCA$Cell2Gene_Distance <-
-    ### rdist(X$MCA$cells_principal, X$MCA$genes_standard) %>%
-    ### set_colnames(X$MCA$genes_standard %>% rownames) %>%
-    ### set_rownames(X$MCA$cells_principal %>% rownames)
-
     X$MCA$eigen_value <- Eig[1:Dim] %>% set_names(Component)
     Percentage_Variance <- (Eig %>% prop.table) * 100
     Percentage_Variance_Cum <- Percentage_Variance %>% cumsum()
@@ -104,11 +91,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
         "Cumulative"))
     X$MCA$Methods <- "MCA"
 
-
-    # End Calculate Wilcoxon for Cell2CellDistance
-
     # Calculate Correlation Axis and Genes
-
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . ..
     ### Axis and Gene Correlation ####
     X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal, method = "spearman") %>%
