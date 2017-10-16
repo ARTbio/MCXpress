@@ -77,7 +77,7 @@ calculate_cluster_centroids <- function(X) {
             "cluster_distances", "gene_cluster_distances", "closest_cluster",
             "plot1", "plot2"))
     X$Shiny <- create_dashboard2(X)
-    class(X$cluster) <- "Cluster_Object"
+    class(X$cluster) <- "Cluster"
     return(X)
 }
 
@@ -221,7 +221,24 @@ cluster_k_medoids <- function(X, k = 2, dim=2) {
 }
 
 
-cluster_mclust <- function(X, k, dim) {
+#' @param X MCXpress object containing MCA object
+#' @param k integer indicating the number of cluster to obtain
+#' @return MCXpress object containing a MCXmca and MCXcluster object
+#' \item{labels}{Clustering results}
+#' \item{nClusters}{Number of Cluster}
+#' \item{gene_cluster_distances}{GSEA Parameter used}
+#' \item{closest_cluster}{Indicate the closest cluster for a gene}
+#' \item{coord_centroids}{GSEA Parameter used}
+#' \item{plot1}{Clustering Visualisation in the MCA cell space}
+#' \item{plot2}{Visualisation of the centroids in the MCA gene space}
+#' @examples
+#' MCX64553 <- Initialise_MCXpress(GSE64553)
+#' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+#' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+#' MCX64553 <- MCA(MCX64553)
+#' MCX64553 <- cluster_k_mclust(MCX64553, k=6, dim=2)
+#'@export
+cluster_mclust <- function(X, k, dim=2) {
   Cluster <- X$MCA$cells_standard[,1:dim] %>%
     mclust::Mclust(G=k) %>%
     use_series(classification) %>%

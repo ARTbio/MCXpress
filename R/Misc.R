@@ -10,6 +10,7 @@
 #' @examples
 #' MCX64553 <- Initialise_MCXpress(GSE64553)
 #' @export
+#' 
 Initialise_MCXpress <- function(X)
 {
   if (X %>% is.matrix)
@@ -32,7 +33,7 @@ Initialise_MCXpress <- function(X)
             colnames(X) <- gsub(pattern = "\\.", replacement = "_",
                 x = colnames(X))
             MCXpress$ExpressionMatrix <- X
-            class(MCXpress) <- "MCXpress_object"
+            class(MCXpress) <- "MCXpress"
             return(MCXpress)
         }
     } else

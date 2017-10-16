@@ -11,7 +11,7 @@
 #'@export
 select_most_variable_genes <- function(X, ngenes = NULL)
 {
-    if (X %>% class %>% equals("MCXpress_object"))
+    if (X %>% class %>% equals("MCXpress"))
     {
         exp_matrix <- X$ExpressionMatrix
         means <- exp_matrix %>% rowMeans
@@ -64,7 +64,7 @@ select_most_variable_genes <- function(X, ngenes = NULL)
 #' @export
 select_diptest <- function(X, pval = 0.05)
 {
-  if (X %>% class %>% equals("MCXpress_object"))
+  if (X %>% class %>% equals("MCXpress"))
   {
     exp_mat <- X$ExpressionMatrix
     Dip_Test <- function(x){
