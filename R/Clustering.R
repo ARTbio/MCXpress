@@ -4,11 +4,11 @@
 #'
 #' @param X an MCXpress object with MCA object (after MCA step)
 #' @return MCXpress object with MCA object and Clustering Object (after MCA step)
-calculate_cluster_centroids <- function(X) {
+calculate_cluster_centroids <- function(X, dim) {
     ## ............................................................................
     ## A Initialisation of variables ####
-    cells_coord <- X$MCA$cells_principal
-    genes_coord <- X$MCA$genes_standard
+    cells_coord <- X$MCA$cells_principal[,1:dim]
+    genes_coord <- X$MCA$genes_standard[,1:dim]
     labels <- X$cluster$labels
     nClusters <- X$cluster$nClusters
 
@@ -71,9 +71,9 @@ calculate_cluster_centroids <- function(X) {
 
     ## ............................................................................
     ## D Cluster Object Finalisation ####
-    X$cluster <- list(labels, nClusters, coord_centroids, cluster_distances,
+    X$cluster <- list(labels, dim, nClusters, coord_centroids, cluster_distances,
         gene_cluster_distances, closest_cluster, plot1, plot2) %>%
-        set_names(c("labels", "nClusters", "coord_centroids",
+        set_names(c("labels", "dim", "nClusters", "coord_centroids",
             "cluster_distances", "gene_cluster_distances", "closest_cluster",
             "plot1", "plot2"))
     X$Shiny <- create_dashboard2(X)
@@ -90,6 +90,7 @@ calculate_cluster_centroids <- function(X) {
 #'
 #' @param X MCXpress object containing MCA object
 #' @param Y A vector with Sample names as name and the coresponding cluster as value.
+#' @param dim number of component to retain for distance calculation.
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' \item{labels}{Clustering results}
 #' \item{nClusters}{Number of Cluster}
@@ -107,7 +108,7 @@ calculate_cluster_centroids <- function(X) {
 #' names(your_cluster) <- colnames(MCX64553$ExpressionMatrix)
 #' MCX64553 <-  cluster_supervised(MCX64553, your_cluster)
 #' @export
-cluster_supervised <- function(X, Y) {
+cluster_supervised <- function(X, Y, dim) {
     X$cluster$labels <- Y
     names(X$cluster$labels) <- names(Y)
     X$cluster$labels <- tibble(names(X$cluster$labels), X$cluster$labels) %>%
@@ -124,6 +125,7 @@ cluster_supervised <- function(X, Y) {
 #'
 #' @param X MCXpress object containing MCA object
 #' @param k Number of cluster to compute
+#' @param dim number of component to retain for distance calculation.
 #' @param maxIter maximum number of iteration
 #' @param nstart number of random sets of initial centers
 #' @return MCXpress object containing a MCXmca and MCXcluster object
@@ -161,6 +163,7 @@ cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
 #' @param X MCXpress object containing MCA object
 #' @param method hclust method ('average', 'ward', etc..)
 #' @param k integer indicating the number of cluster to obtain
+#' @param dim number of component to retain for distance calculation.
 #' @param h numeric indicating the heights where the tree should be cut
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' \item{labels}{Clustering results}
@@ -177,7 +180,7 @@ cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
 #' MCX64553 <- MCA(MCX64553)
 #' MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D")
 #' @export
-cluster_hclust <- function(X, method = "average", k = NULL, h = NULL) {
+cluster_hclust <- function(X, dim, method = "average", k = NULL, h = NULL) {
     Distance <- X$MCA$Cell2Cell_Distance %>% as.dist
     Cluster <- Distance %>% hclust(method = method)
     Cluster <- Cluster %>% cutree(k = k, h = h)
@@ -195,6 +198,7 @@ cluster_hclust <- function(X, method = "average", k = NULL, h = NULL) {
 #'
 #' @param X MCXpress object containing MCA object
 #' @param k integer indicating the number of cluster to obtain
+#' @param dim number of component to retain for distance calculation.
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' \item{labels}{Clustering results}
 #' \item{nClusters}{Number of Cluster}
@@ -223,6 +227,7 @@ cluster_k_medoids <- function(X, k = 2, dim=2) {
 
 #' @param X MCXpress object containing MCA object
 #' @param k integer indicating the number of cluster to obtain
+#' @param dim number of component to retain for distance calculation.
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' \item{labels}{Clustering results}
 #' \item{nClusters}{Number of Cluster}
@@ -246,7 +251,7 @@ cluster_mclust <- function(X, k, dim=2) {
   X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
                                                             names)) %>% set_names(c("Cluster", "Sample"))
   X$cluster$nClusters <- Cluster %>% unique %>% length
-  X <- calculate_cluster_centroids(X)
+  X <- calculate_cluster_centroids(X, dim)
   return(X)
 }
 
