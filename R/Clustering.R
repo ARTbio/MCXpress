@@ -257,3 +257,75 @@ cluster_mclust <- function(X, k, dim=2) {
 
 
 
+## ............................................................................
+## B K-Means Clustering ####
+#' K-Means Clustering on MCA
+#'
+#' @param X MCXpress object containing MCA object
+#' @param k Number of cluster to compute
+#' @param dim number of component to retain for distance calculation.
+#' @param maxIter maximum number of iteration
+#' @param nstart number of random sets of initial centers
+#' @return MCXpress object containing a MCXmca and MCXcluster object
+#' \item{labels}{Clustering results}
+#' \item{nClusters}{Number of Cluster}
+#' \item{gene_cluster_distances}{GSEA Parameter used}
+#' \item{closest_cluster}{Indicate the closest cluster for a gene}
+#' \item{coord_centroids}{GSEA Parameter used}
+#' \item{plot1}{Clustering Visualisation in the MCA cell space}
+#' \item{plot2}{Visualisation of the centroids in the MCA gene space}
+#' @examples
+#' MCX64553 <- Initialise_MCXpress(GSE64553)
+#' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+#' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+#' MCX64553 <- MCA(MCX64553)
+#' MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#' @export
+cluster_igraph <- function(X, dim=2, max_distance= Inf, ratio=1, k=NULL, mutual=TRUE,  methods="louvain") {
+  cat("Performing Graph Clustering")
+  Distance <- X$MCA$cells_standard[,1:dim] %>% dist() %>%  as.matrix
+  if(k %>%  is.null %>%  not){
+    Distance <- Distance %>% knnalgorithm(k = k, mutual=mutual)
+    }
+  g <- graph.adjacency(Distance ,weighted=TRUE,mode="undirected")
+  g <- delete.edges(g, which(E(g)$weight > max_distance))
+  g <- delete.edges(g, which(E(g)$weight > sort(E(g)$weight)[ratio*length(E(g)$weight)]))
+  g <- delete.edges(g, which(E(g)$weight == 0))
+  if(methods=="louvain")
+  clusgraph <- g %>%  cluster_fast_greedy()
+  if(methods=="fast_greedy")
+    clusgraph <- g %>%  cluster_fast_greedy()
+  if(methods=="label_prop")
+    clusgraph <- g %>%  cluster_label_prop()
+  if(methods=="walktrap")
+    clusgraph <- g %>%  cluster_walktrap()
+  X$cluster$labels <-  clusgraph$membership %>%  paste0("Cluster", . ) %>%  set_names(X$ExpressionMatrix %>%  colnames)
+  names(X$cluster$labels) <- rownames(X$MCA$cells_standard)
+  X$cluster$labels <- tibble::tibble(names(X$cluster$labels), X$cluster$labels) %>%
+    set_colnames(c("Sample", "Cluster"))
+  X$cluster$nClusters <- X$cluster$labels$Cluster %>%  unique %>%  length
+  X <- calculate_cluster_centroids(X, dim)
+  return(X)
+}
+
+
+knnalgorithm <- function(distance, mutual=TRUE, k=3){
+  n <- nrow(distance)
+  A <- matrix(0, nrow = n, ncol = n)
+  for (i in 1:n) {
+    d <- sort(distance[i, ])
+    A[i, distance[i, ] <= d[k + 1]] <- 1
+  }
+  diag(A) <- 0
+  if (mutual) {
+    for (i in 1:n) {
+      A[i, ] <- A[i, ] & A[, i]
+      A[, i] <- A[i, ]
+    }
+  }
+  A <- A*distance
+  return(A)
+}
+
+
+
