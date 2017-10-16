@@ -96,7 +96,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     ### Axis and Gene Correlation ####
     X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal, method = "spearman") %>%
         data.frame() %>% rownames_to_column(var = "Genes") %>% as_tibble()
-    X$MCA$Axis_Gene_Cor[, -1] <- X$MCA$Axis_Gene_Cor[, -1] %>% map_df(.f = round,
+    X$MCA$Axis_Gene_Cor[, -1] <- X$MCA$Axis_Gene_Cor[, -1] %>% sapply(FUN =  round,
         digits = 3)
     # End Calculate Correlation Axis and Genes . . . . . . . . .  . . . . . . . . . .
     # . . . . . . . . . . . . . . . . . . ..  Cell Principal Space ####
