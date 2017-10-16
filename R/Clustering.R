@@ -115,7 +115,7 @@ cluster_supervised <- function(X, Y, dim) {
         set_colnames(c("Sample", "Cluster"))
     X$cluster$nClusters <- X$cluster$labels$Cluster %>% unique %>%
         length
-    X <- calculate_cluster_centroids(X)
+    X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
 
@@ -153,7 +153,7 @@ cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
     X$cluster$labels <- tibble(names(X$cluster$labels), X$cluster$labels) %>%
         set_colnames(c("Sample", "Cluster"))
     X$cluster$nClusters <- k
-    X <- calculate_cluster_centroids(X)
+    X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
 ## ............................................................................
@@ -187,7 +187,7 @@ cluster_hclust <- function(X, dim, method = "average", k = NULL, h = NULL) {
     X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
         names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>% length
-    X <- calculate_cluster_centroids(X)
+    X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
 
@@ -220,7 +220,7 @@ cluster_k_medoids <- function(X, k = 2, dim=2) {
     X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
         names)) %>% set_names(c("Cluster", "Sample"))
     X$cluster$nClusters <- Cluster %>% unique %>% length
-    X <- calculate_cluster_centroids(X)
+    X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
 
