@@ -82,6 +82,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     setTxtProgressBar(pb, 1)
     close(pb)
     ## ............................................................................  C
+    cat("Eigen Value Table Generation \n \n")
     X$MCA$eigen_value <- Eig[1:Dim] %>% set_names(Component)
     Percentage_Variance <- (Eig %>% prop.table) * 100
     Percentage_Variance_Cum <- Percentage_Variance %>% cumsum()
@@ -95,7 +96,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . ..
     ### Axis and Gene Correlation ####
     cat("Calculating Spearman Correlation")
-    X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal[,1:5], method = "spearman") %>%
+    X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal[,1:min(X$MCA$cells_principal %>% ncol,5)], method = "spearman") %>%
         data.frame() %>% rownames_to_column(var = "Genes") %>% as_tibble()
     X$MCA$Axis_Gene_Cor[, -1] <- X$MCA$Axis_Gene_Cor[, -1] %>% sapply(FUN =  round,
         digits = 3)

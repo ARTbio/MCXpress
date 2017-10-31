@@ -31,5 +31,5 @@ MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553)
-MCX64553 <- cluster_k_medoids(MCX64553, k=6)
+MCX64553 <- cluster_k_medoids(MCX64553, k=6,dim=2)
 }

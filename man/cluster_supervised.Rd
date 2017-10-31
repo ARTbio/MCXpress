@@ -33,5 +33,5 @@ MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553)
 your_cluster <- gsub("\\\\d$|HFF_",replacement = "", x=colnames(MCX64553$ExpressionMatrix))
 names(your_cluster) <- colnames(MCX64553$ExpressionMatrix)
-MCX64553 <-  cluster_supervised(MCX64553, your_cluster)
+MCX64553 <-  cluster_supervised(MCX64553, your_cluster,dim=2)
 }

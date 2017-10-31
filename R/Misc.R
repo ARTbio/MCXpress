@@ -1,4 +1,3 @@
-
 #' Initialisation of the MCXpress Object
 #'
 #' Create a MCXpressObject from an Expression Matrix
@@ -81,3 +80,347 @@ Num_Axis_Eigen_Distance <- function(X){
   return(Affine(1:(eig %>% length)))
 }
 
+
+#' Finding Top Expressed Genes for Each Cluster
+#'
+#' Search for each cluster the Top n closest genes in the MCA components and visualise it on a heatmap.
+#'
+#' @param x An MCXpress Object
+#' @param n Integer specifying the number of genes to select for each cluster, default set at 5.
+#' @param plotly logical, if FALSE gives a static heatmap, if TRUE gives an interactive version with heatmaply.
+#'
+#' @return
+#' A Heatmap Visualisation
+#' @export
+#'
+#' @examples
+#'MCX64553 <- Initialise_MCXpress(GSE64553)
+#'MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+#'MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+#'MCX64553 <- MCA(MCX64553, Dim = 5)
+#'MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#'MCX64553 %>% Heatmap_Cluster(n = 5, plotly = F)
+Heatmap_Cluster <- function(x, n = 5, plotly = F) {
+    if(x$cluster %>% is.null){
+        stop("Clustering must be done before using this function")
+    }
+    OrderingCluster <-
+        x$cluster$cluster_distances %>%  as.dist %>%  hclust(method = "ward.D") %>%  use_series(order)
+    (x$cluster$cluster_distances %>% rownames)[OrderingCluster]
+    x$cluster$labels$Cluster <-
+        factor(x$cluster$labels$Cluster,
+               levels = (x$cluster$cluster_distances %>%  rownames)[OrderingCluster])
+    Cell <- x$cluster$labels %>%  dplyr::arrange(Cluster)
+    TableCell <- c(0, Cell$Cluster %>% table %>% cumsum)
+    Lab <-
+        ((TableCell[-1] + TableCell[-(TableCell %>% length)]) / 2) %>% add(0.5) %>%  round(digits = 0)
+    Lab2 <- rep(NA, times = Cell$Sample %>% length)
+    Lab2[Lab] <- Lab %>%  names
+    CellOrder <- Cell$Sample
+    Gathering <- x$cluster$gene_cluster_distances %>%
+        separate(Genes, sep = "-bin", into = c("Genes", "bin")) %>%
+        dplyr::filter(bin == 1) %>%
+        select(-bin) %>%
+        gather(value = "Distance" , key = "Cluster" ,-Genes) %>%
+        dplyr::arrange(Cluster, Distance) %>%
+        dplyr::filter(Cluster != "Origin") %>%
+        group_by(Cluster) %>%
+        top_n(n, -Distance)
+    Gathering$Cluster <-
+        factor(
+            Gathering$Cluster,
+            levels = x$cluster$labels %>%  dplyr::arrange(Cluster) %>%  use_series(Cluster) %>%  unique
+        )
+    GenesOrder <-  Gathering %>%  dplyr::arrange(Cluster) %$% Genes
+    row_side_colors <-
+        Cell %>%  select(Cluster)     %>%  dplyr::arrange(Cluster)
+    col_side_colors <-
+        Gathering %>%  select(Cluster) %>% dplyr::arrange(Cluster)
+    HeatMatrix <- x$ExpressionMatrix[GenesOrder, CellOrder] %>%  t
+    if (plotly)
+    {
+        heatmaply::heatmaply(
+            x = HeatMatrix,
+            seriate = "none",
+            dendrogram = "none",
+            Rowv = F,
+            Colv = F,
+            color = heat.colors(100) %>%  rev,
+            col_side_colors  = col_side_colors,
+            row_side_colors  = row_side_colors,
+            row_side_palette = rainbow,
+            col_side_palette = rainbow,
+            na.rm = F,
+            showticklabels = c(TRUE, FALSE),
+            plot_method = "ggplot",
+        ) %>%  layout(showlegend = FALSE)
+    } else
+    {
+        heatmap.2(
+            HeatMatrix,
+            Rowv = "none",
+            Colv = "none",
+            dendrogram = "none",
+            trace = "none",
+            colsep = c(0, (
+                col_side_colors %>% table %>% cumsum()
+            )),
+            rowsep = c(0, (
+                row_side_colors %>% table() %>%  cumsum
+            )),
+            sepcolor = "black",
+            col = heat.colors(100) %>%  rev,
+            RowSideColors = rep(
+                rainbow(row_side_colors %>% table() %>%  length),
+                times = row_side_colors %>% table()
+            ),
+            ColSideColors = rep(
+                rainbow(col_side_colors %>% table() %>%  length),
+                times = col_side_colors %>% table()
+            ),
+            srtCol = 45,
+            cexRow = 2,
+            labRow = Lab2,
+            cexCol = 1,
+            keysize = 1,
+            margins = c(10, 10),
+            density.info = "none",
+            na.color = "gray"
+        )
+    }
+}
+
+GSEA_Heatmap_Cluster <-
+    function(x,
+             pval = 0.05,
+             es = 0 ,
+             nes = -20,
+             color,
+             title = "",
+             rmna = T,
+             metrics = "NES") {
+        PADJ <-
+            x$GSEA$GSEA_Results[!(names(x$GSEA$GSEA_Results) == "Origin")] %>%
+            purrr::map_df(function(x) {
+                x %>% use_series(padj)
+            }) %>%
+            mutate(Pathway = x$GSEA$Pathways) %>%
+            dplyr::select(Pathway, everything()) %>%
+            gather(key = Cells, value = padj, -Pathway)
+        ES <-
+            x$GSEA$GSEA_Results[!(names(x$GSEA$GSEA_Results) == "Origin")] %>%
+            purrr::map_df(function(x) {
+                x %>%
+                    use_series(ES)
+            }) %>%
+            mutate(Pathway = x$GSEA$Pathways) %>%
+            dplyr::select(Pathway, everything()) %>%
+            gather(key = Cells, value = ES, -Pathway)
+        NES <-
+            x$GSEA$GSEA_Results[!(names(x$GSEA$GSEA_Results) == "Origin")] %>%
+            purrr::map_df(function(x) {
+                x %>%
+                    use_series(NES)
+            }) %>%
+            mutate(Pathway = x$GSEA$Pathways) %>%
+            dplyr::select(Pathway, everything()) %>%
+            gather(key = Cells, value = NES, -Pathway)
+
+        DF <- Reduce(inner_join, list(ES, PADJ, NES))
+        DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+        if (metrics == "ES") {
+            DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+            MAT <-
+                DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)
+        }
+        if (metrics == "NES") {
+            DF$NES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+            MAT <-
+                DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)
+        }
+        MATPadj <-
+            DF %>%  dplyr::select(Pathway, Cells, padj) %>%  spread(Cells, padj)
+        MAT2 <-
+            MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
+        if (rmna) {
+            MAT2 <- MAT2[(MAT2 %>% is.na %>% rowSums) != (MAT2 %>% ncol), ]
+        }
+        RowOrder <-
+            MAT2 %>% is.na %>%  ifelse(0, MAT2) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
+        MAT2 <- MAT2[RowOrder, ]
+        MAT2 <- MAT2 %>% t
+        heatmaply::heatmaply(
+            MAT2,
+            seriate = "none",
+            row_dend_left = F,
+            Rowv = F,
+            Colv = F,
+            grid_color = "black",
+            dendrogram = "none",
+            draw_cellnote = F,
+            cexCol = 0.7,
+            cexRow = 0.8,
+            margins = c(200, 200, 0, 200),
+            na.value = "black",
+            colors = color,
+            na.rm = FALSE,
+            row_side_colors = MAT2 %>%  rownames %>%  factor %>%  data.frame(),
+            row_side_palette = rainbow
+        ) %>%
+            layout(showlegend = FALSE)
+    }
+
+
+
+#' Heatmap of GSEA at Single Cell Level
+#'
+#' @param x An MCXpress object
+#' @param pval Numeric indicating the threshold pvalue
+#' @param es  Numeric indicating enrichment score threshold
+#' @param nes Numeric normalised enrichment score threshold
+#' @param color color palette to use for the heatmap
+#' @param title Plot Title
+#' @param rmna Logical indicating if any empty column should be removed.
+#' @param metrics NES or ES
+#' @param plotly Logical Indicating if the static version or the interactive version should be plotted.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+GSEA_Heatmap_SC <-
+    function(x,
+             pval = 0.05,
+             es = 0 ,
+             nes = -20,
+             color=cm.colors(100),
+             title = "",
+             rmna = T,
+             metrics = "NES",
+             plotly = F) {
+        cluster <-  x$cluster$labels
+        PADJ <-
+            x$SC_GSEA$GSEA_Results[!(names(x$SC_GSEA$GSEA_Results) == "Origin")] %>%
+            purrr::map_df(function(x) {
+                x %>% use_series(padj)
+            }) %>%
+            mutate(Pathway = x$SC_GSEA$Pathways) %>%
+            dplyr::select(Pathway, everything()) %>%
+            gather(key = Cells, value = padj, -Pathway)
+        ES <-
+            x$SC_GSEA$GSEA_Results[!(names(x$SC_GSEA$GSEA_Results) == "Origin")] %>%
+            purrr::map_df(function(x) {
+                x %>%
+                    use_series(ES)
+            }) %>%
+            mutate(Pathway = x$SC_GSEA$Pathways) %>%
+            dplyr::select(Pathway, everything()) %>%
+            gather(key = Cells, value = ES, -Pathway)
+        NES <-
+            x$SC_GSEA$GSEA_Results[!(names(x$SC_GSEA$GSEA_Results) == "Origin")] %>%
+            purrr::map_df(function(x) {
+                x %>%
+                    use_series(NES)
+            }) %>%
+            mutate(Pathway = x$SC_GSEA$Pathways) %>%
+            dplyr::select(Pathway, everything()) %>%
+            gather(key = Cells, value = NES, -Pathway)
+
+        DF <- Reduce(inner_join, list(ES, PADJ, NES))
+        DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+        if (metrics == "ES") {
+            DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+            MAT <-
+                DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)
+        }
+        if (metrics == "NES") {
+            DF$NES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+            MAT <-
+                DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)
+        }
+
+        # ClusLevel <- (x$cluster$cluster_distances %>% rownames)[(x$cluster$cluster_distances %>% as.dist %>%  hclust(method = "ward.D") %>%  use_series(order))]
+        # DFORDER$Cluster <- DFORDER$Cluster %>%  factor(levels = ClusLevel)
+        DFORDER <-
+            DF %>%  inner_join(cluster %>%  set_colnames(c("Cells", "Cluster")))
+
+        DFORDER <- DFORDER %>% arrange(Cluster)
+        newOrder <- DFORDER  %>%
+            split(DFORDER$Cluster) %>%
+            map(function(x) {
+                Temp <- x %>%
+                    select(Pathway, Cells, ES) %>%
+                    spread(Cells, ES)
+                TempMat <-
+                    Temp %>%  select(-Pathway) %>% as.matrix %>% apply(2, as.numeric) %>%  set_rownames(Temp$Pathway)
+                TempMat[TempMat %>% is.na()] <- 0
+                TempMat[, TempMat %>% t %>%  dist("euclidean") %>%  hclust(method =
+                                                                               "ward.D") %>% use_series(order)] %>% colnames
+            }) %>% unlist %>% unname()
+
+        MAT2 <-
+            MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
+        if (rmna) {
+            MAT2 <- MAT2[(MAT2 %>% is.na %>% rowSums) != (MAT2 %>% ncol), ]
+        }
+
+        col_order <-
+            MAT2 %>% is.na %>%  ifelse(0, MAT2) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
+        Clust2 <- cluster %$% set_names(Cluster, Sample)
+        Tab <- Clust2 %>%  table
+        Tab <- Tab[Tab %>% names %>% gtools::mixedsort()]
+        SepROW <- c(0, Tab %>% cumsum())
+        LabROW1 <-
+            ((SepROW[-(SepROW %>% length)] + Tab %>% cumsum()) / 2) %>% round(0) %>% magrittr::set_names(value = Tab %>% names)
+        LabROW2 <- rep(NA,  x$ExpressionMatrix %>% ncol)
+        LabROW2[LabROW1] <- LabROW1 %>% names
+        row_side_color <-
+            rep(Tab %>%  names, times = Tab) %>%  factor %>%  data.frame()
+        MAT2 <- MAT2 %>% t
+        MAT2 <- MAT2[newOrder, col_order]
+        if (plotly) {
+            heatmaply::heatmaply(
+                MAT2,
+                row_dend_left = F,
+                Rowv = F,
+                Colv = F,
+                dendrogram = "none",
+                draw_cellnote = F,
+                cexCol = 0.7,
+                cexRow = 0.8,
+                margins = c(200, 200, 50, 200),
+                na.value = "black",
+                colors = color,
+                na.rm = FALSE,
+                row_side_colors = row_side_color,
+                row_side_palette = rainbow,
+                showticklabels = c(T, F)
+            ) %>%
+                layout(showlegend = FALSE)
+        }
+        else{
+            heatmap.2(
+                MAT2,
+                Rowv = "none",
+                Colv = "none",
+                dendrogram = "none",
+                trace = "none",
+                colsep = 0:(MAT2 %>%  ncol),
+                rowsep = SepROW,
+                sepcolor = "black",
+                col = color,
+                labRow = LabROW2,
+                RowSideColors = rep(rainbow(Tab %>%  length), times = Tab),
+                srtCol = 45,
+                cexRow = 2,
+                cexCol = 1,
+                keysize = 1,
+                key.xlab = "ES",
+                key.title = "Enrichment",
+                margins = c(10, 10),
+                density.info = "none",
+                na.color = "gray",
+                main = title
+            )
+        }
+    }

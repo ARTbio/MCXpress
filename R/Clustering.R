@@ -9,8 +9,8 @@ calculate_cluster_centroids <- function(X, dim) {
     ## A Initialisation of variables ####
     cells_coord <- X$MCA$cells_principal[,1:dim]
     genes_coord <- X$MCA$genes_standard[,1:dim]
-    labels <- X$cluster$labels
-    nClusters <- X$cluster$nClusters
+    labels      <- X$cluster$labels
+    nClusters   <- X$cluster$nClusters
 
     ## ............................................................................
     ## B Calculate Cluster Centroids and Distance Related #### . .
@@ -20,7 +20,7 @@ calculate_cluster_centroids <- function(X, dim) {
     Cell_Coord_Cluster <- inner_join(by = "Sample", labels, cells_coord %>%
         rownames_to_column(var = "Sample")) %>% select_("-Sample")
     coord_centroids <- Cell_Coord_Cluster %>% group_by_("Cluster") %>%
-        summarise_each(funs(mean))
+        summarise_all(funs(mean))
 
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     ### . . . . . . . ..  b Inter Cluster Distance ####
@@ -106,7 +106,7 @@ calculate_cluster_centroids <- function(X, dim) {
 #' MCX64553 <- MCA(MCX64553)
 #' your_cluster <- gsub("\\d$|HFF_",replacement = "", x=colnames(MCX64553$ExpressionMatrix))
 #' names(your_cluster) <- colnames(MCX64553$ExpressionMatrix)
-#' MCX64553 <-  cluster_supervised(MCX64553, your_cluster)
+#' MCX64553 <-  cluster_supervised(MCX64553, your_cluster,dim=2)
 #' @export
 cluster_supervised <- function(X, Y, dim) {
     X$cluster$labels <- Y
@@ -141,7 +141,7 @@ cluster_supervised <- function(X, Y, dim) {
 #' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 #' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553)
-#' MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#' MCX64553 <- cluster_kmeans(MCX64553, k=6, dim=2)
 #' @export
 cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
     cat("Performing Kmeans Clustering with ", k, " Cluster")
@@ -178,7 +178,7 @@ cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
 #' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 #' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553)
-#' MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D")
+#' MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D", dim=2)
 #' @export
 cluster_hclust <- function(X, dim=2, method = "average", k = NULL, h = NULL) {
     Distance <- X$MCA$cells_principal %>% dist
@@ -212,7 +212,7 @@ cluster_hclust <- function(X, dim=2, method = "average", k = NULL, h = NULL) {
 #' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 #' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553)
-#' MCX64553 <- cluster_k_medoids(MCX64553, k=6)
+#' MCX64553 <- cluster_k_medoids(MCX64553, k=6,dim=2)
 #'@export
 cluster_k_medoids <- function(X, k = 2, dim=2) {
     Distance <-
