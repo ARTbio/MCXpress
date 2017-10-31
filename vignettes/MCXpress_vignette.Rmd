@@ -1,17 +1,15 @@
 ---
-title: "MCXpress: RNA-Seq data analysis with Multiple Corespondence Analysis"
+title: 'MCXpress: RNA-Seq data analysis with Multiple Corespondence Analysis'
 author: "Akira Cortal"
-date: "`r Sys.Date()`"
-output: 
+date: '`r Sys.Date()`'
+output:
+  word_document: default
+  pdf_document: default
   html_document:
-    fig_width: 8
     fig_height: 4
-    
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-
+    fig_width: 8
+vignette: |
+  %\VignetteIndexEntry{Vignette Title} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 ##Abstract
 Single-cell RNA-sequencing allows unbiased transcriptome profiling of hundreds to thousands of individual cells, enabling the analysis of genes expression at the cellular level. By uncovering cell heterogeneity in a given cell type or tissue, this technology leads to the potential discovery of rare subpopulations of cells which could be responsible of the onset and progression of specific diseases. Here we developed a fast and comprehensible hand on tool for the analysis of RNA-seq data using an approach based on Multiple Correspondence Analysis (MCA). MCA is a dimensionality reduction technique that allows the representation of both individuals (cells) and the variables (genes) within the same Euclidean space, thus allowing the simultaneous identification of subpopulations of cells and their gene signatures. MCA was coupled with pre-ranked gene set enrichment analysis; a powerful analytical method for characterizing differentially expressed genes/pathways within each groups of individuals. This singular combination allows a joint comparison of gene expression and pathway enrichment across all the groups, overcoming the limitations of a pair-wise based analysis used by standard differential expression approaches. An extensive visualization tools integrated in a shiny interface, allowing the user to intuitively inspect results and easily obtain a functional interpretation, complement the package. By integrating a singular dimensionality reduction approach, a robust analytic method and a sophisticated visualization tool in an easy to use framework, the MCXpress R package can enhance greatly the interpretation of single cell but also bulk RNA-sequencing data analysis.
@@ -89,7 +87,7 @@ your_analysis <- GSEA(your_analysis, GMTfile = reactome_gmtfile, nperm = 1000)
 #List of attributes for GSEA Section
 your_analysis$GSEA %>% attributes
 #Top 10 genes specific to cluster1
-your_analysis$GSEA$Ranking$Cluster1 %>% tail(10)
+your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 #Top 10 genes specific to cluster2
-your_analysis$GSEA$Ranking$Cluster2 %>% tail(10)
+your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 ```

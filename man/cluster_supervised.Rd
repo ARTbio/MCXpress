@@ -4,12 +4,14 @@
 \alias{cluster_supervised}
 \title{Supervised Clustering on MCA}
 \usage{
-cluster_supervised(X, Y)
+cluster_supervised(X, Y, dim)
 }
 \arguments{
 \item{X}{MCXpress object containing MCA object}
 
 \item{Y}{A vector with Sample names as name and the coresponding cluster as value.}
+
+\item{dim}{number of component to retain for distance calculation.}
 }
 \value{
 MCXpress object containing a MCXmca and MCXcluster object

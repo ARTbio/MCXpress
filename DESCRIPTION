@@ -26,7 +26,7 @@ Imports:
     DT,
     stringr,
     statmod,
-    dplyr,
+    dplyr, 
     splines,
     stats,
     diptest,
@@ -34,7 +34,10 @@ Imports:
     fields,
     lazyeval,
     cluster,
-    utils
+    utils,
+    mclust,
+    pbapply,
+    igraph
 Suggests:
     biomaRt,
     knitr,

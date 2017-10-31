@@ -180,7 +180,7 @@ cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
 #' MCX64553 <- MCA(MCX64553)
 #' MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D")
 #' @export
-cluster_hclust <- function(X, dim, method = "average", k = NULL, h = NULL) {
+cluster_hclust <- function(X, dim=2, method = "average", k = NULL, h = NULL) {
     Distance <- X$MCA$cells_principal %>% dist
     Cluster <- Distance %>% hclust(method = method)
     Cluster <- Cluster %>% cutree(k = k, h = h)
@@ -224,7 +224,8 @@ cluster_k_medoids <- function(X, k = 2, dim=2) {
     return(X)
 }
 
-
+#' Model Clustering on MCA Coordinates
+#'
 #' @param X MCXpress object containing MCA object
 #' @param k integer indicating the number of cluster to obtain
 #' @param dim number of component to retain for distance calculation.
@@ -241,7 +242,7 @@ cluster_k_medoids <- function(X, k = 2, dim=2) {
 #' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 #' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553)
-#' MCX64553 <- cluster_k_mclust(MCX64553, k=6, dim=2)
+#' MCX64553 <- cluster_mclust(MCX64553, k=6, dim=2)
 #'@export
 cluster_mclust <- function(X, k, dim=2) {
   Cluster <- X$MCA$cells_standard[,1:dim] %>%
@@ -262,10 +263,12 @@ cluster_mclust <- function(X, k, dim=2) {
 #' K-Means Clustering on MCA
 #'
 #' @param X MCXpress object containing MCA object
-#' @param k Number of cluster to compute
 #' @param dim number of component to retain for distance calculation.
-#' @param maxIter maximum number of iteration
-#' @param nstart number of random sets of initial centers
+#' @param max_distance Distance threshold for edges conservation
+#' @param ratio Percentages of the closest cells to be linked to
+#' @param k number of nearest neighbour
+#' @param mutual nearest neighbour mutual or not
+#' @param methods clustering methods for graph
 #' @return MCXpress object containing a MCXmca and MCXcluster object
 #' \item{labels}{Clustering results}
 #' \item{nClusters}{Number of Cluster}
@@ -279,7 +282,7 @@ cluster_mclust <- function(X, k, dim=2) {
 #' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 #' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #' MCX64553 <- MCA(MCX64553)
-#' MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#' MCX64553 <- cluster_igraph(MCX64553,dim=3, k=3, mutual=TRUE,methods="fast_greedy")
 #' @export
 cluster_igraph <- function(X, dim=2, max_distance= Inf, ratio=1, k=NULL, mutual=TRUE,  methods="louvain") {
   cat("Performing Graph Clustering")
@@ -287,18 +290,18 @@ cluster_igraph <- function(X, dim=2, max_distance= Inf, ratio=1, k=NULL, mutual=
   if(k %>%  is.null %>%  not){
     Distance <- Distance %>% knnalgorithm(k = k, mutual=mutual)
     }
-  g <- graph.adjacency(Distance ,weighted=TRUE,mode="undirected")
-  g <- delete.edges(g, which(E(g)$weight > max_distance))
-  g <- delete.edges(g, which(E(g)$weight > sort(E(g)$weight)[ratio*length(E(g)$weight)]))
-  g <- delete.edges(g, which(E(g)$weight == 0))
+  g <- igraph::graph.adjacency(Distance ,weighted=TRUE,mode="undirected")
+  g <- igraph::delete.edges(g, which(igraph::E(g)$weight > max_distance))
+  g <- igraph::delete.edges(g, which(igraph::E(g)$weight > sort(igraph::E(g)$weight)[ratio*length(igraph::E(g)$weight)]))
+  g <- igraph::delete.edges(g, which(igraph::E(g)$weight == 0))
   if(methods=="louvain")
-  clusgraph <- g %>%  cluster_fast_greedy()
+  clusgraph <- g %>%  igraph::cluster_fast_greedy()
   if(methods=="fast_greedy")
-    clusgraph <- g %>%  cluster_fast_greedy()
+    clusgraph <- g %>%  igraph::cluster_fast_greedy()
   if(methods=="label_prop")
-    clusgraph <- g %>%  cluster_label_prop()
+    clusgraph <- g %>%  igraph::cluster_label_prop()
   if(methods=="walktrap")
-    clusgraph <- g %>%  cluster_walktrap()
+    clusgraph <- g %>%  igraph::cluster_walktrap()
   X$cluster$labels <-  clusgraph$membership %>%  paste0("Cluster", . ) %>%  set_names(X$ExpressionMatrix %>%  colnames)
   names(X$cluster$labels) <- rownames(X$MCA$cells_standard)
   X$cluster$labels <- tibble::tibble(names(X$cluster$labels), X$cluster$labels) %>%

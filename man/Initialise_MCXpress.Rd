@@ -4,7 +4,7 @@
 \alias{Initialise_MCXpress}
 \title{Initialisation of the MCXpress Object}
 \usage{
-Initialise_MCXpress(X, min_reads = NULL)
+Initialise_MCXpress(X)
 }
 \arguments{
 \item{X}{DESCRIPTION.}

@@ -85,7 +85,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ### . . . . . . . ..  b Calculate Rank for Cluster ####
 
     cat("\nCalculating ranking of genes for each clusters \n")
-    cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% purrr::map(function(x)
+    cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
     {
         1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
     })
@@ -95,7 +95,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
 
     cat("Beginning enrichment analysis for clusters\n\n")
     pb <- txtProgressBar(width = 50, style=3, char = "+")
-    cluster_gsea <- cluster_rank %>% purrr::map2(.y = seq(from=0, to=1, length.out = (cluster_rank %>%  length)), .f = function(x,y)
+    cluster_gsea <- mapply(x=cluster_rank, y = seq(from=0, to=1, length.out = (cluster_rank %>%  length)), FUN= function(x,y)
         {
         setTxtProgressBar(pb, y)
         gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
@@ -105,7 +105,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
         ins <- gsea %>% magrittr::extract(, 2:5) %>% round(digits = 5)
         val <- gsea %>% magrittr::inset(, 2:5, value = ins)
         return(val)
-    })
+    }, SIMPLIFY = F)
     close(pb)
 
     ## ............................................................................
@@ -124,6 +124,17 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     cat(paste0("Enrichment Analysis Completed\n"))
     class(X$GSEA) <- "GSEA"
     return(X)
+}
+
+
+
+parallel_fgsea <- function(x, a, b, c, d, e, f){
+  gsea <- tibble::as_tibble(fgsea::fgsea(stats = x, pathways = a, nperm = b,
+                                         minSize =  c, maxSize = d, nproc = e,
+                                         BPPARAM = BiocParallel::SerialParam(), gseaParam =f))
+  ins <-  round(magrittr::extract(gsea, 2:5),digits = 5)
+  val <-  magrittr::inset(gsea, 2:5, value = ins)
+  return(val)
 }
 
 
@@ -179,32 +190,24 @@ GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
 
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
   ### . . . . . . . ..  b Calculate Rank for Cluster ####
-
+  Scaling2 <- function(x){2*(x-min(x))/(max(x)-min(x))}
   cat("\nCalculating ranking of genes for each clusters \n")
-  cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% purrr::map(function(x)
+  # cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% bplapply(FUN = function(x,y){
+  #   1-(sort(Scaling2(set_names(x,y))))
+  # },BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T), y=df2$Genes)
+  cat("\nCalculating ranking of genes for each clusters \n")
+  cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
   {
     1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
   })
-
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
   ### . . . . . . . ..  c fgsea analysis for cluster ####
 
   cat("Beginning enrichment analysis for clusters\n\n")
-  parallel_fgsea <- function(x, a, b, c, d, e, f){
-    library(magrittr)
-    library(fgsea)
-    gsea <- fgsea(stats = x, pathways = a, nperm = b,
-                   minSize =  c, maxSize = d, nproc = e,
-                  BPPARAM = SerialParam(), gseaParam =f) %>%
-      tibble::as_tibble()
-    ins <- gsea %>% magrittr::extract(, 2:5) %>% round(digits = 5)
-    val <- gsea %>% magrittr::inset(, 2:5, value = ins)
-    return(val)
-    }
   cluster_gsea <-
     cluster_rank %>% BiocParallel::bplapply(
       FUN = parallel_fgsea,
-      BPPARAM = SnowParam(workers = nproc, progressbar = T),
+      BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T),
       a = GMTfile,
       b = nperm,
       c = minSize,

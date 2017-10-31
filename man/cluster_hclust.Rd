@@ -4,10 +4,12 @@
 \alias{cluster_hclust}
 \title{Hierarchical Clustering on MCA}
 \usage{
-cluster_hclust(X, method = "average", k = NULL, h = NULL)
+cluster_hclust(X, dim = 2, method = "average", k = NULL, h = NULL)
 }
 \arguments{
 \item{X}{MCXpress object containing MCA object}
+
+\item{dim}{number of component to retain for distance calculation.}
 
 \item{method}{hclust method ('average', 'ward', etc..)}
 
