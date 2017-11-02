@@ -407,8 +407,6 @@ GSEA_Heatmap_Cluster <-
       layout(showlegend = FALSE)
   }
 
-
-
 #' Heatmap of GSEA at Single Cell Level
 #'
 #' @param x An MCXpress object
