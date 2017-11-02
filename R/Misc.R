@@ -108,7 +108,7 @@ Num_Axis_Eigen_Distance <- function(X) {
 #'MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 #'MCX64553 <- MCA(MCX64553, Dim = 5)
 #'MCX64553 <- cluster_kmeans(MCX64553, k=6)
-#'MCX64553 %>% Heatmap_Cluster(n = 5, plotly = F)
+#'MCX64553 %>% Heatmap_Cluster_SC(n = 5, plotly = F)
 Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
   if (x$cluster %>% is.null) {
     stop("Clustering must be done before using this function")
@@ -205,6 +205,22 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
   }
 }
 
+#' Title
+#'
+#' @param x MCXpress Object after Clustering
+#' @param n Number of Genes to Display per Cluster
+#' @param plotly Logical indicating if interactive html visualisation should be used
+#' @return
+#'
+#' @export
+#'
+#' @examples
+#'MCX64553 <- Initialise_MCXpress(GSE64553)
+#'MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+#'MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+#'MCX64553 <- MCA(MCX64553, Dim = 5)
+#'MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#'MCX64553 %>% Heatmap_Cluster(n = 5, plotly = F)
 Heatmap_Cluster <- function(x, n = 5, plotly = F) {
   if (x$cluster %>% is.null) {
     stop("Clustering must be done before using this function")
@@ -307,6 +323,22 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
 
 
 
+#' Title
+#'
+#' @param X
+#' @param pval
+#' @param es
+#' @param nes
+#' @param color
+#' @param title
+#' @param rmna
+#' @param metrics
+#' @param plotly
+#'
+#' @return
+#' @export
+#'
+#' @examples
 GSEA_Heatmap_Cluster <-
   function(X,
            pval = 0.05,
@@ -370,7 +402,7 @@ GSEA_Heatmap_Cluster <-
       colors = color,
       na.rm = FALSE,
       row_side_colors = InMat %>%  rownames %>%  factor %>%  data.frame(),
-      row_side_palette = heatmaply::Spectral()
+      row_side_palette = rainbow
     ) %>%
       layout(showlegend = FALSE)
   }
