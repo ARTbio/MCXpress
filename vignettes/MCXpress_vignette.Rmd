@@ -3,11 +3,11 @@ title: 'MCXpress: RNA-Seq data analysis with Multiple Corespondence Analysis'
 author: "Akira Cortal"
 date: '`r Sys.Date()`'
 output:
-  word_document: default
   pdf_document: default
   html_document:
     fig_height: 4
     fig_width: 8
+  word_document: default
 vignette: |
   %\VignetteIndexEntry{Vignette Title} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
@@ -25,7 +25,8 @@ library(MCXpress)
 ```
 
 ```{r, include=FALSE}
-library(MCXpress)
+devtools::load_all("C:/Users/Akira/Documents/MCXpressfinal/MCXpress")
+library(gplots)
 ```
 
 
@@ -59,7 +60,7 @@ your_analysis <- discretisation_01(your_analysis, scaled = FALSE)
 Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 ```{r}
 #Perform MCA you can choose the number of Axis to retain with the parameter Dim
-your_analysis <- MCA(your_analysis, Dim = 3)
+your_analysis <- MCA(your_analysis)
 #All attributes of MCA
 your_analysis$MCA %>% attributes
 #Plot first two Axes of MCA
@@ -67,10 +68,10 @@ your_analysis$MCA$plot
 #Visualise your data interactively with your_analysis$Shiny
 ```
 ## Clustering
-To distinguish the different subtypes of cell in the data clustering is performed. 
+To distinguish the different subtypes of cell in the data clustering can be performed. 
 ```{r, fig.show='hold'}
 #Performing K-means Clustering
-your_analysis <- cluster_kmeans(your_analysis, k = 6)
+your_analysis <- cluster_kmeans(your_analysis, k = 6, dim=5)
 #List of attributes for Clustering Section
 your_analysis$cluster %>% attributes
 #Finding Clustering Results
@@ -78,16 +79,23 @@ your_analysis$cluster$labels
 #Plot Cluster in GGplot2
 your_analysis$cluster$plot1
 ```
+It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+```{r, fig.show='hold'}
+#Displaying top 3 genes for each cluster
+Heatmap_Cluster(your_analysis, n=3)
+```
+
 
 ## GSEA
 
-Performs Geneset enrichment analysis using MCA distance metric.
+Performs Geneset enrichment analysis using MCA distance metric. You need to supply a gmt file downloaded from BroadGSEA or your very own list of geneset.
 ```{r, fig.show='hold'}
-your_analysis <- GSEA(your_analysis, GMTfile = reactome_gmtfile, nperm = 1000)
-#List of attributes for GSEA Section
-your_analysis$GSEA %>% attributes
+your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
 #Top 10 genes specific to cluster1
 your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 #Top 10 genes specific to cluster2
 your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
+```
+```{r, fig.show='hold'}
+your_analysis %>%  GSEA_Heatmap_Cluster()
 ```

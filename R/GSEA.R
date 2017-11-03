@@ -347,7 +347,6 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0)
         hoverinfo = "text", text = ~round(max(tops), digits = 4)) %>%
         add_segments(x = ~pathway, xend = ~pathway, y = ~diff/2,
             yend = ~-diff/2, line = list(color = "rgb(0, 10, 10)",
-                width = 1), text = ~paste0(name, "</br>", "Rank:",
-                pathway), showlegend = FALSE, hoverinfo = "text")
+                width = 1), text = ~paste0(name), showlegend = FALSE, hoverinfo = "text")
 }
 

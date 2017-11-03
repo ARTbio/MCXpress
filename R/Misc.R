@@ -165,9 +165,7 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
         lapply((rowsep %>% max) - rowsep, function(i)
           geom_hline(yintercept = i + 0.5, color = "black")),
         lapply((colsep %>% max) - colsep, function(i)
-          geom_vline(xintercept = i + 0.5, color = "black")),
-        scale_y_discrete(breaks = c(3, 6), labels =
-                           c("a", "b"))
+          geom_vline(xintercept = i + 0.5, color = "black"))
       ),
       na.rm = F,
       showticklabels = c(TRUE, FALSE),
@@ -234,8 +232,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
   TableCell <- c(0, Cell$Cluster %>% table %>% cumsum)
   Lab <-
     ((TableCell[-1] + TableCell[-(TableCell %>% length)]) / 2) %>% add(0.5) %>%  round(digits = 0)
-  Lab2 <- rep(NA, times = Cell$Sample %>% length)
-  Lab2[Lab] <- Lab %>%  names
+  rowlab <- rep(Cell$Cluster %>% unique)
   CellOrder <- Cell$Sample
   Gathering <- x$cluster$gene_cluster_distances %>%
     separate(Genes, sep = "-bin", into = c("Genes", "bin")) %>%
@@ -309,7 +306,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
       ),
       srtCol = 45,
       cexRow = 2,
-      labRow = Lab2,
+      labRow = rowlab,
       cexCol = 1,
       keysize = 1,
       margins = c(10, 10),
@@ -340,15 +337,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
 #'
 #' @examples
 GSEA_Heatmap_Cluster <-
-  function(X,
-           pval = 0.05,
-           es = 0 ,
-           nes = -20,
-           color = cm.colors(100),
-           title = "",
-           rmna = T,
-           metrics = "NES",
-           plotly = F) {
+  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F) {
     DF <- lapply(c("padj", "ES", "NES"), function(val) {
       df1 <-
         X$GSEA$GSEA_Results[!(names(X$GSEA$GSEA_Results) == "Origin")] %>%
@@ -447,9 +436,6 @@ GSEA_Heatmap_SC <-
       df2 <-
         df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
     }) %>% Reduce(inner_join, .)
-
-    DF$ES[(DF$padj > pval) |
-            (DF$ES < es) | (DF$NES < nes)] <- NA
     if (metrics == "ES") {
       DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
       MAT <-

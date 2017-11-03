@@ -7,8 +7,10 @@
 calculate_cluster_centroids <- function(X, dim) {
     ## ............................................................................
     ## A Initialisation of variables ####
+    X$cluster$labels <- X$cluster$labels %>%  select(Cluster, Sample)
     cells_coord <- X$MCA$cells_principal[,1:dim]
     genes_coord <- X$MCA$genes_standard[,1:dim]
+    X$cluster$labels  <- X$cluster$labels %>% select(Cluster, Sample)
     labels      <- X$cluster$labels
     nClusters   <- X$cluster$nClusters
 
