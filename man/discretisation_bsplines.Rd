@@ -18,5 +18,5 @@ Scale the expression matrix using splines
 \examples{
 MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- discretisation_bsplines(MCX64553)
-#MCX64553$Disjunctive_Matrix
+#MCX64553$disjunctive_matrix
 }

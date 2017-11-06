@@ -4,7 +4,7 @@
 \alias{GSEA}
 \title{Gene Set Enrichment Analysis of Clusters and Axis}
 \usage{
-GSEA(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500, nproc = 1,
+GSEA(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500, nproc = 4,
   nbin = 1, naxis = 2, gseaParam = 0)
 }
 \arguments{

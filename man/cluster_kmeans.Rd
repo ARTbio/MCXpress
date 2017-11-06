@@ -4,12 +4,14 @@
 \alias{cluster_kmeans}
 \title{K-Means Clustering on MCA}
 \usage{
-cluster_kmeans(X, k = 2, maxIter = 10, nstart = 50)
+cluster_kmeans(X, k = 2, dim = 2, maxIter = 10, nstart = 50)
 }
 \arguments{
 \item{X}{MCXpress object containing MCA object}
 
 \item{k}{Number of cluster to compute}
+
+\item{dim}{number of component to retain for distance calculation.}
 
 \item{maxIter}{maximum number of iteration}
 
@@ -33,5 +35,5 @@ MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553)
-MCX64553 <- cluster_kmeans(MCX64553, k=6)
+MCX64553 <- cluster_kmeans(MCX64553, k=6, dim=2)
 }

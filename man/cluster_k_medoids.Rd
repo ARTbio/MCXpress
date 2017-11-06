@@ -4,12 +4,14 @@
 \alias{cluster_k_medoids}
 \title{K-Medoids Clusetering on the MCA Analysis}
 \usage{
-cluster_k_medoids(X, k = 2)
+cluster_k_medoids(X, k = 2, dim = 2)
 }
 \arguments{
 \item{X}{MCXpress object containing MCA object}
 
 \item{k}{integer indicating the number of cluster to obtain}
+
+\item{dim}{number of component to retain for distance calculation.}
 }
 \value{
 MCXpress object containing a MCXmca and MCXcluster object
@@ -29,5 +31,5 @@ MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553)
-MCX64553 <- cluster_k_medoids(MCX64553, k=6)
+MCX64553 <- cluster_k_medoids(MCX64553, k=6,dim=2)
 }

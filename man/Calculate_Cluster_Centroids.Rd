@@ -4,7 +4,7 @@
 \alias{calculate_cluster_centroids}
 \title{Generic function to compute distances, centroids and statistics after statistics.}
 \usage{
-calculate_cluster_centroids(X)
+calculate_cluster_centroids(X, dim)
 }
 \arguments{
 \item{X}{an MCXpress object with MCA object (after MCA step)}

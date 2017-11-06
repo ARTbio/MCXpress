@@ -4,10 +4,12 @@
 \alias{cluster_hclust}
 \title{Hierarchical Clustering on MCA}
 \usage{
-cluster_hclust(X, method = "average", k = NULL, h = NULL)
+cluster_hclust(X, dim = 2, method = "average", k = NULL, h = NULL)
 }
 \arguments{
 \item{X}{MCXpress object containing MCA object}
+
+\item{dim}{number of component to retain for distance calculation.}
 
 \item{method}{hclust method ('average', 'ward', etc..)}
 
@@ -33,5 +35,5 @@ MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
 MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
 MCX64553 <- MCA(MCX64553)
-MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D")
+MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D", dim=2)
 }

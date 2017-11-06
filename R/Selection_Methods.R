@@ -11,7 +11,7 @@
 #'@export
 select_most_variable_genes <- function(X, ngenes = NULL)
 {
-    if (X %>% class %>% equals("MCXpress_object"))
+    if (X %>% class %>% equals("MCXpress"))
     {
         exp_matrix <- X$ExpressionMatrix
         means <- exp_matrix %>% rowMeans
@@ -64,16 +64,17 @@ select_most_variable_genes <- function(X, ngenes = NULL)
 #' @export
 select_diptest <- function(X, pval = 0.05)
 {
-  if (X %>% class %>% equals("MCXpress_object"))
+  if (X %>% class %>% equals("MCXpress"))
   {
+    exp_mat <- X$ExpressionMatrix
     Dip_Test <- function(x){
       x %>%
         as.numeric() %>%
-        dip.test() %>%
+        diptest::dip.test() %>%
         use_series(p.value)
     }
-    dipPval <- exp_matrix %>% apply(MARGIN = 1,FUN = Dip_Test )
-    X$ExpressionMatrix <- exp_matrix[(dipPval < pval) %>% which,]
+    dipPval <-exp_mat  %>% pbapply::pbapply(MARGIN = 1,FUN = Dip_Test)
+    X$ExpressionMatrix <- exp_mat[(dipPval < pval) %>% which,]
     return(X)
     } else
   {
@@ -106,3 +107,4 @@ filter_outlier <- function(X, percentage = 0.05, threshold = 1)
     X$ExpressionMatrix <- X$ExpressionMatrix[noout, ]
     return(X)
 }
+

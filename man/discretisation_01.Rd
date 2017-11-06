@@ -20,5 +20,5 @@ Scale the expression matrix from 0 to 1
 \examples{
 MCX64553 <- Initialise_MCXpress(GSE64553)
 MCX64553 <- discretisation_01(MCX64553)
-#MCX64553$Disjunctive_Matrix
+#MCX64553$disjunctive_matrix
 }

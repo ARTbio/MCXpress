@@ -1,7 +1,7 @@
-print.MCXpress_object <- function(obj, ...)
+print.MCXpress <- function(obj, ...)
 {
     cat("\n$ExpressionMatrix\tyour input expression matrix")
-    if (obj$Disjunctive_Matrix %>% is.null() %>% not())
+    if (obj$disjunctive_matrix %>% is.null() %>% not())
     {
         cat("\n$DisjunctiveMatrix\tgenerated Burt Matrix")
         if (obj$MCA %>% is.null() %>% not())
@@ -20,7 +20,7 @@ print.MCXpress_object <- function(obj, ...)
 }
 
 
-print.MCA_Object <- function(obj, ...)
+print.MCA <-function(obj, ...)
 {
     cat(obj$Methods, "Dimension Reduction Results", "\n", "\n")
     NAME <- c("", "$cells_standard", "$cells_principal", "$genes_standard",
@@ -36,7 +36,7 @@ print.MCA_Object <- function(obj, ...)
         right = FALSE)
 }
 
-print.Cluster_Object <- function(obj, ...)
+print.Cluster <- function(obj, ...)
 {
     cat("Clustering Results", "\n", "\n")
     NAME <- c("", "$nClusters", "$labels", "$closest_cluster",
@@ -49,7 +49,7 @@ print.Cluster_Object <- function(obj, ...)
         right = FALSE)
 }
 
-print.GSEA_Object <- function(obj, ...)
+print.GSEA <- function(obj, ...)
 {
     cat("Functionnal Analysis Results", "\n", "\n")
     NAME <- c("", "$Ranking", "$GSEA_Results", "$Shiny")

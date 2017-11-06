@@ -32,7 +32,7 @@
 # ____________________________________________________________________________
 # Gene set enrichment analysis ####
 GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
-    nproc = 1, nbin = 1, naxis = 2, gseaParam = 0)
+    nproc = 4, nbin = 1, naxis = 2, gseaParam = 0)
     {
 
     ## ............................................................................
@@ -49,8 +49,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ### . . . . . . . ..  b Correlation Ranking Calculation ####
     cat("Calculating ranking of genes correlation for each axis \n")
     axis_rank <- df %>% select(-Genes) %>% purrr::map(function(x)
-    {
-        x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "random") %>%
+    {x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "random") %>%
             sort
     })
 
@@ -59,10 +58,10 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     ### each Axis ####
 
     cat("Beginning enrichment analysis for axis \n")
-    axis_gsea <- axis_rank %>% purrr::map2(.y = axis_rank %>%
-        names, .f = function(x, y)
+    pb <- txtProgressBar(width = 50, style=3, char = "+")
+    axis_gsea <- axis_rank %>% purrr::map2(.y = seq(from=0, to=1, length.out = (axis_rank %>%  length)), .f = function(x, y)
         {
-        cat(paste("processing:", y, "\n"))
+        setTxtProgressBar(pb, y)
         gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
             maxSize = maxSize, minSize = minSize, nproc = nproc,
             BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
@@ -71,6 +70,7 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
         val <- gsea %>% magrittr::inset(, 2:5, value = ins)
         return(val)
     })
+    close(pb)
 
     ## ............................................................................
     ## B Gene Set Enrichment Analysis on Cluster ####
@@ -80,51 +80,232 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
     df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
         into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
         dplyr::filter(bin %in% nbin)
-    #%>%dplyr::summarise_at(.cols = -(1:2), .funs = min)
 
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     ### . . . . . . . ..  b Calculate Rank for Cluster ####
 
     cat("\nCalculating ranking of genes for each clusters \n")
-    cluster_rank <- df2 %>% select(-Genes,-bin) %>% purrr::map(function(x)
+    cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
     {
-        x %>% abs %>% multiply_by(-1) %>% set_names(df2$Genes) %>%
-            rank(ties.method = "first") %>% sort
+        1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
     })
 
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     ### . . . . . . . ..  c fgsea analysis for cluster ####
 
-    cat("Beginning enrichment analysis for clusters\n")
-    cluster_gsea <- cluster_rank %>% purrr::map2(.y = cluster_rank %>%
-        names, .f = function(x, y)
+    cat("Beginning enrichment analysis for clusters\n\n")
+    pb <- txtProgressBar(width = 50, style=3, char = "+")
+    cluster_gsea <- mapply(x=cluster_rank, y = seq(from=0, to=1, length.out = (cluster_rank %>%  length)), FUN= function(x,y)
         {
-        cat(paste("processing:", y, "\n"))
+        setTxtProgressBar(pb, y)
         gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
             maxSize = maxSize, minSize = minSize, nproc = nproc,
-            BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
+          BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
             as_tibble()
         ins <- gsea %>% magrittr::extract(, 2:5) %>% round(digits = 5)
         val <- gsea %>% magrittr::inset(, 2:5, value = ins)
         return(val)
-    })
+    }, SIMPLIFY = F)
+    close(pb)
 
     ## ............................................................................
     ## C GSEA finalisation ####
 
+    cat(paste0("Creating Enrichment Analysis Object\n"))
     X$GSEA$GSEA_Results_Axis <- axis_gsea
-    X$GSEA$RankingAxis <- axis_rank %>% purrr::map(.f=function(x){x %>% set_names(x %>% rev %>% names())})
+    X$GSEA$RankingAxis <- axis_rank
     X$GSEA$GSEA_Results <- cluster_gsea
-    X$GSEA$Ranking <- cluster_rank %>% purrr::map(.f=function(x){x %>% set_names(x %>% rev %>% names())})
+    X$GSEA$Ranking <- cluster_rank
     X$GSEA$GMTfile <- GMTfile
     X$GSEA$Pathways <- axis_gsea$Axis1$pathway
     X$GSEA$AllRanking <- axis_rank %>% append(cluster_rank)
     X$GSEA$gseaParam <- gseaParam
     X$Shiny <- create_dashboard3(X)
     cat(paste0("Enrichment Analysis Completed\n"))
-    class(X$GSEA) <- "GSEA_Object"
+    class(X$GSEA) <- "GSEA"
     return(X)
 }
+
+
+
+parallel_fgsea <- function(x, a, b, c, d, e, f){
+  gsea <- tibble::as_tibble(fgsea::fgsea(stats = x, pathways = a, nperm = b,
+                                         minSize =  c, maxSize = d, nproc = e,
+                                         BPPARAM = BiocParallel::SerialParam(), gseaParam =f))
+  ins <-  round(magrittr::extract(gsea, 2:5),digits = 5)
+  val <-  magrittr::inset(gsea, 2:5, value = ins)
+  return(val)
+}
+
+
+
+GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
+                 nproc = 4, nbin = 1, naxis = 2, gseaParam = 0)
+{
+  ## ............................................................................
+  ## A Axis Correlation Gene Set Enrichment Analysis ####
+
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  a Filtering of bin ####
+  df <- X$MCA$Axis_Gene_Cor[, 1:(naxis + 1)] %>% separate(col = Genes,
+                                                          into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+    filter(bin == 1) %>% select(-bin)
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  b Correlation Ranking Calculation ####
+  cat("Calculating ranking of genes correlation for each axis \n")
+  axis_rank <- df %>% select(-Genes) %>% purrr::map(function(x)
+  {x %>% abs %>% set_names(df$Genes) %>% rank(ties.method = "random") %>%
+      sort
+  })
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  c Fast Gene Set Enrichment Analysis on
+  ### each Axis ####
+
+  cat("Beginning enrichment analysis for axis \n")
+  pb <- txtProgressBar(width = 50, style=3, char = "+")
+  axis_gsea <- axis_rank %>% purrr::map2(.y = seq(from=0, to=1, length.out = (axis_rank %>%  length)), .f = function(x, y)
+  {
+    setTxtProgressBar(pb, y)
+    gsea <- fgsea(pathways = GMTfile, stats = x, nperm = nperm,
+                  maxSize = maxSize, minSize = minSize, nproc = nproc,
+                  BPPARAM = SerialParam(), gseaParam = gseaParam) %>%
+      as_tibble
+    ins <- gsea %>% magrittr::extract(, 2:5) %>% round(digits = 5)
+    val <- gsea %>% magrittr::inset(, 2:5, value = ins)
+    return(val)
+  })
+  close(pb)
+
+  ## ............................................................................
+  ## B Gene Set Enrichment Analysis on Cluster ####
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  a Filter Bin ####
+  df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
+                                                              into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+    dplyr::filter(bin %in% nbin)
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  b Calculate Rank for Cluster ####
+  Scaling2 <- function(x){2*(x-min(x))/(max(x)-min(x))}
+  cat("\nCalculating ranking of genes for each clusters \n")
+  # cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% bplapply(FUN = function(x,y){
+  #   1-(sort(Scaling2(set_names(x,y))))
+  # },BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T), y=df2$Genes)
+  cat("\nCalculating ranking of genes for each clusters \n")
+  cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
+  {
+    1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
+  })
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  c fgsea analysis for cluster ####
+
+  cat("Beginning enrichment analysis for clusters\n\n")
+  cluster_gsea <-
+    cluster_rank %>% BiocParallel::bplapply(
+      FUN = parallel_fgsea,
+      BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T),
+      a = GMTfile,
+      b = nperm,
+      c = minSize,
+      d = maxSize,
+      e = nproc,
+      f = gseaParam
+    )
+
+
+  ## ............................................................................
+  ## C GSEA finalisation ####
+
+  cat(paste0("Creating Enrichment Analysis Object\n"))
+  X$GSEA$GSEA_Results_Axis <- axis_gsea
+  X$GSEA$RankingAxis <- axis_rank
+  X$GSEA$GSEA_Results <- cluster_gsea
+  X$GSEA$Ranking <- cluster_rank
+  X$GSEA$GMTfile <- GMTfile
+  X$GSEA$Pathways <- axis_gsea$Axis1$pathway
+  X$GSEA$AllRanking <- axis_rank %>% append(cluster_rank)
+  X$GSEA$gseaParam <- gseaParam
+  X$Shiny <- create_dashboard3(X)
+  cat(paste0("Enrichment Analysis Completed\n"))
+  class(X$GSEA) <- "GSEA"
+  return(X)
+}
+
+SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
+                       nproc = 4, nbin = 1, naxis = 2, gseaParam = 0, dim=2)
+{
+  ## ............................................................................
+  ## A Axis Correlation Gene Set Enrichment Analysis ####
+
+  ## ............................................................................
+  ## B Gene Set Enrichment Analysis on Cluster ####
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  a Filter Bin ####
+  cells_coord <-  X$MCA$cells_principal[,1:dim]
+  genes_coord <-  X$MCA$genes_standard[,1:dim]
+  df2 <-cell_gene_distances <- fields::rdist(x1 = cells_coord %>% select(contains("Axis")) %>%  as.matrix %>%  set_rownames(cells_coord %>%  rownames),
+                                             x2 = genes_coord %>%  as.matrix) %>% t() %>% set_colnames(cells_coord %>%  rownames) %>%
+    set_rownames(genes_coord %>% rownames) %>% as.data.frame() %>% rownames_to_column(var = "Genes") %>%
+    as_tibble() %>% tidyr::separate(col = Genes, into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+    dplyr::filter(bin %in% nbin)
+
+  if (nbin %>%  length %>%  equals(1) %>%  not){
+    df2 <- df2 %>% group_by(Genes) %>% summarise_at(-1,.funs = min) %>% ungroup %>%  mutate(bin="mix")
+  }
+
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  b Calculate Rank for Cluster ####
+  Scaling2 <- function(x){2*(x-min(x))/(max(x)-min(x))}
+  cat("\nCalculating ranking of genes for each clusters \n")
+  # cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% bplapply(FUN = function(x,y){
+  #   1-(sort(Scaling2(set_names(x,y))))
+  # },BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T), y=df2$Genes)
+  cat("\nCalculating ranking of genes for each clusters \n")
+  cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
+  {
+    1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
+  })
+  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+  ### . . . . . . . ..  c fgsea analysis for cluster ####
+
+  cat("Beginning enrichment analysis for clusters\n\n")
+  cluster_gsea <-
+    cluster_rank %>% BiocParallel::bplapply(
+      FUN = parallel_fgsea,
+      BPPARAM = BiocParallel::SnowParam(workers = nproc, tasks=nproc, progressbar = T),
+      a = GMTfile,
+      b = nperm,
+      c = minSize,
+      d = maxSize,
+      e = nproc,
+      f = gseaParam
+    )
+
+
+  ## ............................................................................
+  ## C GSEA finalisation ####
+
+  cat(paste0("Creating SIngle Cell Enrichment Analysis Object\n"))
+  X$SC_GSEA$GSEA_Results <- cluster_gsea
+  X$SC_GSEA$Ranking <- cluster_rank
+  X$SC_GSEA$Pathways <- X$SC_GSEA$GSEA_Results %>%  extract2(1) %>%  use_series(pathway)
+  X$SC_GSEA$gseaParam <- gseaParam
+  X$SC_GSEA$GMTfile <- GMTfile
+  cat(paste0("Single Cell Enrichment Analysis Completed\n"))
+  class(X$SC_GSEA) <- "GSEA"
+  return(X)
+}
+
+
+
+
+
+
 
 #' Interactive plot enrichment score of a pathway
 #'
@@ -156,9 +337,9 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0)
     diff <- (max(tops) - min(bottoms))/8
     x = y = NULL
     plot_ly(data = toPlot) %>% add_lines(x = ~x, y = ~y, mode = "lines",
-        line = list(color = "rgb(154, 240, 24)", width = 2),
+        line = list(color = "rgb(150, 240, 30)", width = 2),
         name = "Enrichment") %>% add_lines(x = ~x, y = ~min(bottoms),
-        line = list(color = "rgb(110, 193, 248)", width = 2,
+        line = list(color = "rgb(110, 190, 250)", width = 2,
             dash = "dash"), name = "Lower limit", hoverinfo = "text",
         text = ~round(min(bottoms), digits = 4)) %>% add_lines(x = ~x,
         y = ~max(tops), line = list(color = "rgb(250, 150, 10)",
@@ -166,7 +347,6 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0)
         hoverinfo = "text", text = ~round(max(tops), digits = 4)) %>%
         add_segments(x = ~pathway, xend = ~pathway, y = ~diff/2,
             yend = ~-diff/2, line = list(color = "rgb(0, 10, 10)",
-                width = 1), text = ~paste0(name, "</br>", "Rank:",
-                pathway), showlegend = FALSE, hoverinfo = "text")
+                width = 1), text = ~paste0(name), showlegend = FALSE, hoverinfo = "text")
 }
 
