@@ -337,7 +337,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
 #'
 #' @examples
 GSEA_Heatmap_Cluster <-
-  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F) {
+  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F, margin=c(0,0,0,0)) {
     DF <- lapply(c("padj", "ES", "NES"), function(val) {
       df1 <-
         X$GSEA$GSEA_Results[!(names(X$GSEA$GSEA_Results) == "Origin")] %>%
@@ -386,7 +386,7 @@ GSEA_Heatmap_Cluster <-
       draw_cellnote = F,
       cexCol = 0.7,
       cexRow = 0.8,
-      margins = c(200, 200, 0, 200),
+      margins = margin,
       na.value = "black",
       colors = color,
       na.rm = FALSE,
