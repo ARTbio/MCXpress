@@ -437,7 +437,7 @@ GSEA_Heatmap_SC <-
         df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
     }) %>% Reduce(inner_join, .)
     if (metrics == "ES") {
-      DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
+      DF$ES[(DF$padj > pval) | (abs(DF$ES) < es) | (DF$NES < nes)] <- NA
       MAT <-
         DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)
     }
