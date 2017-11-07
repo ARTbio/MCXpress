@@ -1,127 +1,126 @@
 Abstract
 --------
 
-Single-cell RNA-sequencing allows unbiased transcriptome profiling of
-hundreds to thousands of individual cells, enabling the analysis of
-genes expression at the cellular level. By uncovering cell heterogeneity
-in a given cell type or tissue, this technology leads to the potential
-discovery of rare subpopulations of cells which could be responsible of
-the onset and progression of specific diseases. Here we developed a fast
-and comprehensible hand on tool for the analysis of RNA-seq data using
-an approach based on Multiple Correspondence Analysis (MCA). MCA is a
-dimensionality reduction technique that allows the representation of
-both individuals (cells) and the variables (genes) within the same
-Euclidean space, thus allowing the simultaneous identification of
-subpopulations of cells and their gene signatures. MCA was coupled with
-pre-ranked gene set enrichment analysis; a powerful analytical method
-for characterizing differentially expressed genes/pathways within each
-groups of individuals. This singular combination allows a joint
-comparison of gene expression and pathway enrichment across all the
-groups, overcoming the limitations of a pair-wise based analysis used by
-standard differential expression approaches. An extensive visualization
-tools integrated in a shiny interface, allowing the user to intuitively
-inspect results and easily obtain a functional interpretation,
-complement the package. By integrating a singular dimensionality
-reduction approach, a robust analytic method and a sophisticated
-visualization tool in an easy to use framework, the MCXpress R package
-can enhance greatly the interpretation of single cell but also bulk
-RNA-sequencing data analysis.
+Single-cell RNA-sequencing allows unbiased transcriptome profiling of hundreds to thousands of individual cells, enabling the analysis of genes expression at the cellular level. By uncovering cell heterogeneity in a given cell type or tissue, this technology leads to the potential discovery of rare subpopulations of cells which could be responsible of the onset and progression of specific diseases. Here we developed a fast and comprehensible hand on tool for the analysis of RNA-seq data using an approach based on Multiple Correspondence Analysis (MCA). MCA is a dimensionality reduction technique that allows the representation of both individuals (cells) and the variables (genes) within the same Euclidean space, thus allowing the simultaneous identification of subpopulations of cells and their gene signatures. MCA was coupled with pre-ranked gene set enrichment analysis; a powerful analytical method for characterizing differentially expressed genes/pathways within each groups of individuals. This singular combination allows a joint comparison of gene expression and pathway enrichment across all the groups, overcoming the limitations of a pair-wise based analysis used by standard differential expression approaches. An extensive visualization tools integrated in a shiny interface, allowing the user to intuitively inspect results and easily obtain a functional interpretation, complement the package. By integrating a singular dimensionality reduction approach, a robust analytic method and a sophisticated visualization tool in an easy to use framework, the MCXpress R package can enhance greatly the interpretation of single cell but also bulk RNA-sequencing data analysis.
 
 Installation of MCXpress
 ------------------------
 
-MCXpress is still under development but can be installed via github
-using the devtools library.
+MCXpress is still under development but can be installed via github using the devtools library.
 
-    library(devtools)
-    install_github("cbl-imagine/MCXpress", ref = "master")
-    library(MCXpress)
+``` r
+library(devtools)
+install_github("Cortalak/MCXpress", ref = "master")
+library(MCXpress)
+```
 
 Initialisation of MCXpress object
 ---------------------------------
 
-In order to performs the analysis with MCXpress, the user needs to
-provide a gene expression matrix. The matrix (TPM, FPKM, count) must
-have as rownames the genes and as column names the cells/samples names.
-It should be preferrentially log transformed. first. The MCXpress object
-is first initialised using the `Initialise_MCXpress` function. It will
-be the main input for all the remaining MCXpress function and all the
-analysis results will be stored inside as list. Note that the genes name
-and cell/samples name must not contain any duplicates. We use here the
-example dataset of MCXpress derived from GSE64553 in GEO.
+In order to performs the analysis with MCXpress, the user needs to provide a gene expression matrix. The matrix (TPM, FPKM, count) must have as rownames the genes and as column names the cells/samples names. It should be preferrentially log transformed. first. The MCXpress object is first initialised using the `Initialise_MCXpress` function. It will be the main input for all the remaining MCXpress function and all the analysis results will be stored inside as list. Note that the genes name and cell/samples name must not contain any duplicates. We use here the example dataset of MCXpress derived from GSE64553 in GEO.
 
-    #GSE64553 an example matrix of log transformed single cell expression 
-    your_analysis <- Initialise_MCXpress(GSE64553)
-    #your_analysis$ExpressionMatrix to call your matrix
-    dim(your_analysis$ExpressionMatrix)
+``` r
+#GSE64553 an example matrix of log transformed single cell expression 
+your_analysis <- Initialise_MCXpress(GSE64553)
+#your_analysis$ExpressionMatrix to call your matrix
+dim(your_analysis$ExpressionMatrix)
+```
 
     ## [1] 36454    35
 
-If not done previously, it is possible to filter the matrix by removing
-poorly expressed genes or selecting the most variable genes. By calling
-these function it will update the Expression Matrix inside the object.
+If not done previously, it is possible to filter the matrix by removing poorly expressed genes or selecting the most variable genes. By calling these function it will update the Expression Matrix inside the object.
 
-    your_analysis <- filter_outlier(your_analysis, percentage = 0.1, threshold = 3)
-    your_analysis <- select_most_variable_genes(X = your_analysis, ngenes = 10000)
-    #your_analysis$ExpressionMatrix to call your filtered matrix
-    dim(your_analysis$ExpressionMatrix)
+``` r
+your_analysis <- filter_outlier(your_analysis, percentage = 0.1, threshold = 3)
+your_analysis <- select_most_variable_genes(X = your_analysis, ngenes = 10000)
+#your_analysis$ExpressionMatrix to call your filtered matrix
+dim(your_analysis$ExpressionMatrix)
+```
 
     ## [1] 10000    35
 
 Disjunctive Matrix Creation
 ---------------------------
 
-In order to analyse the expression matrix with MCA, a transformation
-into a disjunctive matrix is required. The function `discretisation_01`
-performs a simple scaling of the expression value from 0 to 1. It is
-also possible to discretise the matrix using `discretisation_bsplines`.
+In order to analyse the expression matrix with MCA, a transformation into a disjunctive matrix is required. The function `discretisation_01` performs a simple scaling of the expression value from 0 to 1. It is also possible to discretise the matrix using `discretisation_bsplines`.
 
-    your_analysis <- discretisation_01(your_analysis, scaled = FALSE)
-    #your_analysis <- Discretisation_Bsplines(your_analysis) For bsplines discretisation method
-    #your_analysis$Disjunctive_Matrix to call the Disjunctive Matrix
+``` r
+your_analysis <- discretisation_01(your_analysis, scaled = FALSE)
+#your_analysis <- Discretisation_Bsplines(your_analysis) For bsplines discretisation method
+#your_analysis$Disjunctive_Matrix to call the Disjunctive Matrix
+```
 
 Multiple Corespondence Analysis
 -------------------------------
 
-Multiple Corespondece Analysis is performed on the created Disjunctive
-Matrix.
+Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 
-    #Perform MCA you can choose the number of Axis to retain with the parameter Dim
-    your_analysis <- MCA(your_analysis, Dim = 3)
+``` r
+#Perform MCA you can choose the number of Axis to retain with the parameter Dim
+your_analysis <- MCA(your_analysis)
+```
 
     ## Peforming MCA...
-    ## ===========================================================================
-    ## Calculating Cell to Cell Distance...
-    ## MCA is finished
+    ## 
+      |                                                        
+      |                                                  |   0%
+      |                                                        
+      |+++++                                             |  10%
+      |                                                        
+      |++++++++++                                        |  20%
+      |                                                        
+      |+++++++++++++++                                   |  30%
+      |                                                        
+      |++++++++++++++++++++                              |  40%
+      |                                                        
+      |++++++++++++++++++++++++++++++                    |  60%
+      |                                                        
+      |+++++++++++++++++++++++++++++++++++               |  70%
+      |                                                        
+      |++++++++++++++++++++++++++++++++++++++++          |  80%
+      |                                                        
+      |+++++++++++++++++++++++++++++++++++++++++++++     |  90%
+      |                                                        
+      |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
+    ## Eigen Value Table Generation 
+    ##  
+    ## Calculating Spearman CorrelationMCA is finished
 
-    #All attributes of MCA
-    your_analysis$MCA %>% attributes
+``` r
+#All attributes of MCA
+your_analysis$MCA %>% attributes
+```
 
     ## $names
-    ##  [1] "cells_principal"          "cells_standard"          
-    ##  [3] "genes_standard"           "genes_principal"         
-    ##  [5] "Cell2Cell_Distance"       "eigen_value"             
-    ##  [7] "explained_eigen_variance" "Methods"                 
-    ##  [9] "Axis_Gene_Cor"            "plot"                    
+    ## [1] "cells_principal"          "cells_standard"          
+    ## [3] "genes_standard"           "genes_principal"         
+    ## [5] "eigen_value"              "explained_eigen_variance"
+    ## [7] "Methods"                  "Axis_Gene_Cor"           
+    ## [9] "plot"                    
     ## 
     ## $class
-    ## [1] "MCA_Object"
+    ## [1] "MCA"
 
-    #Plot first two Axes of MCA
-    your_analysis$MCA$plot
+``` r
+#Plot first two Axes of MCA
+your_analysis$MCA$plot
+```
 
-![](C:\Users\Akira\AppData\Local\Temp\RtmpcxtMOu\preview-283059411c56.dir\MCXpress_vignette_files/figure-markdown_strict/unnamed-chunk-6-1.png)
+![](..\README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
-    #Visualise your data interactively with your_analysis$Shiny
+``` r
+#Visualise your data interactively with your_analysis$Shiny
+```
 
 Clustering
 ----------
 
-To distinguish the different subtypes of cell in the data clustering is
-performed.
+To distinguish the different subtypes of cell in the data clustering can be performed.
 
-    #Performing K-means Clustering
-    your_analysis <- cluster_kmeans(your_analysis, k = 6)
+``` r
+#Performing K-means Clustering
+your_analysis <- cluster_kmeans(your_analysis, k = 6, dim=5)
+```
 
     ## Performing Kmeans Clustering with  6  Cluster
     ##  Calculating Centroids 
@@ -130,87 +129,102 @@ performed.
     ## 
     ##  Calculating Distance betwenn Cluster and Genes
 
-    #List of attributes for Clustering Section
-    your_analysis$cluster %>% attributes
+``` r
+#List of attributes for Clustering Section
+your_analysis$cluster %>% attributes
+```
 
     ## $names
-    ## [1] "labels"                 "nClusters"             
-    ## [3] "coord_centroids"        "cluster_distances"     
-    ## [5] "gene_cluster_distances" "closest_cluster"       
-    ## [7] "plot1"                  "plot2"                 
+    ## [1] "labels"                 "dim"                   
+    ## [3] "nClusters"              "coord_centroids"       
+    ## [5] "cluster_distances"      "gene_cluster_distances"
+    ## [7] "closest_cluster"        "plot1"                 
+    ## [9] "plot2"                 
     ## 
     ## $class
-    ## [1] "Cluster_Object"
+    ## [1] "Cluster"
 
-    #Finding Clustering Results
-    your_analysis$cluster$labels
+``` r
+#Finding Clustering Results
+your_analysis$cluster$labels
+```
 
     ## # A tibble: 35 x 2
-    ##                  Sample  Cluster
-    ##                   <chr>    <chr>
-    ##  1   HFF_PD22_Rotenone1 Cluster2
-    ##  2   HFF_PD22_Rotenone2 Cluster2
-    ##  3   HFF_PD22_Rotenone3 Cluster2
-    ##  4 HFF_PD22_woRotenone1 Cluster2
-    ##  5 HFF_PD22_woRotenone2 Cluster2
-    ##  6 HFF_PD22_woRotenone3 Cluster2
-    ##  7   HFF_PD26_Rotenone1 Cluster6
-    ##  8   HFF_PD26_Rotenone2 Cluster6
-    ##  9   HFF_PD26_Rotenone3 Cluster6
-    ## 10 HFF_PD26_woRotenone1 Cluster4
+    ##     Cluster               Sample
+    ##       <chr>                <chr>
+    ##  1 Cluster4   HFF_PD22_Rotenone1
+    ##  2 Cluster4   HFF_PD22_Rotenone2
+    ##  3 Cluster4   HFF_PD22_Rotenone3
+    ##  4 Cluster4 HFF_PD22_woRotenone1
+    ##  5 Cluster4 HFF_PD22_woRotenone2
+    ##  6 Cluster4 HFF_PD22_woRotenone3
+    ##  7 Cluster6   HFF_PD26_Rotenone1
+    ##  8 Cluster6   HFF_PD26_Rotenone2
+    ##  9 Cluster6   HFF_PD26_Rotenone3
+    ## 10 Cluster2 HFF_PD26_woRotenone1
     ## # ... with 25 more rows
 
-    #Plot Cluster in GGplot2
-    your_analysis$cluster$plot1
+``` r
+#Plot Cluster in GGplot2
+your_analysis$cluster$plot1
+```
 
-![](C:\Users\Akira\AppData\Local\Temp\RtmpcxtMOu\preview-283059411c56.dir\MCXpress_vignette_files/figure-markdown_strict/unnamed-chunk-7-1.png)
+![](..\README_files/figure-markdown_github/unnamed-chunk-7-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
 
 GSEA
 ----
 
-Performs Geneset enrichment analysis using MCA distance metric.
+Performs Geneset enrichment analysis using MCA distance metric. You need to supply a gmt file downloaded from BroadGSEA or your very own list of geneset.
 
-    your_analysis <- GSEA(your_analysis, GMTfile = reactome_gmtfile, nperm = 1000)
+``` r
+your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
+```
 
     ## Calculating ranking of genes correlation for each axis 
     ## Beginning enrichment analysis for axis 
-    ## processing: Axis1 
-    ## processing: Axis2 
+    ## 
+      |                                                        
+      |                                                  |   0%
+      |                                                        
+      |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
     ## 
     ## Calculating ranking of genes for each clusters 
     ## Beginning enrichment analysis for clusters
-    ## processing: Cluster1 
-    ## processing: Cluster2 
-    ## processing: Cluster3 
-    ## processing: Cluster4 
-    ## processing: Cluster5 
-    ## processing: Cluster6 
-    ## processing: Origin 
+    ## 
+    ## 
+      |                                                        
+      |                                                  |   0%
+      |                                                        
+      |++++++++                                          |  17%
+      |                                                        
+      |+++++++++++++++++                                 |  33%
+      |                                                        
+      |+++++++++++++++++++++++++                         |  50%
+      |                                                        
+      |+++++++++++++++++++++++++++++++++                 |  67%
+      |                                                        
+      |++++++++++++++++++++++++++++++++++++++++++        |  83%
+      |                                                        
+      |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
+    ## Creating Enrichment Analysis Object
     ## Enrichment Analysis Completed
 
-    #List of attributes for GSEA Section
-    your_analysis$GSEA %>% attributes
+``` r
+#Top 10 genes specific to cluster1
+your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
+```
 
-    ## $names
-    ## [1] "GSEA_Results_Axis" "RankingAxis"       "GSEA_Results"     
-    ## [4] "Ranking"           "GMTfile"           "Pathways"         
-    ## [7] "AllRanking"        "gseaParam"        
-    ## 
-    ## $class
-    ## [1] "GSEA_Object"
+    ##       PRSS30P   RP5-908D6.1  RP11-271M1.1 RP11-384C12.2         RN7SK 
+    ##     1.0000000     0.9995961     0.9748082     0.9619681     0.8840596 
+    ##         ASCL1       HORMAD1  RP11-271M1.2 RP11-395P16.1 CTD-2008L17.2 
+    ##     0.8704906     0.8682985     0.8661718     0.8601064     0.8473211
 
-    #Top 10 genes specific to cluster1
-    your_analysis$GSEA$Ranking$Cluster1 %>% tail(10)
+``` r
+#Top 10 genes specific to cluster2
+your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
+```
 
-    ##         RUNX3         MEOX2       SLC24A3       FAM101A       PRSS30P 
-    ##          9991          9992          9993          9994          9995 
-    ## RP11-224O19.2         ASCL1       SPATA22      KRTAP3-1 CTD-2231H16.1 
-    ##          9996          9997          9998          9999         10000
-
-    #Top 10 genes specific to cluster2
-    your_analysis$GSEA$Ranking$Cluster2 %>% tail(10)
-
-    ##  ASS1P11   GPRC5C   RNF175   SLC7A2    SFRP2     MLC1    AJAP1     NEFL 
-    ##     9991     9992     9993     9994     9995     9996     9997     9998 
-    ## TMEM132D    SMOC2 
-    ##     9999    10000
+    ## RP11-184E9.2   AC090954.5       DIRAS2     COL6A4P1         ALX3 
+    ##    1.0000000    0.5857108    0.3120977    0.2934250    0.2853957 
+    ##       COL6A6       BMPR1B    LINC00599     ADAMTS19        BANK1 
+    ##    0.2815028    0.2742676    0.2729280    0.2545550    0.2196198

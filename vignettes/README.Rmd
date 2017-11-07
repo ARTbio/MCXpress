@@ -87,3 +87,12 @@ your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
 your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 #Top 10 genes specific to cluster2
 your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
+
+```
+
+
+```{r, include=FALSE}
+   # add this chunk to end of mycode.rmd
+   file.rename(from="README.md", 
+               to="../README.md")
+```
