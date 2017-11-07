@@ -55,11 +55,6 @@ Multiple Corespondence Analysis
 
 Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 
-``` r
-#Perform MCA you can choose the number of Axis to retain with the parameter Dim
-your_analysis <- MCA(your_analysis)
-```
-
     ## Peforming MCA...
     ## 
       |                                                        
@@ -86,11 +81,6 @@ your_analysis <- MCA(your_analysis)
     ##  
     ## Calculating Spearman CorrelationMCA is finished
 
-``` r
-#All attributes of MCA
-your_analysis$MCA %>% attributes
-```
-
     ## $names
     ## [1] "cells_principal"          "cells_standard"          
     ## [3] "genes_standard"           "genes_principal"         
@@ -101,21 +91,7 @@ your_analysis$MCA %>% attributes
     ## $class
     ## [1] "MCA"
 
-``` r
-#Plot first two Axes of MCA
-your_analysis$MCA$plot
-```
-
-![](..\README_files/figure-markdown_github/unnamed-chunk-6-1.png)
-
-``` r
-#Visualise your data interactively with your_analysis$Shiny
-```
-
-Clustering
-----------
-
-To distinguish the different subtypes of cell in the data clustering can be performed.
+![](..\README_files/figure-markdown_github/unnamed-chunk-6-1.png) \#\# Clustering To distinguish the different subtypes of cell in the data clustering can be performed.
 
 ``` r
 #Performing K-means Clustering
@@ -152,12 +128,12 @@ your_analysis$cluster$labels
     ## # A tibble: 35 x 2
     ##     Cluster               Sample
     ##       <chr>                <chr>
-    ##  1 Cluster4   HFF_PD22_Rotenone1
-    ##  2 Cluster4   HFF_PD22_Rotenone2
-    ##  3 Cluster4   HFF_PD22_Rotenone3
-    ##  4 Cluster4 HFF_PD22_woRotenone1
-    ##  5 Cluster4 HFF_PD22_woRotenone2
-    ##  6 Cluster4 HFF_PD22_woRotenone3
+    ##  1 Cluster3   HFF_PD22_Rotenone1
+    ##  2 Cluster3   HFF_PD22_Rotenone2
+    ##  3 Cluster3   HFF_PD22_Rotenone3
+    ##  4 Cluster3 HFF_PD22_woRotenone1
+    ##  5 Cluster3 HFF_PD22_woRotenone2
+    ##  6 Cluster3 HFF_PD22_woRotenone3
     ##  7 Cluster6   HFF_PD26_Rotenone1
     ##  8 Cluster6   HFF_PD26_Rotenone2
     ##  9 Cluster6   HFF_PD26_Rotenone3
@@ -175,10 +151,6 @@ GSEA
 ----
 
 Performs Geneset enrichment analysis using MCA distance metric. You need to supply a gmt file downloaded from BroadGSEA or your very own list of geneset.
-
-``` r
-your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
-```
 
     ## Calculating ranking of genes correlation for each axis 
     ## Beginning enrichment analysis for axis 
@@ -209,20 +181,10 @@ your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
     ## Creating Enrichment Analysis Object
     ## Enrichment Analysis Completed
 
-``` r
-#Top 10 genes specific to cluster1
-your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
-```
-
-    ##       PRSS30P   RP5-908D6.1  RP11-271M1.1 RP11-384C12.2         RN7SK 
-    ##     1.0000000     0.9995961     0.9748082     0.9619681     0.8840596 
-    ##         ASCL1       HORMAD1  RP11-271M1.2 RP11-395P16.1 CTD-2008L17.2 
-    ##     0.8704906     0.8682985     0.8661718     0.8601064     0.8473211
-
-``` r
-#Top 10 genes specific to cluster2
-your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
-```
+    ##          MYH1    TSPEAR-AS1 RP11-224O19.2  RP13-25N22.1 RP11-395P16.1 
+    ##     1.0000000     0.9263749     0.9083997     0.8307682     0.7804880 
+    ##   AP001065.15  RP11-271M1.1  RP1-170D19.3        PCSK1N   RP5-908D6.1 
+    ##     0.7360049     0.6839747     0.6812617     0.6753696     0.6528792
 
     ## RP11-184E9.2   AC090954.5       DIRAS2     COL6A4P1         ALX3 
     ##    1.0000000    0.5857108    0.3120977    0.2934250    0.2853957 
