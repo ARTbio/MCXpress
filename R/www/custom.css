@@ -9,7 +9,7 @@
 
 h1 {
 	display: inline;
-  font-family: 'Lobster', cursive;
+  font-family: "Georgia", Times, "Times New Roman", serif;
   font-weight: bold;
   line-height: 0.5;
   text-align:center;
@@ -19,7 +19,7 @@ h1 {
 
 dawg {
 	display: inline;
-  font-family: 'Lobster', cursive;
+  font-family: 'Georgia', sherif;
   font-weight: bold;
   line-height: 0.5;
   text-align:center;
