@@ -12,7 +12,7 @@ create_dashboard1 <- function(X) {
                icon = icon("arrows"))
     )),
     dashboardBody(CSS,tabItems(TabMCA(X,dr_axis))
-  ))
+    ))
   server <- function(input, output, clientData, session) {
     options(warn = -1)
     DR_axis_name <-
@@ -276,183 +276,7 @@ create_dashboard2 <- function(X) {
     )),
     dashboardBody(CSS,tabItems(
       TabMCA(X, dr_axis),
-      tabItem(
-        tabName = "clus",
-        navbarPage(
-          "Clustering",
-          navbarMenu(
-            "Cell Space",
-            tabPanel(
-              "Clustering 2 Axis",
-              titlePanel("Cluster in the Cell Space"),
-              wellPanel(fluidRow(
-                column(
-                  5,
-                  selectInput(
-                    "Axis1_Clus",
-                    label = "Select x Axis",
-                    choices = dr_axis,
-                    selected = "Axis1"
-                  ),
-                  selectInput(
-                    "Axis2_Clus",
-                    label = "Select y Axis",
-                    choices = dr_axis,
-                    selected = "Axis2"
-                  ),
-                  selectInput(
-                    "Type",
-                    label = "Type",
-                    choices = c("Principal",
-                                "Standard"),
-                    selected = "Principal"
-                  )
-                ),
-                column(
-                  5,
-                  offset = 1,
-                  sliderInput(
-                    "Size_Clus",
-                    label = "Point Size",
-                    min = 0,
-                    max = 10,
-                    value = 5,
-                    step = 1
-                  ),
-                  sliderInput(
-                    "Alpha_Clus",
-                    label = "Transparency",
-                    min = 0,
-                    max = 1,
-                    value = 1,
-                    step = 0.1
-                  )
-                )
-              )),
-              plotlyOutput("CellSpace_Clus",
-                           width = "100%", height = "100%")
-            ),
-            tabPanel(
-              "Clustering 3 Axis",
-              wellPanel(fluidRow(
-                column(
-                  5,
-                  selectInput(
-                    "Axis1_3D_Clus",
-                    label = "Select x Axis",
-                    choices = dr_axis,
-                    selected = "Axis1"
-                  ),
-                  selectInput(
-                    "Axis2_3D_Clus",
-                    label = "Select y Axis",
-                    choices = dr_axis,
-                    selected = "Axis2"
-                  ),
-                  selectInput(
-                    "Axis3_3D_Clus",
-                    label = "Select z Axis",
-                    choices = dr_axis,
-                    selected = "Axis3"
-                  )
-                ),
-                column(
-                  5,
-                  offset = 1,
-                  sliderInput(
-                    "Size_3D_Clus",
-                    label = "Point Size",
-                    min = 0,
-                    max = 10,
-                    value = 5,
-                    step = 0.1
-                  ),
-                  sliderInput(
-                    "Alpha_3D_Clus",
-                    label = "Transparency",
-                    min = 0,
-                    max = 1,
-                    value = 1,
-                    step = 0.1
-                  )
-                )
-              )),
-              mainPanel(
-                width = 12,
-                align = "center",
-                plotlyOutput("CellSpace3D_Clus",
-                             width = "100%", height = "100%")
-              )
-            )
-          ),
-          tabPanel(
-            title = "Gene Space",
-            titlePanel("Genespace with Cluster Centroids"),
-            wellPanel(fluidRow(
-              column(
-                5,
-                selectInput(
-                  "Axis1_Gene_Clus",
-                  label = "Select x Axis",
-                  choices = dr_axis,
-                  selected = "Axis1"
-                ),
-                selectInput(
-                  "Axis2_Gene_Clus",
-                  label = "Select y Axis",
-                  choices = dr_axis,
-                  selected = "Axis2"
-                )
-              ),
-              column(
-                5,
-                offset = 1,
-                sliderInput(
-                  "Size_Gene_Clus",
-                  label = "Point Size",
-                  min = 0,
-                  max = 2,
-                  value = 1,
-                  step = 0.1
-                ),
-                sliderInput(
-                  "Alpha_Gene_Clus",
-                  label = "Transparency",
-                  min = 0,
-                  max = 1,
-                  value = 1,
-                  step = 0.1
-                )
-              )
-            )),
-            mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))
-          ),
-          tabPanel(
-            title = "Boxplot",
-            fluidPage(titlePanel("Genes Expression by Cluster"),
-                      fluidRow(column(
-                        width = 6,
-                        selectInput(
-                          "Genes_Boxplot",
-                          "Choose a Gene:",
-                          choices = (X$ExpressionMatrix %>%
-                                       rownames %>% sort),
-                          selectize = TRUE,
-                          multiple = TRUE,
-                          selected = (X$ExpressionMatrix %>% rownames)[1]
-                        )
-                      ))),
-            mainPanel(
-              width = 12,
-              h3("Boxplot"),
-              plotlyOutput("Boxplot",
-                           width = "100%", height = "100%"),
-              h3("Genes Specific to Cluster"),
-              DT::dataTableOutput("DTBOX")
-            )
-          )
-        )
-      )
+      TabClus(X, dr_axis)
     ))
   )
 
@@ -885,283 +709,26 @@ create_dashboard3 <- function(X) {
   ui <- dashboardPage(
     dashboardHeader(title = h1("MCXpress")),
     dashboardSidebar(sidebarMenu(
-      menuItem("MCA", tabName = "mca",
-               icon = icon("arrows")),
+      menuItem("MCA",
+               tabName = "mca",
+               icon = icon("arrows")
+      ),
       menuItem(
         "Clustering",
         tabName = "clus",
         icon = icon("object-group")
       ),
-      menuItem("GSEA", tabName = "gsea",
-               icon = icon("gears"))
-    )),
-
+      menuItem("GSEA",
+               tabName = "gsea",
+               icon = icon("gears")
+      )
+    )
+    ),
     dashboardBody(CSS,
                   tabItems(
-                    TabMCA(X, dr_axis),
-                    tabItem(
-                      tabName = "clus",
-                      navbarPage(
-                        "Clustering",
-                        navbarMenu(
-                          "Cell Space",
-                          tabPanel(
-                            "Clustering 2 Axis",
-                            titlePanel("Cluster in the Cell Space"),
-                            wellPanel(fluidRow(
-                              column(
-                                5,
-                                selectInput(
-                                  "Axis1_Clus",
-                                  label = "Select x Axis",
-                                  choices = dr_axis,
-                                  selected = "Axis1"
-                                ),
-                                selectInput(
-                                  "Axis2_Clus",
-                                  label = "Select y Axis",
-                                  choices = dr_axis,
-                                  selected = "Axis2"
-                                ),
-                                selectInput(
-                                  "Type",
-                                  label = "Type",
-                                  choices = c("Principal",
-                                              "Standard"),
-                                  selected = "Principal"
-                                )
-                              ),
-                              column(
-                                5,
-                                offset = 1,
-                                sliderInput(
-                                  "Size_Clus",
-                                  label = "Point Size",
-                                  min = 0,
-                                  max = 10,
-                                  value = 5,
-                                  step = 1
-                                ),
-                                sliderInput(
-                                  "Alpha_Clus",
-                                  label = "Transparency",
-                                  min = 0,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.1
-                                )
-                              )
-                            )),
-                            plotlyOutput("CellSpace_Clus",
-                                         width = "100%", height = "100%")
-                          ),
-                          tabPanel(
-                            "Clustering 3 Axis",
-                            wellPanel(fluidRow(
-                              column(
-                                5,
-                                selectInput(
-                                  "Axis1_3D_Clus",
-                                  label = "Select x Axis",
-                                  choices = dr_axis,
-                                  selected = "Axis1"
-                                ),
-                                selectInput(
-                                  "Axis2_3D_Clus",
-                                  label = "Select y Axis",
-                                  choices = dr_axis,
-                                  selected = "Axis2"
-                                ),
-                                selectInput(
-                                  "Axis3_3D_Clus",
-                                  label = "Select z Axis",
-                                  choices = dr_axis,
-                                  selected = "Axis3"
-                                )
-                              ),
-                              column(
-                                5,
-                                offset = 1,
-                                sliderInput(
-                                  "Size_3D_Clus",
-                                  label = "Point Size",
-                                  min = 0,
-                                  max = 10,
-                                  value = 5,
-                                  step = 0.1
-                                ),
-                                sliderInput(
-                                  "Alpha_3D_Clus",
-                                  label = "Transparency",
-                                  min = 0,
-                                  max = 1,
-                                  value = 1,
-                                  step = 0.1
-                                )
-                              )
-                            )),
-                            mainPanel(
-                              width = 12,
-                              align = "center",
-                              plotlyOutput("CellSpace3D_Clus",
-                                           width = "100%", height = "100%")
-                            )
-                          )
-                        ),
-                        tabPanel(
-                          title = "Gene Space",
-                          titlePanel("Genespace with Cluster Centroids"),
-                          wellPanel(fluidRow(
-                            column(
-                              5,
-                              selectInput(
-                                "Axis1_Gene_Clus",
-                                label = "Select x Axis",
-                                choices = dr_axis,
-                                selected = "Axis1"
-                              ),
-                              selectInput(
-                                "Axis2_Gene_Clus",
-                                label = "Select y Axis",
-                                choices = dr_axis,
-                                selected = "Axis2"
-                              )
-                            ),
-                            column(
-                              5,
-                              offset = 1,
-                              sliderInput(
-                                "Size_Gene_Clus",
-                                label = "Point Size",
-                                min = 0,
-                                max = 2,
-                                value = 1,
-                                step = 0.1
-                              ),
-                              sliderInput(
-                                "Alpha_Gene_Clus",
-                                label = "Transparency",
-                                min = 0,
-                                max = 1,
-                                value = 1,
-                                step = 0.1
-                              )
-                            )
-                          )),
-                          mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))
-                        ),
-                        tabPanel(
-                          title = "Boxplot",
-                          fluidPage(titlePanel("Genes Expression by Cluster"),
-                                    fluidRow(column(
-                                      width = 6,
-                                      selectInput(
-                                        "Genes_Boxplot",
-                                        "Choose a Gene:",
-                                        choices = (X$ExpressionMatrix %>%
-                                                     rownames %>% sort),
-                                        selectize = TRUE,
-                                        multiple = TRUE,
-                                        selected = (X$ExpressionMatrix %>% rownames)[1]
-                                      )
-                                    ))),
-                          mainPanel(
-                            width = 12,
-                            h3("Boxplot"),
-                            plotlyOutput("Boxplot",
-                                         width = "100%", height = "100%"),
-                            h3("Genes Specific to Cluster"),
-                            DT::dataTableOutput("DTBOX")
-                          )
-                        )
-                      )
-                    ),
-                    tabItem(
-                      tabName = "gsea",
-                      navbarPage(
-                        "GSEA",
-                        tabPanel(title = "Enrichmentplot",
-                                 fluidPage(
-                                   titlePanel("Enrichmentplot"),
-                                   wellPanel(fluidRow(
-                                     column(
-                                       width = 6,
-                                       selectInput(
-                                         "Geneset",
-                                         "Choose a Geneset:",
-                                         choices = (X$GSEA$Pathways),
-                                         selectize = TRUE
-                                       )
-                                     ),
-                                     column(
-                                       6,
-                                       selectInput(
-                                         "Choice_Func_Plot",
-                                         "Choose a Cluster:",
-                                         choices = X$GSEA$GSEA_Results %>% names
-                                       ),
-                                       selectInput("Mode_Func_Plot", "Choose", choices = c("Cluster",
-                                                                                           "Axis"))
-                                     )
-                                   )),
-                                   mainPanel(width = 12, plotlyOutput(
-                                     "GSEA",
-                                     width = "100%", height = "100%"
-                                   ))
-                                 )),
-                        tabPanel(
-                          title = "Enrichment Results",
-                          fluidPage(titlePanel("Enrichment Table"), wellPanel(fluidRow(
-                            column(
-                              width = 6,
-                              selectInput(
-                                "Mode_Func_DT",
-                                "Choose Data:",
-                                choices = (c("Cluster", "Axis")),
-                                selectize = TRUE
-                              )
-                            ),
-                            column(
-                              width = 6,
-                              selectInput(
-                                "Choice_Func_DT",
-                                "Choose a Geneset:",
-                                choices = (X$GSEA$GSEA_Results %>%
-                                             names),
-                                selectize = TRUE
-                              )
-                            )
-                          ))),
-                          mainPanel(
-                            width = 12,
-                            DT::dataTableOutput("Table", width = "100%",
-                                                height = "100%")
-                          )
-                        ),
-                        tabPanel(
-                          title = "Boxplot Enrichment Cluster",
-                          fluidPage(titlePanel("Genes Expression by Cluster"),
-                                    fluidRow(column(
-                                      width = 10,
-                                      selectInput(
-                                        width = "100%",
-                                        "Enrich_Heatmap_GeneSet",
-                                        "Choose a Gene:",
-                                        choices = (X$GSEA$Pathways),
-                                        selectize = TRUE,
-                                        multiple = TRUE,
-                                        selected = (X$GSEA$Pathways)[1]
-                                      )
-                                    ))),
-                          mainPanel(
-                            width = 12,
-                            h3("Enrichment Score Heatmap"),
-                            plotlyOutput("Enrich_Heatmap", width = "90%",
-                                         height = "90%")
-                          )
-                        )
-                      )
-                    )
+                    TabMCA(X,dr_axis),
+                    TabClus(X,dr_axis),
+                    TabGSEA(X,dr_axis)
                   ))
   )
   server <- function(input, output, clientData, session) {
@@ -1606,8 +1173,6 @@ create_dashboard3 <- function(X) {
         }
       )
     }, ignoreNULL = TRUE)
-
-
     Data <-
       reactive(X$GSEA$AllRanking[[input$Choice_Func_Plot]])
     output$GSEA <-
@@ -1958,3 +1523,269 @@ TabMCA <- function(X,dr_axis){tabItem(
     )
   )
 )}
+
+TabClus <- function(X,dr_axis){tabItem(
+  tabName = "clus",
+  navbarPage(
+    "Clustering",
+    navbarMenu(
+      "Cell Space",
+      tabPanel(
+        "Clustering 2 Axis",
+        titlePanel("Cluster in the Cell Space"),
+        wellPanel(fluidRow(
+          column(
+            5,
+            selectInput(
+              "Axis1_Clus",
+              label = "Select x Axis",
+              choices = dr_axis,
+              selected = "Axis1"
+            ),
+            selectInput(
+              "Axis2_Clus",
+              label = "Select y Axis",
+              choices = dr_axis,
+              selected = "Axis2"
+            ),
+            selectInput(
+              "Type",
+              label = "Type",
+              choices = c("Principal",
+                          "Standard"),
+              selected = "Principal"
+            )
+          ),
+          column(
+            5,
+            offset = 1,
+            sliderInput(
+              "Size_Clus",
+              label = "Point Size",
+              min = 0,
+              max = 10,
+              value = 5,
+              step = 1
+            ),
+            sliderInput(
+              "Alpha_Clus",
+              label = "Transparency",
+              min = 0,
+              max = 1,
+              value = 1,
+              step = 0.1
+            )
+          )
+        )),
+        plotlyOutput("CellSpace_Clus",
+                     width = "100%", height = "100%")
+      ),
+      tabPanel(
+        "Clustering 3 Axis",
+        wellPanel(fluidRow(
+          column(
+            5,
+            selectInput(
+              "Axis1_3D_Clus",
+              label = "Select x Axis",
+              choices = dr_axis,
+              selected = "Axis1"
+            ),
+            selectInput(
+              "Axis2_3D_Clus",
+              label = "Select y Axis",
+              choices = dr_axis,
+              selected = "Axis2"
+            ),
+            selectInput(
+              "Axis3_3D_Clus",
+              label = "Select z Axis",
+              choices = dr_axis,
+              selected = "Axis3"
+            )
+          ),
+          column(
+            5,
+            offset = 1,
+            sliderInput(
+              "Size_3D_Clus",
+              label = "Point Size",
+              min = 0,
+              max = 10,
+              value = 5,
+              step = 0.1
+            ),
+            sliderInput(
+              "Alpha_3D_Clus",
+              label = "Transparency",
+              min = 0,
+              max = 1,
+              value = 1,
+              step = 0.1
+            )
+          )
+        )),
+        mainPanel(
+          width = 12,
+          align = "center",
+          plotlyOutput("CellSpace3D_Clus",
+                       width = "100%", height = "100%")
+        )
+      )
+    ),
+    tabPanel(
+      title = "Gene Space",
+      titlePanel("Genespace with Cluster Centroids"),
+      wellPanel(fluidRow(
+        column(
+          5,
+          selectInput(
+            "Axis1_Gene_Clus",
+            label = "Select x Axis",
+            choices = dr_axis,
+            selected = "Axis1"
+          ),
+          selectInput(
+            "Axis2_Gene_Clus",
+            label = "Select y Axis",
+            choices = dr_axis,
+            selected = "Axis2"
+          )
+        ),
+        column(
+          5,
+          offset = 1,
+          sliderInput(
+            "Size_Gene_Clus",
+            label = "Point Size",
+            min = 0,
+            max = 2,
+            value = 1,
+            step = 0.1
+          ),
+          sliderInput(
+            "Alpha_Gene_Clus",
+            label = "Transparency",
+            min = 0,
+            max = 1,
+            value = 1,
+            step = 0.1
+          )
+        )
+      )),
+      mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))
+    ),
+    tabPanel(
+      title = "Boxplot",
+      fluidPage(titlePanel("Genes Expression by Cluster"),
+                fluidRow(column(
+                  width = 6,
+                  selectInput(
+                    "Genes_Boxplot",
+                    "Choose a Gene:",
+                    choices = (X$ExpressionMatrix %>%
+                                 rownames %>% sort),
+                    selectize = TRUE,
+                    multiple = TRUE,
+                    selected = (X$ExpressionMatrix %>% rownames)[1]
+                  )
+                ))),
+      mainPanel(
+        width = 12,
+        h3("Boxplot"),
+        plotlyOutput("Boxplot",
+                     width = "100%", height = "100%"),
+        h3("Genes Specific to Cluster"),
+        DT::dataTableOutput("DTBOX")
+      )
+    )
+  )
+)}
+
+TabGSEA <- function(X,dr_axis){tabItem(tabName = "gsea",
+                                       navbarPage(
+                                         "GSEA",
+                                         tabPanel(title = "Enrichmentplot",
+                                                  fluidPage(
+                                                    titlePanel("Enrichmentplot"),
+                                                    wellPanel(fluidRow(
+                                                      column(
+                                                        width = 6,
+                                                        selectInput(
+                                                          "Geneset",
+                                                          "Choose a Geneset:",
+                                                          choices = (X$GSEA$Pathways),
+                                                          selectize = TRUE
+                                                        )
+                                                      ),
+                                                      column(
+                                                        6,
+                                                        selectInput(
+                                                          "Choice_Func_Plot",
+                                                          "Choose a Cluster:",
+                                                          choices = X$GSEA$GSEA_Results %>% names
+                                                        ),
+                                                        selectInput("Mode_Func_Plot", "Choose", choices = c("Cluster",
+                                                                                                            "Axis"))
+                                                      )
+                                                    )),
+                                                    mainPanel(width = 12, plotlyOutput(
+                                                      "GSEA",
+                                                      width = "100%", height = "100%"
+                                                    ))
+                                                  )),
+                                         tabPanel(
+                                           title = "Enrichment Results",
+                                           fluidPage(titlePanel("Enrichment Table"), wellPanel(fluidRow(
+                                             column(
+                                               width = 6,
+                                               selectInput(
+                                                 "Mode_Func_DT",
+                                                 "Choose Data:",
+                                                 choices = (c("Cluster", "Axis")),
+                                                 selectize = TRUE
+                                               )
+                                             ),
+                                             column(
+                                               width = 6,
+                                               selectInput(
+                                                 "Choice_Func_DT",
+                                                 "Choose a Geneset:",
+                                                 choices = (X$GSEA$GSEA_Results %>%
+                                                              names),
+                                                 selectize = TRUE
+                                               )
+                                             )
+                                           ))),
+                                           mainPanel(
+                                             width = 12,
+                                             DT::dataTableOutput("Table", width = "100%",
+                                                                 height = "100%")
+                                           )
+                                         ),
+                                         tabPanel(
+                                           title = "Boxplot Enrichment Cluster",
+                                           fluidPage(titlePanel("Genes Expression by Cluster"),
+                                                     fluidRow(column(
+                                                       width = 10,
+                                                       selectInput(
+                                                         width = "100%",
+                                                         "Enrich_Heatmap_GeneSet",
+                                                         "Choose a Gene:",
+                                                         choices = (X$GSEA$Pathways),
+                                                         selectize = TRUE,
+                                                         multiple = TRUE,
+                                                         selected = (X$GSEA$Pathways)[1]
+                                                       )
+                                                     ))),
+                                           mainPanel(
+                                             width = 12,
+                                             h3("Enrichment Score Heatmap"),
+                                             plotlyOutput("Enrich_Heatmap", width = "90%",
+                                                          height = "90%")
+                                           )
+                                         )
+                                       )
+)
+}
+
