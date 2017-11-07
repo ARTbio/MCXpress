@@ -80,7 +80,7 @@ your_analysis$MCA %>% attributes
 your_analysis$MCA$plot
 ```
 
-![](../devREADME_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](../dev/README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ``` r
 #Visualise your data interactively with your_analysis$Shiny
@@ -143,7 +143,7 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 
-![](../devREADME_files/figure-markdown_github/unnamed-chunk-8-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+![](../dev/README_files/figure-markdown_github/unnamed-chunk-8-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
 
 GSEA
 ----
