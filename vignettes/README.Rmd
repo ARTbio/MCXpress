@@ -96,3 +96,11 @@ your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 #Top 10 genes specific to cluster2
 your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 ```
+
+
+```{r, fig.show='hold'}
+#Top 10 genes specific to cluster1
+your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
+#Top 10 genes specific to cluster2
+your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
+```
