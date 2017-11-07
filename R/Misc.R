@@ -375,7 +375,8 @@ GSEA_Heatmap_Cluster <-
       InMat %>% is.na %>%  ifelse(0, InMat) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
     InMat <- InMat[RowOrder,]
     InMat <- InMat %>% t
-    heatmaply::heatmaply(
+    if(plotly)
+    {heatmaply::heatmaply(
       InMat,
       seriate = "none",
       row_dend_left = F,
@@ -393,7 +394,31 @@ GSEA_Heatmap_Cluster <-
       row_side_colors = InMat %>%  rownames %>%  factor %>%  data.frame(),
       row_side_palette = rainbow
     ) %>%
-      layout(showlegend = FALSE)
+      layout(showlegend = FALSE)}
+    else{
+      heatmap.2(
+        InMat,
+        Rowv = "none",
+        Colv = "none",
+        dendrogram = "none",
+        trace = "none",
+        colsep = 0:(InMat %>%  ncol),
+        rowsep = 0:(InMat %>%  nrow),
+        sepcolor = "black",
+        col = color,
+        RowSideColors = rainbow(InMat %>%  nrow),
+        srtCol = 45,
+        cexRow = 1,
+        cexCol = 0.8,
+        keysize = 1,
+        key.xlab = metrics,
+        key.title = "Enrichment",
+        margins = margin,
+        density.info = "none",
+        na.color = "gray",
+        main = title
+      )
+    }
   }
 
 #' Heatmap of GSEA at Single Cell Level
