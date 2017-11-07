@@ -59,7 +59,7 @@ Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 #Perform MCA you can choose the number of Axis to retain with the parameter Dim
 your_analysis <- MCA(your_analysis)
 ```
-```{r}
+```{r, dev='pdf'}
 #All attributes of MCA
 your_analysis$MCA %>% attributes
 #Plot first two Axes of MCA
@@ -68,7 +68,7 @@ your_analysis$MCA$plot
 ```
 ## Clustering
 To distinguish the different subtypes of cell in the data clustering can be performed. 
-```{r, fig.show='hold'}
+```{r, dev='svg'}
 #Performing K-means Clustering
 your_analysis <- cluster_kmeans(your_analysis, k = 6, dim=5)
 #List of attributes for Clustering Section
@@ -78,8 +78,9 @@ your_analysis$cluster$labels
 #Plot Cluster in GGplot2
 your_analysis$cluster$plot1
 ```
+
 It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
-```{r, fig.height=6, fig.width= 12,results='hide'}
+```{r, fig.height=6, fig.width= 12,results='hide', dev='svg'}
 Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
 ```
 

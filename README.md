@@ -80,7 +80,7 @@ your_analysis$MCA %>% attributes
 your_analysis$MCA$plot
 ```
 
-![](../dev/README_files/figure-markdown_github/unnamed-chunk-29-1.png)
+![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-7-1.pdf)
 
 ``` r
 #Visualise your data interactively with your_analysis$Shiny
@@ -126,16 +126,16 @@ your_analysis$cluster$labels
     ## # A tibble: 35 x 2
     ##     Cluster               Sample
     ##       <chr>                <chr>
-    ##  1 Cluster1   HFF_PD22_Rotenone1
-    ##  2 Cluster1   HFF_PD22_Rotenone2
-    ##  3 Cluster1   HFF_PD22_Rotenone3
-    ##  4 Cluster1 HFF_PD22_woRotenone1
-    ##  5 Cluster1 HFF_PD22_woRotenone2
-    ##  6 Cluster1 HFF_PD22_woRotenone3
-    ##  7 Cluster5   HFF_PD26_Rotenone1
-    ##  8 Cluster5   HFF_PD26_Rotenone2
-    ##  9 Cluster5   HFF_PD26_Rotenone3
-    ## 10 Cluster6 HFF_PD26_woRotenone1
+    ##  1 Cluster6   HFF_PD22_Rotenone1
+    ##  2 Cluster6   HFF_PD22_Rotenone2
+    ##  3 Cluster6   HFF_PD22_Rotenone3
+    ##  4 Cluster6 HFF_PD22_woRotenone1
+    ##  5 Cluster6 HFF_PD22_woRotenone2
+    ##  6 Cluster6 HFF_PD22_woRotenone3
+    ##  7 Cluster4   HFF_PD26_Rotenone1
+    ##  8 Cluster4   HFF_PD26_Rotenone2
+    ##  9 Cluster4   HFF_PD26_Rotenone3
+    ## 10 Cluster1 HFF_PD26_woRotenone1
     ## # ... with 25 more rows
 
 ``` r
@@ -143,7 +143,9 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 
-![](../dev/README_files/figure-markdown_github/unnamed-chunk-30-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-8-1.svg)
+
+It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
 
 ``` r
 Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
@@ -154,7 +156,7 @@ Heatmap_Cluster(your_analysis, n = 3, plotly = F)
 
     ## Joining, by = "Cells"
 
-![](../dev/README_files/figure-markdown_github/unnamed-chunk-31-1.png)
+![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-9-1.svg)
 
 GSEA
 ----
@@ -170,17 +172,37 @@ your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
 your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 ```
 
-    ##      SMOC2   TMEM132D       NEFL      AJAP1       MLC1      SFRP2 
-    ## 1.00000000 0.82264432 0.49086206 0.38012246 0.20617308 0.16227293 
-    ##     RNF175    ASS1P11     SLC7A2     GPRC5C 
-    ## 0.13434183 0.12396301 0.11266617 0.08755573
+    ## RP11-184E9.2   AC090954.5       DIRAS2     COL6A4P1         ALX3 
+    ##    1.0000000    0.5857108    0.3120977    0.2934250    0.2853957 
+    ##       COL6A6       BMPR1B    LINC00599     ADAMTS19        BANK1 
+    ##    0.2815028    0.2742676    0.2729280    0.2545550    0.2196198
 
 ``` r
 #Top 10 genes specific to cluster2
 your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 ```
 
-    ##       PRSS30P   RP5-908D6.1  RP11-271M1.1 RP11-384C12.2         RN7SK 
-    ##     1.0000000     0.9995961     0.9748082     0.9619681     0.8840596 
-    ##         ASCL1       HORMAD1  RP11-271M1.2 RP11-395P16.1 CTD-2008L17.2 
-    ##     0.8704906     0.8682985     0.8661718     0.8601064     0.8473211
+    ##          MYH1    TSPEAR-AS1 RP11-224O19.2  RP13-25N22.1 RP11-395P16.1 
+    ##     1.0000000     0.9263749     0.9083997     0.8307682     0.7804880 
+    ##   AP001065.15  RP11-271M1.1  RP1-170D19.3        PCSK1N   RP5-908D6.1 
+    ##     0.7360049     0.6839747     0.6812617     0.6753696     0.6528792
+
+``` r
+#Top 10 genes specific to cluster1
+your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
+```
+
+    ## RP11-184E9.2   AC090954.5       DIRAS2     COL6A4P1         ALX3 
+    ##    1.0000000    0.5857108    0.3120977    0.2934250    0.2853957 
+    ##       COL6A6       BMPR1B    LINC00599     ADAMTS19        BANK1 
+    ##    0.2815028    0.2742676    0.2729280    0.2545550    0.2196198
+
+``` r
+#Top 10 genes specific to cluster2
+your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
+```
+
+    ##          MYH1    TSPEAR-AS1 RP11-224O19.2  RP13-25N22.1 RP11-395P16.1 
+    ##     1.0000000     0.9263749     0.9083997     0.8307682     0.7804880 
+    ##   AP001065.15  RP11-271M1.1  RP1-170D19.3        PCSK1N   RP5-908D6.1 
+    ##     0.7360049     0.6839747     0.6812617     0.6753696     0.6528792
