@@ -6,7 +6,7 @@ Single-cell RNA-sequencing allows unbiased transcriptome profiling of hundreds t
 Installation of MCXpress
 ------------------------
 
-MCXpress is still under development but can be installed via github using the devtools library.
+MCXpress is still under development but can be installed via github using the devtools library, be sure to select the master branch.
 
 ``` r
 library(devtools)
