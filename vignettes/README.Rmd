@@ -79,6 +79,10 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+```{r, fig.height=6, fig.width= 12,results='hide'}
+Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
+```
+
 
 ## GSEA
 

@@ -305,11 +305,11 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
         each = n
       ),
       srtCol = 45,
-      cexRow = 2,
+      cexRow = 1,
       labRow = rowlab,
       cexCol = 1,
       keysize = 1,
-      margins = c(10, 10),
+      margins = c(6, 6),
       density.info = "none",
       na.color = "gray"
     )

@@ -80,7 +80,7 @@ your_analysis$MCA %>% attributes
 your_analysis$MCA$plot
 ```
 
-![](../dev/README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](..\README_files/figure-markdown_github/unnamed-chunk-29-1.png)
 
 ``` r
 #Visualise your data interactively with your_analysis$Shiny
@@ -126,16 +126,16 @@ your_analysis$cluster$labels
     ## # A tibble: 35 x 2
     ##     Cluster               Sample
     ##       <chr>                <chr>
-    ##  1 Cluster3   HFF_PD22_Rotenone1
-    ##  2 Cluster3   HFF_PD22_Rotenone2
-    ##  3 Cluster3   HFF_PD22_Rotenone3
-    ##  4 Cluster3 HFF_PD22_woRotenone1
-    ##  5 Cluster3 HFF_PD22_woRotenone2
-    ##  6 Cluster3 HFF_PD22_woRotenone3
-    ##  7 Cluster2   HFF_PD26_Rotenone1
-    ##  8 Cluster2   HFF_PD26_Rotenone2
-    ##  9 Cluster2   HFF_PD26_Rotenone3
-    ## 10 Cluster4 HFF_PD26_woRotenone1
+    ##  1 Cluster1   HFF_PD22_Rotenone1
+    ##  2 Cluster1   HFF_PD22_Rotenone2
+    ##  3 Cluster1   HFF_PD22_Rotenone3
+    ##  4 Cluster1 HFF_PD22_woRotenone1
+    ##  5 Cluster1 HFF_PD22_woRotenone2
+    ##  6 Cluster1 HFF_PD22_woRotenone3
+    ##  7 Cluster5   HFF_PD26_Rotenone1
+    ##  8 Cluster5   HFF_PD26_Rotenone2
+    ##  9 Cluster5   HFF_PD26_Rotenone3
+    ## 10 Cluster6 HFF_PD26_woRotenone1
     ## # ... with 25 more rows
 
 ``` r
@@ -143,7 +143,18 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 
-![](../dev/README_files/figure-markdown_github/unnamed-chunk-8-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+![](..\README_files/figure-markdown_github/unnamed-chunk-30-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+
+``` r
+Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
+```
+
+    ## Warning in data.row.names(row.names, rowsi, i): some row.names duplicated:
+    ## 6 --> row.names NOT used
+
+    ## Joining, by = "Cells"
+
+![](..\README_files/figure-markdown_github/unnamed-chunk-31-1.png)
 
 GSEA
 ----
@@ -159,17 +170,17 @@ your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
 your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 ```
 
-    ##          MYH1    TSPEAR-AS1 RP11-224O19.2  RP13-25N22.1 RP11-395P16.1 
-    ##     1.0000000     0.9263749     0.9083997     0.8307682     0.7804880 
-    ##   AP001065.15  RP11-271M1.1  RP1-170D19.3        PCSK1N   RP5-908D6.1 
-    ##     0.7360049     0.6839747     0.6812617     0.6753696     0.6528792
+    ##      SMOC2   TMEM132D       NEFL      AJAP1       MLC1      SFRP2 
+    ## 1.00000000 0.82264432 0.49086206 0.38012246 0.20617308 0.16227293 
+    ##     RNF175    ASS1P11     SLC7A2     GPRC5C 
+    ## 0.13434183 0.12396301 0.11266617 0.08755573
 
 ``` r
 #Top 10 genes specific to cluster2
 your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 ```
 
-    ##         PCDH8  RP11-138B4.1          GPC3        SCARA5      TRBJ2-2P 
-    ##     1.0000000     0.9887982     0.9436389     0.8433545     0.8203490 
-    ## RP11-386M24.6       TRBJ2-3    AC112198.1         AIF1L       ADAMTS8 
-    ##     0.7886136     0.7843396     0.7633588     0.7290259     0.7166870
+    ##       PRSS30P   RP5-908D6.1  RP11-271M1.1 RP11-384C12.2         RN7SK 
+    ##     1.0000000     0.9995961     0.9748082     0.9619681     0.8840596 
+    ##         ASCL1       HORMAD1  RP11-271M1.2 RP11-395P16.1 CTD-2008L17.2 
+    ##     0.8704906     0.8682985     0.8661718     0.8601064     0.8473211
