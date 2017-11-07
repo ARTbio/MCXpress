@@ -55,9 +55,11 @@ your_analysis <- discretisation_01(your_analysis, scaled = FALSE)
 
 ## Multiple Corespondence Analysis
 Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
-```{r, echo = FALSE}
+```{r, results='hide'}
 #Perform MCA you can choose the number of Axis to retain with the parameter Dim
 your_analysis <- MCA(your_analysis)
+```
+```{r}
 #All attributes of MCA
 your_analysis$MCA %>% attributes
 #Plot first two Axes of MCA
@@ -81,18 +83,12 @@ It is possible to visualise the most important genes for each cluster in the for
 ## GSEA
 
 Performs Geneset enrichment analysis using MCA distance metric. You need to supply a gmt file downloaded from BroadGSEA or your very own list of geneset.
-```{r, fig.show='hold', echo = FALSE}
+```{r, fig.show='hold', results='hide'}
 your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
+```
+```{r, fig.show='hold'}
 #Top 10 genes specific to cluster1
 your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
 #Top 10 genes specific to cluster2
 your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
-
-```
-
-
-```{r, include=FALSE}
-   # add this chunk to end of mycode.rmd
-   file.rename(from="README.md", 
-               to="../README.md")
 ```

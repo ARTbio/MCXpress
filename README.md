@@ -55,31 +55,15 @@ Multiple Corespondence Analysis
 
 Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 
-    ## Peforming MCA...
-    ## 
-      |                                                        
-      |                                                  |   0%
-      |                                                        
-      |+++++                                             |  10%
-      |                                                        
-      |++++++++++                                        |  20%
-      |                                                        
-      |+++++++++++++++                                   |  30%
-      |                                                        
-      |++++++++++++++++++++                              |  40%
-      |                                                        
-      |++++++++++++++++++++++++++++++                    |  60%
-      |                                                        
-      |+++++++++++++++++++++++++++++++++++               |  70%
-      |                                                        
-      |++++++++++++++++++++++++++++++++++++++++          |  80%
-      |                                                        
-      |+++++++++++++++++++++++++++++++++++++++++++++     |  90%
-      |                                                        
-      |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
-    ## Eigen Value Table Generation 
-    ##  
-    ## Calculating Spearman CorrelationMCA is finished
+``` r
+#Perform MCA you can choose the number of Axis to retain with the parameter Dim
+your_analysis <- MCA(your_analysis)
+```
+
+``` r
+#All attributes of MCA
+your_analysis$MCA %>% attributes
+```
 
     ## $names
     ## [1] "cells_principal"          "cells_standard"          
@@ -91,7 +75,21 @@ Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
     ## $class
     ## [1] "MCA"
 
-![](..\README_files/figure-markdown_github/unnamed-chunk-6-1.png) \#\# Clustering To distinguish the different subtypes of cell in the data clustering can be performed.
+``` r
+#Plot first two Axes of MCA
+your_analysis$MCA$plot
+```
+
+![](../devREADME_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+``` r
+#Visualise your data interactively with your_analysis$Shiny
+```
+
+Clustering
+----------
+
+To distinguish the different subtypes of cell in the data clustering can be performed.
 
 ``` r
 #Performing K-means Clustering
@@ -134,10 +132,10 @@ your_analysis$cluster$labels
     ##  4 Cluster3 HFF_PD22_woRotenone1
     ##  5 Cluster3 HFF_PD22_woRotenone2
     ##  6 Cluster3 HFF_PD22_woRotenone3
-    ##  7 Cluster6   HFF_PD26_Rotenone1
-    ##  8 Cluster6   HFF_PD26_Rotenone2
-    ##  9 Cluster6   HFF_PD26_Rotenone3
-    ## 10 Cluster2 HFF_PD26_woRotenone1
+    ##  7 Cluster2   HFF_PD26_Rotenone1
+    ##  8 Cluster2   HFF_PD26_Rotenone2
+    ##  9 Cluster2   HFF_PD26_Rotenone3
+    ## 10 Cluster4 HFF_PD26_woRotenone1
     ## # ... with 25 more rows
 
 ``` r
@@ -145,48 +143,33 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 
-![](..\README_files/figure-markdown_github/unnamed-chunk-7-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+![](../devREADME_files/figure-markdown_github/unnamed-chunk-8-1.png) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
 
 GSEA
 ----
 
 Performs Geneset enrichment analysis using MCA distance metric. You need to supply a gmt file downloaded from BroadGSEA or your very own list of geneset.
 
-    ## Calculating ranking of genes correlation for each axis 
-    ## Beginning enrichment analysis for axis 
-    ## 
-      |                                                        
-      |                                                  |   0%
-      |                                                        
-      |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
-    ## 
-    ## Calculating ranking of genes for each clusters 
-    ## Beginning enrichment analysis for clusters
-    ## 
-    ## 
-      |                                                        
-      |                                                  |   0%
-      |                                                        
-      |++++++++                                          |  17%
-      |                                                        
-      |+++++++++++++++++                                 |  33%
-      |                                                        
-      |+++++++++++++++++++++++++                         |  50%
-      |                                                        
-      |+++++++++++++++++++++++++++++++++                 |  67%
-      |                                                        
-      |++++++++++++++++++++++++++++++++++++++++++        |  83%
-      |                                                        
-      |++++++++++++++++++++++++++++++++++++++++++++++++++| 100%
-    ## Creating Enrichment Analysis Object
-    ## Enrichment Analysis Completed
+``` r
+your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
+```
+
+``` r
+#Top 10 genes specific to cluster1
+your_analysis$GSEA$Ranking$Cluster1 %>% head(10)
+```
 
     ##          MYH1    TSPEAR-AS1 RP11-224O19.2  RP13-25N22.1 RP11-395P16.1 
     ##     1.0000000     0.9263749     0.9083997     0.8307682     0.7804880 
     ##   AP001065.15  RP11-271M1.1  RP1-170D19.3        PCSK1N   RP5-908D6.1 
     ##     0.7360049     0.6839747     0.6812617     0.6753696     0.6528792
 
-    ## RP11-184E9.2   AC090954.5       DIRAS2     COL6A4P1         ALX3 
-    ##    1.0000000    0.5857108    0.3120977    0.2934250    0.2853957 
-    ##       COL6A6       BMPR1B    LINC00599     ADAMTS19        BANK1 
-    ##    0.2815028    0.2742676    0.2729280    0.2545550    0.2196198
+``` r
+#Top 10 genes specific to cluster2
+your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
+```
+
+    ##         PCDH8  RP11-138B4.1          GPC3        SCARA5      TRBJ2-2P 
+    ##     1.0000000     0.9887982     0.9436389     0.8433545     0.8203490 
+    ## RP11-386M24.6       TRBJ2-3    AC112198.1         AIF1L       ADAMTS8 
+    ##     0.7886136     0.7843396     0.7633588     0.7290259     0.7166870
