@@ -615,7 +615,8 @@ TabMCA <- function(X, dr_axis)
 
 TabClus <- function(X, dr_axis)
 {
-  tabItem(tabName = "clus", navbarPage("Clustering", navbarMenu("Cell Space", tabPanel("Clustering 2 Axis",
+  tabItem(tabName = "clus", navbarPage("Clustering", navbarMenu("Cell Space",
+    tabPanel("Clustering 2 Axis",
     titlePanel("Cluster in the Cell Space"), wellPanel(fluidRow(column(5, selectInput("Axis1_Clus",
       label = "Select x Axis", choices = dr_axis, selected = "Axis1"), selectInput("Axis2_Clus",
       label = "Select y Axis", choices = dr_axis, selected = "Axis2"), selectInput("Type",
@@ -639,7 +640,8 @@ TabClus <- function(X, dr_axis)
         column(5, offset = 1, sliderInput("Size_Gene_Clus", label = "Point Size",
           min = 0, max = 2, value = 1, step = 0.1), sliderInput("Alpha_Gene_Clus",
           label = "Transparency", min = 0, max = 1, value = 1, step = 0.1)))),
-      mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))), tabPanel(title = "Boxplot",
+      mainPanel(width = 12, plotlyOutput("GeneSpace_Clus"))),
+    tabPanel(title = "Boxplot",
       fluidPage(titlePanel("Genes Expression by Cluster"), fluidRow(column(width = 6,
         selectInput("Genes_Boxplot", "Choose a Gene:", choices = (X$ExpressionMatrix %>%
           rownames %>% sort), selectize = TRUE, multiple = TRUE, selected = (X$ExpressionMatrix %>%
