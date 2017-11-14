@@ -350,7 +350,8 @@ GSEA_Heatmap_Cluster <-
         dplyr::select(Pathway, everything())
       df2 <-
         df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
-    }) %>% Reduce(inner_join, .)
+    })
+    DF <- DF[[1]] %>%  inner_join(DF[[2]], c("Pathway", "Cells")) %>%  inner_join(DF[[3]], c("Pathway", "Cells"))
 
     DF$ES[(DF$padj > pval) |
             (DF$ES < es) | (DF$NES < nes)] <- NA
@@ -375,7 +376,7 @@ GSEA_Heatmap_Cluster <-
       InMat %>% is.na %>%  ifelse(0, InMat) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
     InMat <- InMat[RowOrder,]
     InMat <- InMat %>% t
-    heatmaply::heatmaply(
+    if(plotly){heatmaply::heatmaply(
       InMat,
       seriate = "none",
       row_dend_left = F,
@@ -392,9 +393,33 @@ GSEA_Heatmap_Cluster <-
       na.rm = FALSE,
       row_side_colors = InMat %>%  rownames %>%  factor %>%  data.frame(),
       row_side_palette = rainbow
-    ) %>%
-      layout(showlegend = FALSE)
-  }
+    ) %>% layout(showlegend = FALSE)}
+    else{
+      heatmap.2(
+        InMat,
+        Rowv = "none",
+        Colv = "none",
+        dendrogram = "none",
+        trace = "none",
+        colsep = 0:(InMat %>%  ncol),
+        rowsep = 0:(InMat %>%  nrow),
+        sepcolor = "black",
+        col = color,
+        RowSideColors = rainbow(InMat %>%  nrow),
+        srtCol = 45,
+        cexRow = 2,
+        cexCol = 1,
+        keysize = 1,
+        key.xlab = metrics,
+        key.title = "Enrichment",
+        margins = margin,
+        density.info = "none",
+        na.color = "gray",
+        main = title,
+      )
+    }
+
+    }
 
 #' Heatmap of GSEA at Single Cell Level
 #'
@@ -433,9 +458,10 @@ GSEA_Heatmap_SC <-
         ) %>%
         mutate(Pathway = X$SC_GSEA$Pathways) %>%
         dplyr::select(Pathway, everything())
-      df2 <-
+      df1 <-
         df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
-    }) %>% Reduce(inner_join, .)
+    })
+    DF <- DF$padj %>%  inner_join(DF$ES, c("Pathway", "Cells")) %>%  inner_join(DF$NES, c("Pathway", "Cells"))
     if (metrics == "ES") {
       DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
       MAT <-
@@ -446,9 +472,6 @@ GSEA_Heatmap_SC <-
       MAT <-
         DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)
     }
-
-    # ClusLevel <- (x$cluster$cluster_distances %>% rownames)[(x$cluster$cluster_distances %>% as.dist %>%  hclust(method = "ward.D") %>%  use_series(order))]
-    # DFORDER$Cluster <- DFORDER$Cluster %>%  factor(levels = ClusLevel)
     DFORDER <-
       DF %>%  inner_join(cluster %>%  set_colnames(c("Cluster", "Cells")))
 
