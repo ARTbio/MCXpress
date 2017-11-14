@@ -143,7 +143,8 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 
-![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-8-1.svg) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-8-1.svg) 
+It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
 
 ``` r
 Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
