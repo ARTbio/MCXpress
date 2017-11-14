@@ -79,9 +79,7 @@ your_analysis$MCA %>% attributes
 #Plot first two Axes of MCA
 your_analysis$MCA$plot
 ```
-
 ![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-7-1.svg)
-
 ``` r
 #Visualise your data interactively with your_analysis$Shiny
 ```
@@ -188,4 +186,4 @@ your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 your_analysis %>% GSEA_Heatmap_Cluster(plotly=F, margin = c(15,20), pval = 0.25, es = 0.3)
 ```
 
-![](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-12-1.svg)
+![Show it please](../gh-pages/README_files/figure-markdown_github/unnamed-chunk-12-1.svg)
