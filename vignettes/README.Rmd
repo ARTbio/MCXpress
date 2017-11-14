@@ -59,7 +59,7 @@ Multiple Corespondece Analysis is performed on the created Disjunctive Matrix.
 #Perform MCA you can choose the number of Axis to retain with the parameter Dim
 your_analysis <- MCA(your_analysis)
 ```
-```{r}
+```{r, dev="svg"}
 #All attributes of MCA
 your_analysis$MCA %>% attributes
 #Plot first two Axes of MCA
@@ -68,7 +68,7 @@ your_analysis$MCA$plot
 ```
 ## Clustering
 To distinguish the different subtypes of cell in the data clustering can be performed. 
-```{r, fig.show='hold'}
+```{r, fig.show='hold', dev="svg"}
 #Performing K-means Clustering
 your_analysis <- cluster_kmeans(your_analysis, k = 6, dim=5)
 #List of attributes for Clustering Section
@@ -79,7 +79,7 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
-```{r, fig.height=6, fig.width= 12,results='hide'}
+```{r, fig.height=6, fig.width= 12,results='hide', dev="svg"}
 Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
 ```
 
@@ -87,7 +87,7 @@ Heatmap_Cluster(your_analysis, n = 3, plotly = F)
 ## GSEA
 
 Performs Geneset enrichment analysis using MCA distance metric. You need to supply a gmt file downloaded from BroadGSEA or your very own list of geneset.
-```{r, fig.show='hold', results='hide'}
+```{r, fig.show='hold', results='hide',dev="svg"}
 your_analysis <- GSEA(your_analysis, GMTfile = Hallmark, nperm = 1000)
 ```
 ```{r, fig.show='hold'}
@@ -98,8 +98,7 @@ your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 ```
 
 
-```{r, fig.show='hold',fig.height=6, fig.width= 12}
-#Top 10 genes specific to cluster1
+```{r, fig.show='hold',fig.height=6, fig.width= 12, results='hide', dev="svg"}
+#Heatmap of GSEA results for each cluster
 your_analysis %>% GSEA_Heatmap_Cluster(plotly=F, margin = c(15,20), pval = 0.25, es = 0.3)
-
 ```
