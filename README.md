@@ -81,7 +81,7 @@ your_analysis$MCA$plot
 #Visualise your data interactively with your_analysis$Shiny
 ```
 
-![](../dev\README_files/figure-markdown_github/MCA_2-1.svg) \#\# Clustering To distinguish the different subtypes of cell in the data clustering can be performed.
+![](../dev/README_files/figure-markdown_github/MCA_2-1.svg) \#\# Clustering To distinguish the different subtypes of cell in the data clustering can be performed.
 
 ``` r
 #Performing K-means Clustering
@@ -135,7 +135,7 @@ your_analysis$cluster$labels
 your_analysis$cluster$plot1
 ```
 
-![](../dev\README_files/figure-markdown_github/Clustering-1.svg) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
+![](../dev/README_files/figure-markdown_github/Clustering-1.svg) It is possible to visualise the most important genes for each cluster in the form of a heatmap. MCXpress will calculate the closest genes for each cluster.
 
 ``` r
 Heatmap_Cluster(your_analysis, n = 3, plotly = F) 
@@ -143,7 +143,7 @@ Heatmap_Cluster(your_analysis, n = 3, plotly = F)
 
     ## Joining, by = "Cells"
 
-![](../dev\README_files/figure-markdown_github/Biomarkers-1.svg)
+![](../dev/README_files/figure-markdown_github/Biomarkers-1.svg)
 
 GSEA
 ----
@@ -179,4 +179,4 @@ your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 your_analysis %>% GSEA_Heatmap_Cluster(plotly=F, margin = c(15,20), pval = 0.25, es = 0.3)
 ```
 
-![](../dev\README_files/figure-markdown_github/GSEA_Heatmap-1.svg)
+![](../dev/README_files/figure-markdown_github/GSEA_Heatmap-1.svg)
