@@ -461,8 +461,8 @@ GSEA_Heatmap_SC <-
       df1 <-
         df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
     })
-    DF <- DF$padj %>%  inner_join(DF$ES, c("Pathway", "Cells")) %>%  inner_join(DF$NES, c("Pathway", "Cells"))
-    if (metrics == "ES") {
+    DF <- DF[[1]] %>%  inner_join(DF[[2]], c("Pathway", "Cells")) %>%  inner_join(DF[[3]], c("Pathway", "Cells"))
+    if (metrics == "ES") {1
       DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
       MAT <-
         DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)
