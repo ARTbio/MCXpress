@@ -3,8 +3,8 @@ title: 'MCXpress: RNA-Seq data analysis with Multiple Corespondence Analysis'
 author: "Akira Cortal"
 date: '`r Sys.Date()`'
 output:
-  md_document:
-    variant: markdown_github
+  html_document:
+    variant: html_github
 vignette: |
   %\VignetteIndexEntry{Vignette Title} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
@@ -102,3 +102,4 @@ your_analysis$GSEA$Ranking$Cluster2 %>% head(10)
 #Heatmap of GSEA results for each cluster
 your_analysis %>% GSEA_Heatmap_Cluster(plotly=F, margin = c(15,20), pval = 0.25, es = 0.3)
 ```
+
