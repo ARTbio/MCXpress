@@ -115,8 +115,7 @@ cluster_supervised <- function(X, Y, dim) {
     names(X$cluster$labels) <- names(Y)
     X$cluster$labels <- tibble(names(X$cluster$labels), X$cluster$labels) %>%
         set_colnames(c("Sample", "Cluster"))
-    X$cluster$nClusters <- X$cluster$labels$Cluster %>% unique %>%
-        length
+    X$cluster$nClusters <- X$cluster$labels$Cluster %>% n_distinct()
     X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
@@ -188,7 +187,7 @@ cluster_hclust <- function(X, dim=2, method = "average", k = NULL, h = NULL) {
     Cluster <- Cluster %>% cutree(k = k, h = h)
     X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
         names)) %>% set_names(c("Cluster", "Sample"))
-    X$cluster$nClusters <- Cluster %>% unique %>% length
+    X$cluster$nClusters <- Cluster %>% n_distinct
     X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
@@ -221,7 +220,7 @@ cluster_k_medoids <- function(X, k = 2, dim=2) {
     Cluster <-  X$MCA$cells_standard[,1:dim] %>% pam(k = k, cluster.only = TRUE)
     X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
         names)) %>% set_names(c("Cluster", "Sample"))
-    X$cluster$nClusters <- Cluster %>% unique %>% length
+    X$cluster$nClusters <- Cluster %>% n_distinct
     X <- calculate_cluster_centroids(X, dim)
     return(X)
 }
@@ -253,7 +252,7 @@ cluster_mclust <- function(X, k, dim=2) {
     set_names(nm = X$MCA$cells_standard %>% rownames)
   X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
                                                             names)) %>% set_names(c("Cluster", "Sample"))
-  X$cluster$nClusters <- Cluster %>% unique %>% length
+  X$cluster$nClusters <- Cluster %>% n_distinct
   X <- calculate_cluster_centroids(X, dim)
   return(X)
 }
@@ -308,7 +307,7 @@ cluster_igraph <- function(X, dim=2, max_distance= Inf, ratio=1, k=NULL, mutual=
   names(X$cluster$labels) <- rownames(X$MCA$cells_standard)
   X$cluster$labels <- tibble::tibble(names(X$cluster$labels), X$cluster$labels) %>%
     set_colnames(c("Sample", "Cluster"))
-  X$cluster$nClusters <- X$cluster$labels$Cluster %>%  unique %>%  length
+  X$cluster$nClusters <- X$cluster$labels$Cluster %>%  n_distinct
   X <- calculate_cluster_centroids(X, dim)
   return(X)
 }

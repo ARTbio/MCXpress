@@ -87,7 +87,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     Percentage_Variance <- (Eig %>% prop.table) * 100
     Percentage_Variance_Cum <- Percentage_Variance %>% cumsum()
     Axes <- paste0("Axis", 1:length(Eig))
-    X$MCA$explained_eigen_variance <- tibble(factor(Axes, levels = Axes), Percentage_Variance,
+    X$MCA$explained_eigen_variance <- tibble::tibble(factor(Axes, levels = Axes), Percentage_Variance,
         Percentage_Variance_Cum) %>% set_colnames(c("Axis", "Explained_Variance",
         "Cumulative"))
     X$MCA$Methods <- "MCA"
@@ -97,7 +97,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     ### Axis and Gene Correlation ####
     cat("Calculating Spearman Correlation")
     X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal[,1:min(X$MCA$cells_principal %>% ncol,5)], method = "spearman") %>%
-        data.frame() %>% rownames_to_column(var = "Genes") %>% as_tibble()
+        data.frame() %>% tibble::rownames_to_column(var = "Genes") %>% tibble::as_tibble()
     X$MCA$Axis_Gene_Cor[, -1] <- X$MCA$Axis_Gene_Cor[, -1] %>% sapply(FUN =  round,
         digits = 3)
     # End Calculate Correlation Axis and Genes . . . . . . . . .  . . . . . . . . . .

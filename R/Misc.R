@@ -152,15 +152,14 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
   {
     heatmaply::heatmaply(
       x = HeatMatrix,
-      seriate = "none",
       dendrogram = "none",
       Rowv = F,
       Colv = F,
       color = heat.colors(100) %>%  rev,
       col_side_colors  = col_side_colors,
       row_side_colors  = row_side_colors,
-      row_side_palette = rainbow,
-      col_side_palette = rainbow,
+      row_side_palette = Spectral,
+      col_side_palette = Spectral,
       heatmap_layers = c(
         lapply((rowsep %>% max) - rowsep, function(i)
           geom_hline(yintercept = i + 0.5, color = "black")),
@@ -223,17 +222,6 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
   if (x$cluster %>% is.null) {
     stop("Clustering must be done before using this function")
   }
-  OrderingCluster <-
-    x$cluster$cluster_distances %>%  as.dist %>%  hclust(method = "ward.D") %>%  use_series(order)
-  x$cluster$labels$Cluster <-
-    factor(x$cluster$labels$Cluster,
-           levels = (x$cluster$cluster_distances %>%  rownames)[OrderingCluster])
-  Cell <- x$cluster$labels %>%  dplyr::arrange(Cluster)
-  TableCell <- c(0, Cell$Cluster %>% table %>% cumsum)
-  Lab <-
-    ((TableCell[-1] + TableCell[-(TableCell %>% length)]) / 2) %>% add(0.5) %>%  round(digits = 0)
-  rowlab <- rep(Cell$Cluster %>% unique)
-  CellOrder <- Cell$Sample
   Gathering <- x$cluster$gene_cluster_distances %>%
     separate(Genes, sep = "-bin", into = c("Genes", "bin")) %>%
     dplyr::filter(bin == 1) %>%
@@ -243,15 +231,10 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
     dplyr::filter(Cluster != "Origin") %>%
     group_by(Cluster) %>%
     top_n(n,-Distance) %>% ungroup
-  Gathering$Cluster <-
-    factor(
-      Gathering$Cluster,
-      levels = x$cluster$labels %>%  dplyr::arrange(Cluster) %>%  use_series(Cluster) %>%  unique
-    )
   GenesOrder <-  Gathering %>%  dplyr::arrange(Cluster) %$% Genes
-  HeatMatrix <- x$ExpressionMatrix[GenesOrder, CellOrder] %>%  t
+  HeatMatrix <- x$ExpressionMatrix[GenesOrder,] %>%  t
   HeatDF <-
-    HeatMatrix %>%  t %>%  Mat_To_Df("Genes") %>% gather("Cells", "Value",-Genes) %>%  inner_join(Cell %>% rename(Cells =
+    HeatMatrix %>%  t %>%  Mat_To_Df("Genes") %>% gather("Cells", "Value",-Genes) %>%  inner_join(SCMCXbis$cluster$labels %>% dplyr::rename(Cells =
                                                                                                                     Sample))
   HeatMat <-
     HeatDF %>%  group_by(Cluster, Genes) %>%  summarise(MEAN = mean(Value)) %>%  spread(value = MEAN, key = Cluster)
@@ -269,13 +252,13 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
       x = HeatMat,
       seriate = "none",
       dendrogram = "none",
-      Rowv = F,
-      Colv = F,
-      color = heat.colors(100) %>%  rev,
+      Rowv = T,
+      Colv = T,
+      color =heat.colors(100) %>%  rev,
       col_side_colors  = col_side_colors,
       row_side_colors  = row_side_colors,
-      row_side_palette = rainbow,
-      col_side_palette = rainbow,
+      row_side_palette = heatmaply::Spectral,
+      col_side_palette = heatmaply::Spectral,
       heatmap_layers = c(
         lapply((rowsep %>% max) - rowsep, function(i)
           geom_hline(yintercept = i + 0.5, color = "black")),
@@ -337,9 +320,9 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
 #'
 #' @examples
 GSEA_Heatmap_Cluster <-
-  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F, margin=c(0,0,0,0)) {
+  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F, margin=c(0,0,0,0), cexCol=1, cexRow=1) {
     DF <- lapply(c("padj", "ES", "NES"), function(val) {
-      df1 <-
+      df <-
         X$GSEA$GSEA_Results[!(names(X$GSEA$GSEA_Results) == "Origin")] %>%
         purrr::map_df(
           .f = function(x) {
@@ -349,7 +332,7 @@ GSEA_Heatmap_Cluster <-
         mutate(Pathway = X$GSEA$Pathways) %>%
         dplyr::select(Pathway, everything())
       df2 <-
-        df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
+        df %>% gather_(key = "Cells", value = val, colnames(df)[-1])
     })
     DF <- DF[[1]] %>%  inner_join(DF[[2]], c("Pathway", "Cells")) %>%  inner_join(DF[[3]], c("Pathway", "Cells"))
 
@@ -385,8 +368,8 @@ GSEA_Heatmap_Cluster <-
       grid_color = "black",
       dendrogram = "none",
       draw_cellnote = F,
-      cexCol = 0.7,
-      cexRow = 0.8,
+      cexCol = cexCol,
+      cexRow = cexRow,
       margins = margin,
       na.value = "black",
       colors = color,
@@ -407,15 +390,15 @@ GSEA_Heatmap_Cluster <-
         col = color,
         RowSideColors = rainbow(InMat %>%  nrow),
         srtCol = 45,
-        cexRow = 2,
-        cexCol = 1,
+        cexRow = cexRow,
+        cexCol = cexCol,
         keysize = 1,
         key.xlab = metrics,
         key.title = "Enrichment",
         margins = margin,
         density.info = "none",
         na.color = "gray",
-        main = title,
+        main = title
       )
     }
 
@@ -446,58 +429,43 @@ GSEA_Heatmap_SC <-
            title = "",
            rmna = T,
            metrics = "NES",
-           plotly = F) {
-    cluster <-  X$cluster$labels
-    DF <- lapply(c("padj", "ES", "NES"), function(val) {
-      df1 <-
-        X$SC_GSEA$GSEA_Results[!(names(X$SC_GSEA$GSEA_Results) == "Origin")] %>%
-        purrr::map_df(
-          .f = function(x) {
-            x %>% extract2(val)
-          }
-        ) %>%
-        mutate(Pathway = X$SC_GSEA$Pathways) %>%
-        dplyr::select(Pathway, everything())
-      df1 <-
-        df1 %>% gather_(key = "Cells", value = val, colnames(df1)[-1])
-    })
-    DF <- DF[[1]] %>%  inner_join(DF[[2]], c("Pathway", "Cells")) %>%  inner_join(DF[[3]], c("Pathway", "Cells"))
-    if (metrics == "ES") {1
-      DF$ES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
-      MAT <-
-        DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)
-    }
-    if (metrics == "NES") {
-      DF$NES[(DF$padj > pval) | (DF$ES < es) | (DF$NES < nes)] <- NA
-      MAT <-
-        DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)
-    }
-    DFORDER <-
-      DF %>%  inner_join(cluster %>%  set_colnames(c("Cluster", "Cells")))
-
-    DFORDER <- DFORDER %>% arrange(Cluster)
+           plotly = T,
+           cexRow=1,
+           cexCol=1,
+           nPath=10,
+           jaccard=T){
+    cluster <- X$cluster$labels %>%  dplyr::rename(Cells=Sample)
+    DF      <- create_gsea_matrix(X, pval=pval, es=es, nes=nes, metrics = metrics, SC=T)
+    if(metrics=="NES"){MAT<- DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)}
+    else{MAT<- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
+    DFORDER <- DF %>%  inner_join(cluster, by="Cells")%>% arrange(Cluster)
     newOrder <- DFORDER  %>%
       split(DFORDER$Cluster) %>%
       map(function(x) {
-        Temp <- x %>%
+        clus_gsea_matrix <- x %>%
           select(Pathway, Cells, ES) %>%
           spread(Cells, ES)
-        TempMat <-
-          Temp %>%  select(-Pathway) %>% as.matrix %>% apply(2, as.numeric) %>%  set_rownames(Temp$Pathway)
-        TempMat[TempMat %>% is.na()] <- 0
-        TempMat[, TempMat %>% t %>%  dist("euclidean") %>%  hclust(method =
-                                                                     "ward.D") %>% use_series(order)] %>% colnames
-      }) %>% unlist %>% unname()
+        clus_gsea_matrix <-
+          clus_gsea_matrix %>%  select(-Pathway) %>% as.matrix %>% apply(2, as.numeric) %>%  set_rownames(clus_gsea_matrix$Pathway)
+        clus_gsea_matrix[clus_gsea_matrix %>% is.na()] <- 0
+        clus_gsea_matrix[, clus_gsea_matrix %>% t %>%  dist("euclidean") %>%  hclust(method ="ward.D") %>% use_series(order)] %>% colnames
+      }) %>% Reduce(c,.)
 
     InMat <-
       MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
     if (rmna) {
       InMat <- InMat[(InMat %>% is.na %>% rowSums) != (InMat %>% ncol),]
     }
-
-    col_order <-
-      InMat %>% is.na %>%  ifelse(0, InMat) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
-    Clust2 <- cluster %$% set_names(Cluster, Sample)
+    InMat2 <- InMat
+    InMat2[InMat2 %>% is.na] <- 0
+    InMat <- InMat[InMat2 %>%  apply(1, var) %>%  sort(T) %>%  head(nPath) %>%  names,]
+    if(jaccard){
+    col_order <-   Jaccard(X$SC_GSEA$GMTfile[InMat %>%  rownames])%>% hclust("ward.D2") %>% use_series(order)
+    }
+    else
+    {col_order <-
+      InMat %>% is.na %>%  ifelse(0, InMat) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)}
+    Clust2 <- cluster %$% set_names(Cluster, Cells)
     Tab <- Clust2 %>%  table
     Tab <- Tab[Tab %>% names %>% gtools::mixedsort()]
     SepROW <- c(0, Tab %>% cumsum())
@@ -507,8 +475,10 @@ GSEA_Heatmap_SC <-
     LabROW2[LabROW1] <- LabROW1 %>% names
     row_side_color <-
       rep(Tab %>%  names, times = Tab) %>%  factor %>%  data.frame()
+
     InMat <- InMat %>% t
     InMat <- InMat[newOrder, col_order]
+    labrowPlotly <- LabROW2 %>% subset(.,LabROW2 %>% is.na %>% not) %>% set_names((InMat %>% rownames)[LabROW2 %>% is.na %>% not])
     if (plotly) {
       heatmaply::heatmaply(
         InMat,
@@ -517,17 +487,18 @@ GSEA_Heatmap_SC <-
         Colv = F,
         dendrogram = "none",
         draw_cellnote = F,
-        cexCol = 0.7,
-        cexRow = 0.8,
+        cexCol = cexCol,
+        cexRow = cexRow,
         margins = c(200, 200, 50, 200),
         na.value = "black",
         colors = color,
         na.rm = FALSE,
-        heatmap_layers = lapply(max(SepROW) - SepROW, function(i)
+        heatmap_layers = c(lapply(max(SepROW) - SepROW, function(i)
           geom_hline(yintercept = i + 0.5, color = "black")),
+          scale_y_discrete(labels=LabROW2[LabROW2 %>% is.na %>% not()],breaks=(InMat %>% rownames())[LabROW2 %>% is.na %>% not()])),
         row_side_colors = row_side_color,
         row_side_palette = rainbow,
-        showticklabels = c(T, F)
+        showticklabels = c(T, T)
       ) %>%
         layout(showlegend = FALSE)
     }
@@ -545,10 +516,10 @@ GSEA_Heatmap_SC <-
         labRow = LabROW2,
         RowSideColors = rep(rainbow(Tab %>%  length), times = Tab),
         srtCol = 45,
-        cexRow = 2,
-        cexCol = 1,
+        cexRow = cexRow,
+        cexCol = cexCol,
         keysize = 1,
-        key.xlab = "ES",
+        key.xlab = metrics,
         key.title = "Enrichment",
         margins = c(10, 10),
         density.info = "none",
@@ -557,3 +528,110 @@ GSEA_Heatmap_SC <-
       )
     }
   }
+
+create_gsea_matrix <- function(X, pval=0.05, es=-1, nes=0, metrics="NES", SC=T){
+  list_gsea_df <- lapply(c("padj", "ES", "NES"), function(val) {
+    if(SC){
+      gsea_results <- X$SC_GSEA$GSEA_Results
+      path <- X$SC_GSEA$Pathways
+    }
+    else{
+      gsea_results <- X$GSEA$GSEA_Results
+      path <- X$GSEA$Pathways
+    }
+    df <-
+      gsea_results[!(names(gsea_results) == "Origin")] %>%
+      purrr::map_df(
+        .f = function(x) {
+          x %>% extract2(val)
+        }
+      ) %>%
+      mutate(Pathway = path) %>%
+      dplyr::select(Pathway, everything())
+    df <-
+      df %>% gather_(key = "Cells", value = val, colnames(df)[-1])
+  })
+  list_gsea_df <- list_gsea_df[[1]] %>%  inner_join(list_gsea_df[[2]], c("Pathway", "Cells")) %>%  inner_join(list_gsea_df[[3]], c("Pathway", "Cells"))
+  if (metrics == "ES") {
+    list_gsea_df$ES[(list_gsea_df$padj > pval) | (list_gsea_df$ES < es)] <- NA
+    }
+  if (metrics == "NES") {
+    list_gsea_df$NES[(list_gsea_df$padj > pval) | (list_gsea_df$NES < nes)] <- NA
+    }
+  return(list_gsea_df)
+}
+
+
+GSEA_Heatmap_SC2 <-
+  function(X,
+           pval = 0.05,
+           es = 0 ,
+           nes = -20,
+           color = cm.colors(100),
+           title = "",
+           rmna = T,
+           metrics = "NES",
+           plotly = F,
+           cexRow=1,
+           cexCol=1,
+           nPath=20){
+    cluster <- X$cluster$labels %>%  dplyr::rename(Cells=Sample)
+    DF      <- create_gsea_matrix(X, pval=pval, es=es, nes=nes, metrics = metrics, SC=T)
+    if(metrics=="NES"){MAT<- DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)}
+    else{MAT<- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
+    InMat <-
+      MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
+    if (rmna) {
+      InMat <- InMat[(InMat %>% is.na %>% rowSums) != (InMat %>% ncol),]
+    }
+    InMat <- InMat %>% t
+    InMat[InMat %>% is.na] <- 0
+    InMat <- InMat[,InMat %>%  apply(2, var) %>%  sort(T) %>%  head(nPath) %>%  names]
+    A <- cluster %>%  arrange(Cells) %>%  use_series(Cluster) %>% unique %>%  length %>%  rainbow %>% set_names(cluster %>%  arrange(Cells) %>%  use_series(Cluster) %>% unique)
+    B <- A[cluster %>%  arrange(Cells) %>%  use_series(Cluster)]
+    if (plotly) {
+      heatmaply::heatmaply(
+        InMat,
+        row_dend_left = T,
+        Rowv = T,
+        Colv = T,
+        hclust_method="ward.D2",
+        dendrogram = "both",
+        draw_cellnote = F,
+        margins = c(200, 200, 50, 200),
+        na.value = "black",
+        row_side_colors =cluster %>%  arrange(Cells) %>%  select(Cluster),
+        colors = color,
+        na.rm = F,
+        showticklabels = c(T, F)
+      ) %>%
+        plotly::layout(showlegend = FALSE)
+    }
+    else{
+      heatmap.2(
+        InMat,
+        Rowv = T,
+        Colv = T,
+        dendrogram = "both",
+        hclustfun = function(x) hclust(x, method = "ward.D2"),
+        trace = "none",
+        labRow = "",
+        col = color,
+        srtCol = 45,
+        RowSideColors = B,
+        keysize = 1,
+        key.xlab = metrics,
+        key.title = "Enrichment",
+        margins = c(10, 10),
+        density.info = "none",
+        na.color = "gray",
+        main = title
+      )
+    }
+  }
+
+Jaccard <- function(GeneSet){sapply(X = GeneSet, FUN = function(Hall){GeneSet %>%  sapply(FUN= function(Hall2, Hall){
+  1-((intersect(Hall,Hall2) %>% length)/(union(Hall,Hall2) %>% length))},Hall=Hall)}) %>%  as.dist
+}
+
+
