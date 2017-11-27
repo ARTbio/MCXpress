@@ -25,6 +25,7 @@ Initialise_MCXpress <- function(X)
       MCXpress <- list()
       X <- as.matrix((X[apply(X, 1, var) > 0,]))
       X <- X[str_length(X %>% rownames) > 0,]
+
       X <- X %>% subset(X %>% rownames %>% duplicated %>% not)
       colnames(X) <- gsub(pattern = " ",
                           replacement = "_",
@@ -66,18 +67,12 @@ Vec_To_Df <- function(x, namecol = c("X1", "X2")) {
   return(Dframe)
 }
 
-Num_Axis_Broken_Stick <- function(x) {
-  vari <- x$MCA$explained_eigen_variance$Explained_Variance
+Num_Axis_Broken_Stick <- function(X) {
+  vari <- X$MCA$explained_eigen_variance$Explained_Variance
   vari <- vari / 100
   broken <- sum(1 / 1:(vari %>% length)) / (vari %>% length)
   (vari > broken) %>%  which %>%  length
 }
-
-SC_Pseudo_Cluster <- function(x) {
-  x <- x$ExpressionMatrix %>%  colnames() %>%  set_names(., .)
-  return(x)
-}
-
 
 Num_Axis_Eigen_Distance <- function(X) {
   eig <- X$MCA$eigen_value
@@ -94,7 +89,7 @@ Num_Axis_Eigen_Distance <- function(X) {
 #'
 #' Search for each cluster the Top n closest genes in the MCA components and visualise it on a heatmap.
 #'
-#' @param x An MCXpress Object
+#' @param X An MCXpress Object
 #' @param n Integer specifying the number of genes to select for each cluster, default set at 5.
 #' @param plotly logical, if FALSE gives a static heatmap, if TRUE gives an interactive version with heatmaply.
 #'
@@ -110,23 +105,23 @@ Num_Axis_Eigen_Distance <- function(X) {
 #'MCX64553 <- cluster_kmeans(MCX64553, k=6)
 #'MCX64553 %>% Heatmap_Cluster_SC(n = 5, plotly = F)
 Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
-  if (x$cluster %>% is.null) {
+  if (X$cluster %>% is.null) {
     stop("Clustering must be done before using this function")
   }
   OrderingCluster <-
-    x$cluster$cluster_distances %>%  as.dist %>%  hclust(method = "ward.D") %>%  use_series(order)
-  (x$cluster$cluster_distances %>% rownames)[OrderingCluster]
-  x$cluster$labels$Cluster <-
-    factor(x$cluster$labels$Cluster,
-           levels = (x$cluster$cluster_distances %>%  rownames)[OrderingCluster])
-  Cell <- x$cluster$labels %>%  dplyr::arrange(Cluster)
+    X$cluster$cluster_distances %>%  as.dist %>%  hclust(method = "ward.D") %>%  use_series(order)
+  (X$cluster$cluster_distances %>% rownames)[OrderingCluster]
+  X$cluster$labels$Cluster <-
+    factor(X$cluster$labels$Cluster,
+           levels = (X$cluster$cluster_distances %>%  rownames)[OrderingCluster])
+  Cell <- X$cluster$labels %>%  dplyr::arrange(Cluster)
   TableCell <- c(0, Cell$Cluster %>% table %>% cumsum)
   Lab <-
     ((TableCell[-1] + TableCell[-(TableCell %>% length)]) / 2) %>% add(0.5) %>%  round(digits = 0)
   Lab2 <- rep(NA, times = Cell$Sample %>% length)
   Lab2[Lab] <- Lab %>%  names
   CellOrder <- Cell$Sample
-  Gathering <- x$cluster$gene_cluster_distances %>%
+  Gathering <- X$cluster$gene_cluster_distances %>%
     separate(Genes, sep = "-bin", into = c("Genes", "bin")) %>%
     dplyr::filter(bin == 1) %>%
     select(-bin) %>%
@@ -138,14 +133,14 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
   Gathering$Cluster <-
     factor(
       Gathering$Cluster,
-      levels = x$cluster$labels %>%  dplyr::arrange(Cluster) %>%  use_series(Cluster) %>%  unique
+      levels = X$cluster$labels %>%  dplyr::arrange(Cluster) %>%  use_series(Cluster) %>%  unique
     )
   GenesOrder <-  Gathering %>%  dplyr::arrange(Cluster) %$% Genes
   row_side_colors <-
     Cell %>%  select(Cluster)     %>%  dplyr::arrange(Cluster)
   col_side_colors <-
     Gathering %>%  select(Cluster) %>% dplyr::arrange(Cluster)
-  HeatMatrix <- x$ExpressionMatrix[GenesOrder, CellOrder] %>%  t
+  HeatMatrix <- X$ExpressionMatrix[GenesOrder, CellOrder] %>%  t
   colsep <- col_side_colors %>%  table %>% cumsum()
   rowsep <- row_side_colors %>%  table %>% cumsum()
   if (plotly)
@@ -167,8 +162,7 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
           geom_vline(xintercept = i + 0.5, color = "black"))
       ),
       na.rm = F,
-      showticklabels = c(TRUE, FALSE),
-      plot_method = "ggplot",
+      showticklabels = c(TRUE, FALSE)
     ) %>%  layout(showlegend = FALSE)
   } else
   {
@@ -204,7 +198,7 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
 
 #' Title
 #'
-#' @param x MCXpress Object after Clustering
+#' @param X MCXpress Object after Clustering
 #' @param n Number of Genes to Display per Cluster
 #' @param plotly Logical indicating if interactive html visualisation should be used
 #' @return
@@ -218,11 +212,11 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
 #'MCX64553 <- MCA(MCX64553, Dim = 5)
 #'MCX64553 <- cluster_kmeans(MCX64553, k=6)
 #'MCX64553 %>% Heatmap_Cluster(n = 5, plotly = F)
-Heatmap_Cluster <- function(x, n = 5, plotly = T) {
-  if (x$cluster %>% is.null) {
+Heatmap_Cluster <- function(X, n = 5, plotly = T) {
+  if (X$cluster %>% is.null) {
     stop("Clustering must be done before using this function")
   }
-  Gathering <- x$cluster$gene_cluster_distances %>%
+  Gathering <- X$cluster$gene_cluster_distances %>%
     separate(Genes, sep = "-bin", into = c("Genes", "bin")) %>%
     dplyr::filter(bin == 1) %>%
     select(-bin) %>%
@@ -232,7 +226,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = T) {
     group_by(Cluster) %>%
     top_n(n,-Distance) %>% ungroup
   GenesOrder <-  Gathering %>%  dplyr::arrange(Cluster) %$% Genes
-  HeatMatrix <- x$ExpressionMatrix[GenesOrder,] %>%  t
+  HeatMatrix <- X$ExpressionMatrix[GenesOrder,] %>%  t
   HeatDF <-
     HeatMatrix %>%  t %>%  Mat_To_Df("Genes") %>% gather("Cells", "Value",-Genes) %>%  inner_join(X$cluster$labels %>% dplyr::rename(Cells = Sample))
   HeatMat <-
@@ -351,9 +345,7 @@ GSEA_Heatmap_Cluster <-
     if (rmna) {
       InMat <- InMat[(InMat %>% is.na %>% rowSums) != (InMat %>% ncol),]
     }
-    InMat2 <- InMat
-    InMat2[InMat2 %>% is.na] <- 0
-    InMat <- InMat[InMat2 %>%  apply(1, var) %>%  sort(T) %>%  head(nPath) %>%  names,]
+    InMat <- GSEA_select_variable(InMat, nPath = nPath)
     RowOrder <-
       InMat %>% is.na %>%  ifelse(0, InMat) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
     InMat <- InMat[RowOrder,]
@@ -436,7 +428,7 @@ GSEA_Heatmap_SC <-
     cluster <- X$cluster$labels %>%  dplyr::rename(Cells=Sample)
     DF      <- create_gsea_matrix(X, pval=pval, es=es, nes=nes, metrics = metrics, SC=T)
     if(metrics=="NES"){MAT<- DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)}
-    else{MAT<- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
+    else{MAT <- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
     DFORDER <- DF %>%  inner_join(cluster, by="Cells")%>% arrange(Cluster)
     newOrder <- DFORDER  %>%
       split(DFORDER$Cluster) %>%
@@ -452,12 +444,8 @@ GSEA_Heatmap_SC <-
 
     InMat <-
       MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
-    if (rmna) {
-      InMat <- InMat[(InMat %>% is.na %>% rowSums) != (InMat %>% ncol),]
-    }
-    InMat2 <- InMat
-    InMat2[InMat2 %>% is.na] <- 0
-    InMat <- InMat[InMat2 %>%  apply(1, var) %>%  sort(T) %>%  head(nPath) %>%  names,]
+    InMat <- GSEA_remove_na(InMat, rmna=rmna)
+    InMat <- GSEA_select_variable(InMat, nPath = nPath)
     if(jaccard){
     col_order <-   Jaccard(X$SC_GSEA$GMTfile[InMat %>%  rownames])%>% hclust("ward.D2") %>% use_series(order)
     }
@@ -633,4 +621,14 @@ Jaccard <- function(GeneSet){sapply(X = GeneSet, FUN = function(Hall){GeneSet %>
   1-((intersect(Hall,Hall2) %>% length)/(union(Hall,Hall2) %>% length))},Hall=Hall)}) %>%  as.dist
 }
 
+GSEA_select_variable <- function(x, nPath){
+  y <- x
+  y[y %>% is.na] <- 0
+  z <- y %>%  apply(1, var) %>%  sort(T) %>%  head(nPath) %>%  names
+  x <- x[z,]
+}
+
+GSEA_remove_na <- function(x,rmna=T){if(rmna){
+  x <- x[(x %>% is.na %>% rowSums) != (x %>% ncol),]
+} else{x}}
 

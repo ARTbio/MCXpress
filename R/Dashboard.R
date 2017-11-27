@@ -1812,7 +1812,7 @@ TabGSEA <- function(X, dr_axis)
                 titlePanel("Genes Enrichment by Cluster"),
                 wellPanel(fluidRow(
                   column(
-                    width = 6,
+                    width = 5,
                     sliderInput(
                       inputId = "GSEA_N_Path",
                       label   = "Number of Pathway to represent",
@@ -1832,39 +1832,40 @@ TabGSEA <- function(X, dr_axis)
                       label     = "Color",
                       choices   = c("Heat", "Spectral", "CM", "RG"),
                       selectize = TRUE
-                    ), if(X$SC_GSEA %>% is.null %>%  not){
+                    ),
                       selectInput(
                         inputId   = "GSEA_Heatmap_Level",
                         label     = "Level",
-                        choices   = c("Cluster", "Cell"),
+                        choices   = {if(X$SC_GSEA %>%  is.null %>%  not){c("Cluster", "Cell-Cluster", "Cell")} else{"Cluster"}},
                         selectize = TRUE
                       )
-                    }
                   ),
                   column(
-                    width = 6,
-                    selectInput(
+                    width = 7,
+                    fluidRow(column(width=4,numericInput(
                       inputId   = "GSEA_Heatmap_Pval",
                       label     = "Adjusted Pvalue:",
-                      choices   = c(1, 0.25, 0.05, 0.01),
-                      selectize = TRUE
-                    ),
-                    sliderInput(
+                      min=0,
+                      max=1,
+                      step=0.05,
+                      value=0.05
+                    )),
+                    column(width=4,numericInput(
                       inputId = "GSEA_Heatmap_ES",
                       label   = "ES Threshold",
-                      min     = -1,
-                      max     =  1,
-                      value   = -1,
-                      step    = 0.05,
-                    ),
-                    sliderInput(
+                      min=-1,
+                      max=1,
+                      step=0.1,
+                      value=0
+                    )),
+                    column(width=4,numericInput(
                       inputId = "GSEA_Heatmap_NES",
                       label   = "NES Threshold",
-                      min     = -1,
-                      max     =  1,
-                      value   = -1,
-                      step    = 0.5,
-                    ),fluidRow(column(width = 6,numericInput(
+                      min     =  -Inf,
+                      max     =  Inf,
+                      value   =  0,
+                      step    = 0.5
+                    ))),fluidRow(column(width = 6,numericInput(
                       "GSEA_Heatmap_Cex_Col",
                       "Col Character Size:",
                       value   = 1,
