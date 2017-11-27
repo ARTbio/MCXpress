@@ -218,7 +218,7 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
 #'MCX64553 <- MCA(MCX64553, Dim = 5)
 #'MCX64553 <- cluster_kmeans(MCX64553, k=6)
 #'MCX64553 %>% Heatmap_Cluster(n = 5, plotly = F)
-Heatmap_Cluster <- function(x, n = 5, plotly = F) {
+Heatmap_Cluster <- function(x, n = 5, plotly = T) {
   if (x$cluster %>% is.null) {
     stop("Clustering must be done before using this function")
   }
@@ -234,8 +234,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
   GenesOrder <-  Gathering %>%  dplyr::arrange(Cluster) %$% Genes
   HeatMatrix <- x$ExpressionMatrix[GenesOrder,] %>%  t
   HeatDF <-
-    HeatMatrix %>%  t %>%  Mat_To_Df("Genes") %>% gather("Cells", "Value",-Genes) %>%  inner_join(SCMCXbis$cluster$labels %>% dplyr::rename(Cells =
-                                                                                                                    Sample))
+    HeatMatrix %>%  t %>%  Mat_To_Df("Genes") %>% gather("Cells", "Value",-Genes) %>%  inner_join(X$cluster$labels %>% dplyr::rename(Cells = Sample))
   HeatMat <-
     HeatDF %>%  group_by(Cluster, Genes) %>%  summarise(MEAN = mean(Value)) %>%  spread(value = MEAN, key = Cluster)
   HeatMat <- HeatMat %>% Df_To_Mat() %>% t
@@ -320,7 +319,7 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
 #'
 #' @examples
 GSEA_Heatmap_Cluster <-
-  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F, margin=c(0,0,0,0), cexCol=1, cexRow=1) {
+  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T,nPath=5, metrics = "NES", plotly = F, margin=c(0,0,0,0), cexCol=1, cexRow=1) {
     DF <- lapply(c("padj", "ES", "NES"), function(val) {
       df <-
         X$GSEA$GSEA_Results[!(names(X$GSEA$GSEA_Results) == "Origin")] %>%
@@ -335,9 +334,6 @@ GSEA_Heatmap_Cluster <-
         df %>% gather_(key = "Cells", value = val, colnames(df)[-1])
     })
     DF <- DF[[1]] %>%  inner_join(DF[[2]], c("Pathway", "Cells")) %>%  inner_join(DF[[3]], c("Pathway", "Cells"))
-
-    DF$ES[(DF$padj > pval) |
-            (DF$ES < es) | (DF$NES < nes)] <- NA
     if (metrics == "ES") {
       DF$ES[(DF$padj > pval) | (DF$ES < es)] <- NA
       MAT <-
@@ -355,6 +351,9 @@ GSEA_Heatmap_Cluster <-
     if (rmna) {
       InMat <- InMat[(InMat %>% is.na %>% rowSums) != (InMat %>% ncol),]
     }
+    InMat2 <- InMat
+    InMat2[InMat2 %>% is.na] <- 0
+    InMat <- InMat[InMat2 %>%  apply(1, var) %>%  sort(T) %>%  head(nPath) %>%  names,]
     RowOrder <-
       InMat %>% is.na %>%  ifelse(0, InMat) %>%  dist %>%  hclust(method = "ward.D") %>% use_series(order)
     InMat <- InMat[RowOrder,]
