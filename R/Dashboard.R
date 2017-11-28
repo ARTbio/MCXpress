@@ -7,7 +7,7 @@ create_dashboard1 <- function(X)
   dr_axis <-
     X$MCA$cells_principal %>% select(contains("Axis")) %>% colnames
   ui <-
-    dashboardPage(
+    dashboardPage(skin = sample(c("red", "blue", "yellow", "green"), size = 1),
       dashboardHeader(title = h1("MCXpress")),
       dashboardSidebar(sidebarMenu(
         menuItem("MCA",
@@ -27,7 +27,7 @@ create_dashboard1 <- function(X)
         axis_cor <-
           X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
           inner_join(
-            X$ExpressionMatrix[input$MCA_CS_AC_Gene,] %>% data.frame() %>%
+            X$ExpressionMatrix[input$MCA_CS_AC_Gene, ] %>% data.frame() %>%
               tibble::rownames_to_column() %>% set_colnames(c("Sample", "Expression")),
             by = "Sample"
           )
@@ -50,7 +50,7 @@ create_dashboard1 <- function(X)
         axis_cor <-
           X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
           inner_join(
-            X$ExpressionMatrix[input$MCA_CS_AC_Gene,] %>% data.frame() %>%
+            X$ExpressionMatrix[input$MCA_CS_AC_Gene, ] %>% data.frame() %>%
               tibble::rownames_to_column() %>% set_colnames(c("Sample", "Expression")),
             by = "Sample"
           )
@@ -233,7 +233,7 @@ create_dashboard1 <- function(X)
     })
     output$Eigen <- renderPlotly({
       Shiny_Eigen <- X$MCA$explained_eigen_variance
-      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,]
+      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
       plot_ly(Shiny_Eigen) %>% add_bars(
         x = ~ Axis,
         y = ~ Shiny_Eigen[[input$Mode]],
@@ -270,7 +270,7 @@ create_dashboard2 <- function(X)
   dr_axis <-
     X$MCA$cells_principal %>% select(contains("Axis")) %>% colnames
   ui <-
-    dashboardPage(
+    dashboardPage(skin = sample(c("red", "blue", "yellow", "green"), size = 1),
       dashboardHeader(title = h1("MCXpress")),
       dashboardSidebar(sidebarMenu(
         menuItem("MCA",
@@ -296,7 +296,7 @@ create_dashboard2 <- function(X)
         axis_cor <-
           X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
           inner_join(
-            X$ExpressionMatrix[input$MCA_CS_AC_Gene,] %>% data.frame() %>%
+            X$ExpressionMatrix[input$MCA_CS_AC_Gene, ] %>% data.frame() %>%
               tibble::rownames_to_column() %>% set_colnames(c("Sample", "Expression")),
             by = "Sample"
           )
@@ -319,7 +319,7 @@ create_dashboard2 <- function(X)
         axis_cor <-
           X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
           inner_join(
-            X$ExpressionMatrix[input$MCA_CS_AC_Gene,] %>% data.frame() %>%
+            X$ExpressionMatrix[input$MCA_CS_AC_Gene, ] %>% data.frame() %>%
               tibble::rownames_to_column() %>% set_colnames(c("Sample", "Expression")),
             by = "Sample"
           )
@@ -502,7 +502,7 @@ create_dashboard2 <- function(X)
     })
     output$Eigen <- renderPlotly({
       Shiny_Eigen <- X$MCA$explained_eigen_variance
-      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,]
+      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
       plot_ly(Shiny_Eigen) %>% add_bars(
         x = ~ Axis,
         y = ~ Shiny_Eigen[[input$Mode]],
@@ -536,9 +536,9 @@ create_dashboard2 <- function(X)
     Boxplot <-
       X$ExpressionMatrix %>% data.frame %>% rownames_to_column(var = "Genes") %>%
       set_colnames(c("Genes", X$ExpressionMatrix %>% colnames)) %>% gather("Sample",
-                                                                           "Expression",-Genes) %>% as_tibble %>% dplyr::arrange(Sample) %>% inner_join(X$cluster$labels,
+                                                                           "Expression", -Genes) %>% as_tibble %>% dplyr::arrange(Sample) %>% inner_join(X$cluster$labels,
 
-                                                                                                                                                        by = "Sample") %>% as_tibble
+                                                                                                                                                         by = "Sample") %>% as_tibble
     output$CellSpace_Clus <- renderPlotly({
       d3 <-
         X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
@@ -658,7 +658,7 @@ create_dashboard2 <- function(X)
     output$DTBOX <- DT::renderDataTable({
       DTboxplot <- data_frame()
       Data <-
-        X$cluster$gene_cluster_distances %>% gather("Cluster", "Distance",-Genes)
+        X$cluster$gene_cluster_distances %>% gather("Cluster", "Distance", -Genes)
       for (i in (Data$Cluster %>% unique))
       {
         Cluster <- i
@@ -716,7 +716,7 @@ create_dashboard3 <- function(X)
   dr_axis <-
     X$MCA$cells_principal %>% select(contains("Axis")) %>% colnames
   ui <-
-    dashboardPage(
+    dashboardPage(skin = sample(c("red", "blue", "yellow", "green"), size = 1),
       dashboardHeader(title = h1("MCXpress")),
       dashboardSidebar(sidebarMenu(
         menuItem("MCA",
@@ -744,7 +744,7 @@ create_dashboard3 <- function(X)
         axis_cor <-
           X$MCA$cells_principal %>% rownames_to_column(var = "Sample") %>%
           inner_join(
-            X$ExpressionMatrix[input$MCA_CS_AC_Gene,] %>% data.frame() %>%
+            X$ExpressionMatrix[input$MCA_CS_AC_Gene, ] %>% data.frame() %>%
               tibble::rownames_to_column() %>% set_colnames(c("Sample", "Expression")),
             by = "Sample"
           )
@@ -767,7 +767,7 @@ create_dashboard3 <- function(X)
         axis_cor <-
           X$MCA$cells_standard %>% rownames_to_column(var = "Sample") %>%
           inner_join(
-            X$ExpressionMatrix[input$MCA_CS_AC_Gene,] %>% data.frame() %>%
+            X$ExpressionMatrix[input$MCA_CS_AC_Gene, ] %>% data.frame() %>%
               tibble::rownames_to_column() %>% set_colnames(c("Sample", "Expression")),
             by = "Sample"
           )
@@ -950,7 +950,7 @@ create_dashboard3 <- function(X)
     })
     output$Eigen <- renderPlotly({
       Shiny_Eigen <- X$MCA$explained_eigen_variance
-      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust,]
+      Shiny_Eigen <- Shiny_Eigen[1:input$amount_adjust, ]
       plot_ly(Shiny_Eigen) %>% add_bars(
         x = ~ Axis,
         y = ~ Shiny_Eigen[[input$Mode]],
@@ -1099,7 +1099,7 @@ create_dashboard3 <- function(X)
     output$DTBOX <- DT::renderDataTable({
       DTboxplot <- data_frame()
       Data <-
-        X$cluster$gene_cluster_distances %>% gather("Cluster", "Distance",-Genes)
+        X$cluster$gene_cluster_distances %>% gather("Cluster", "Distance", -Genes)
       for (i in (Data$Cluster %>% unique))
       {
         Cluster <- i
@@ -1123,8 +1123,8 @@ create_dashboard3 <- function(X)
     Boxplot <-
       X$ExpressionMatrix %>% data.frame %>% rownames_to_column(var = "Genes") %>%
       set_colnames(c("Genes", X$ExpressionMatrix %>% colnames)) %>% gather("Sample",
-                                                                           "Expression",-Genes) %>% as_tibble %>% arrange(Sample) %>% inner_join(X$cluster$labels,
-                                                                                                                                                 by = "Sample") %>% as_tibble
+                                                                           "Expression", -Genes) %>% as_tibble %>% arrange(Sample) %>% inner_join(X$cluster$labels,
+                                                                                                                                                  by = "Sample") %>% as_tibble
 
     output$Heatmap_Expression_Clus <-
       renderPlotly(X %>% Heatmap_Cluster(n = input$Num_Top_Genes, plotly = T))
@@ -1201,7 +1201,7 @@ create_dashboard3 <- function(X)
       eventReactive(
         input$Choice_Func_DT,
         Table_Enrich1()[[input$Choice_Func_DT]] %>%
-          select(-nMoreExtreme,-leadingEdge),
+          select(-nMoreExtreme, -leadingEdge),
         ignoreNULL = TRUE
       )
     output$Table <-
@@ -1217,38 +1217,45 @@ create_dashboard3 <- function(X)
         }
       ) %>% bind_rows
 
-    output$Enrich_Heatmap <- (renderPlotly({
-      colvector <- c("Heat", "CM", "RG", "Spectral")
-      if(input$GSEA_Heatmap_Level=="Cluster")
+    output$GSEA_Heatmap <- (renderPlotly({
+      colvector <- c("Yellow_Red", "Grey", "RG", "Spectral", "Cool_Warm")
+      if (input$GSEA_Heatmap_Level == "Cluster")
       {
-      func      <-
-        list(heat.colors,
-             cm.colors,
-             gplots::redgreen,
-             heatmaply::Spectral)
-      index     <- (colvector == input$GSEA_Heatmap_Color) %>% which
-      colo      <- func[[index]]
-      GSEA_Heatmap_Cluster(
-        X,
-        pval    = input$GSEA_Heatmap_Pval,
-        es      = input$GSEA_Heatmap_ES,
-        nes     = input$GSEA_Heatmap_NES,
-        metrics = input$GSEA_Heatmap_Metrics,
-        nPath  = input$GSEA_N_Path,
-        margin  = c(150, 150),
-        plotly  = T,
-        cexCol = input$GSEA_Heatmap_Cex_Col,
-        cexRow = input$GSEA_Heatmap_Cex_Row,
-        color   = 50 %>% colo %>%  rev
-      )}
+        func         <-
+          list(heatmaply::YlOrRd,
+               heatmaply::Greys,
+               gplots::redgreen,
+               heatmaply::Spectral,
+               heatmaply::cool_warm)
+        index        <- (colvector == input$GSEA_Heatmap_Color) %>% which
+        indexrow     <- (colvector == input$GSEA_Heatmap_Row_Side_Color) %>% which
+        colo         <- func[[index]]
+        colorow      <- func[[indexrow]]
+        GSEA_Heatmap_Cluster(
+          X,
+          pval    = input$GSEA_Heatmap_Pval,
+          es      = input$GSEA_Heatmap_ES,
+          nes     = input$GSEA_Heatmap_NES,
+          metrics = input$GSEA_Heatmap_Metrics,
+          nPath   = input$GSEA_N_Path,
+          margin  = c(150, 150),
+          plotly  = T,
+          cexCol  = input$GSEA_Heatmap_Cex_Col,
+          cexRow  = input$GSEA_Heatmap_Cex_Row,
+          color   = 50 %>% colo %>%  rev,
+          row_color = colorow
+        )
+      }
       else{
         func      <-
           list(heat.colors,
                cm.colors,
                gplots::redgreen,
                heatmaply::Spectral)
-        index     <- (colvector == input$GSEA_Heatmap_Color) %>% which
-        colo      <- func[[index]]
+        index        <- (colvector == input$GSEA_Heatmap_Color) %>% which
+        indexrow     <- (colvector == input$GSEA_Heatmap_Row_Side_Color) %>% which
+        colo         <- func[[index]]
+        colorow      <- func[[indexrow]]
         GSEA_Heatmap_SC(
           X,
           pval    = input$GSEA_Heatmap_Pval,
@@ -1259,7 +1266,8 @@ create_dashboard3 <- function(X)
           plotly  = T,
           cexCol = input$GSEA_Heatmap_Cex_Col,
           cexRow = input$GSEA_Heatmap_Cex_Row,
-          color   = 50 %>% colo %>%  rev
+          color   = 50 %>% colo %>%  rev,
+          row_color = colorow
         )
       }
     }))
@@ -1284,7 +1292,6 @@ CSS <- tags$head(tags$style(
     }"
 )
   ))
-
 
 TabMCA <- function(X, dr_axis)
 {
@@ -1828,66 +1835,98 @@ TabGSEA <- function(X, dr_axis)
                       selectize = TRUE
                     ),
                     selectInput(
-                      inputId   = "GSEA_Heatmap_Color",
+                      inputId   = "GSEA_Heatmap_Row_Side_Color",
                       label     = "Color",
-                      choices   = c("Heat", "Spectral", "CM", "RG"),
+                      choices   = colvector <- c("Yellow_Red", "Grey", "RG", "Spectral", "Cool_Warm"),
                       selectize = TRUE
                     ),
-                      selectInput(
-                        inputId   = "GSEA_Heatmap_Level",
-                        label     = "Level",
-                        choices   = {if(X$SC_GSEA %>%  is.null %>%  not){c("Cluster", "Cell-Cluster", "Cell")} else{"Cluster"}},
-                        selectize = TRUE
-                      )
+                    selectInput(
+                      inputId   = "GSEA_Heatmap_Color",
+                      label     = "Color",
+                      choices   = colvector <- c("Yellow_Red", "Grey", "RG", "Spectral", "Cool_Warm"),
+                      selectize = TRUE
+                    ),
+                    selectInput(
+                      inputId   = "GSEA_Heatmap_Level",
+                      label     = "Level",
+                      choices   = {
+                        if (X$SC_GSEA %>%  is.null %>%  not) {
+                          c("Cluster", "Cell-Cluster", "Cell")
+                        } else{
+                          "Cluster"
+                        }
+                      },
+                      selectize = TRUE
+                    )
                   ),
                   column(
                     width = 7,
-                    fluidRow(column(width=4,numericInput(
-                      inputId   = "GSEA_Heatmap_Pval",
-                      label     = "Adjusted Pvalue:",
-                      min=0,
-                      max=1,
-                      step=0.05,
-                      value=0.05
-                    )),
-                    column(width=4,numericInput(
-                      inputId = "GSEA_Heatmap_ES",
-                      label   = "ES Threshold",
-                      min=-1,
-                      max=1,
-                      step=0.1,
-                      value=0
-                    )),
-                    column(width=4,numericInput(
-                      inputId = "GSEA_Heatmap_NES",
-                      label   = "NES Threshold",
-                      min     =  -Inf,
-                      max     =  Inf,
-                      value   =  0,
-                      step    = 0.5
-                    ))),fluidRow(column(width = 6,numericInput(
-                      "GSEA_Heatmap_Cex_Col",
-                      "Col Character Size:",
-                      value   = 1,
-                      step = 0.1,
-                      min = 0,
-                      max = 10
-                    )),column(width = 6,numericInput(
-                      "GSEA_Heatmap_Cex_Row",
-                      "Row Character Size:",
-                      value   = 1,
-                      step = 0.1,
-                      min = 0,
-                      max = 10
-                    )))
+                    fluidRow(
+                      column(
+                        width = 4,
+                        numericInput(
+                          inputId   = "GSEA_Heatmap_Pval",
+                          label     = "Adjusted Pvalue:",
+                          min = 0,
+                          max = 1,
+                          step = 0.05,
+                          value = 0.05
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        numericInput(
+                          inputId = "GSEA_Heatmap_ES",
+                          label   = "ES Threshold",
+                          min = -1,
+                          max = 1,
+                          step = 0.1,
+                          value = 0
+                        )
+                      ),
+                      column(
+                        width = 4,
+                        numericInput(
+                          inputId = "GSEA_Heatmap_Threshold",
+                          label   = "NES Threshold",
+                          min     =  -Inf,
+                          max     =  Inf,
+                          value   =  0,
+                          step    = 0.5
+                        )
+                      )
+                    ),
+                    fluidRow(
+                      column(
+                        width = 6,
+                        numericInput(
+                          "GSEA_Heatmap_Cex_Col",
+                          "Col Character Size:",
+                          value   = 1,
+                          step = 0.1,
+                          min = 0,
+                          max = 10
+                        )
+                      ),
+                      column(
+                        width = 6,
+                        numericInput(
+                          "GSEA_Heatmap_Cex_Row",
+                          "Row Character Size:",
+                          value   = 1,
+                          step = 0.1,
+                          min = 0,
+                          max = 10
+                        )
+                      )
+                    )
                   )
-                )
-                )
+                ))
               ),
               mainPanel(
                 width = 12,
                 h3("GSEA Enrichment Heatmap"),
-                plotlyOutput("Enrich_Heatmap", width = "90%",
+                plotlyOutput("GSEA_Heatmap", width = "90%",
                              height = "90%")
               )
             )

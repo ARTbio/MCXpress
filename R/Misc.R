@@ -313,7 +313,7 @@ Heatmap_Cluster <- function(X, n = 5, plotly = T) {
 #'
 #' @examples
 GSEA_Heatmap_Cluster <-
-  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T,nPath=5, metrics = "NES", plotly = F, margin=c(0,0,0,0), cexCol=1, cexRow=1) {
+  function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T,nPath=5, metrics = "NES", plotly = F, margin=c(0,0,0,0), cexCol=1, cexRow=1, row_color=rainbow) {
     DF <- lapply(c("padj", "ES", "NES"), function(val) {
       df <-
         X$GSEA$GSEA_Results[!(names(X$GSEA$GSEA_Results) == "Origin")] %>%
@@ -366,7 +366,7 @@ GSEA_Heatmap_Cluster <-
       colors = color,
       na.rm = FALSE,
       row_side_colors = InMat %>%  rownames %>%  factor %>%  data.frame(),
-      row_side_palette = rainbow
+      row_side_palette = row_color,
     ) %>% layout(showlegend = FALSE)}
     else{
       heatmap.2(
@@ -379,7 +379,7 @@ GSEA_Heatmap_Cluster <-
         rowsep = 0:(InMat %>%  nrow),
         sepcolor = "black",
         col = color,
-        RowSideColors = rainbow(InMat %>%  nrow),
+        RowSideColors = row_color(InMat %>%  nrow),
         srtCol = 45,
         cexRow = cexRow,
         cexCol = cexCol,
@@ -424,6 +424,7 @@ GSEA_Heatmap_SC <-
            cexRow=1,
            cexCol=1,
            nPath=10,
+           row_color=rainbow,
            jaccard=T){
     cluster <- X$cluster$labels %>%  dplyr::rename(Cells=Sample)
     DF      <- create_gsea_matrix(X, pval=pval, es=es, nes=nes, metrics = metrics, SC=T)
@@ -484,7 +485,7 @@ GSEA_Heatmap_SC <-
           geom_hline(yintercept = i + 0.5, color = "black")),
           scale_y_discrete(labels=LabROW2[LabROW2 %>% is.na %>% not()],breaks=(InMat %>% rownames())[LabROW2 %>% is.na %>% not()])),
         row_side_colors = row_side_color,
-        row_side_palette = rainbow,
+        row_side_palette = row_color,
         showticklabels = c(T, T)
       ) %>%
         layout(showlegend = FALSE)
