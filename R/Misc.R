@@ -1,4 +1,4 @@
-#' Initialisation of the MCXpress Object
+#' Initialisation of the MCXpress Objects
 #'
 #' Create a MCXpressObject from an Expression Matrix
 #'
@@ -413,24 +413,27 @@ GSEA_Heatmap_Cluster <-
 #' @examples
 GSEA_Heatmap_SC <-
   function(X,
-           pval = 0.05,
-           es = 0 ,
-           nes = -20,
-           color = cm.colors(100),
-           title = "",
-           rmna = T,
-           metrics = "NES",
-           plotly = T,
-           cexRow=1,
-           cexCol=1,
-           nPath=10,
-           row_color=rainbow,
-           jaccard=T){
+           pval      = 0.05,
+           es        = 0 ,
+           nes       = -20,
+           color     = cm.colors(100),
+           title     = "",
+           rmna      = T,
+           metrics   = "NES",
+           plotly    = T,
+           cexRow    = 1,
+           cexCol    = 1,
+           nPath     = 10,
+           margin    = c(150,150),
+           row_color = rainbow,
+           jaccard   = T
+           ){
     cluster <- X$cluster$labels %>%  dplyr::rename(Cells=Sample)
     DF      <- create_gsea_matrix(X, pval=pval, es=es, nes=nes, metrics = metrics, SC=T)
     if(metrics=="NES"){MAT<- DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)}
-    else{MAT <- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
-    DFORDER <- DF %>%  inner_join(cluster, by="Cells")%>% arrange(Cluster)
+    else{
+    MAT      <- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
+    DFORDER  <- DF %>%  inner_join(cluster, by="Cells")%>% arrange(Cluster)
     newOrder <- DFORDER  %>%
       split(DFORDER$Cluster) %>%
       map(function(x) {
@@ -441,7 +444,8 @@ GSEA_Heatmap_SC <-
           clus_gsea_matrix %>%  select(-Pathway) %>% as.matrix %>% apply(2, as.numeric) %>%  set_rownames(clus_gsea_matrix$Pathway)
         clus_gsea_matrix[clus_gsea_matrix %>% is.na()] <- 0
         clus_gsea_matrix[, clus_gsea_matrix %>% t %>%  dist("euclidean") %>%  hclust(method ="ward.D") %>% use_series(order)] %>% colnames
-      }) %>% Reduce(c,.)
+      }
+      ) %>% Reduce(c,.)
 
     InMat <-
       MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
@@ -477,7 +481,7 @@ GSEA_Heatmap_SC <-
         draw_cellnote = F,
         cexCol = cexCol,
         cexRow = cexRow,
-        margins = c(200, 200, 50, 200),
+        margins = margin,
         na.value = "black",
         colors = color,
         na.rm = FALSE,
@@ -632,4 +636,85 @@ GSEA_select_variable <- function(x, nPath){
 GSEA_remove_na <- function(x,rmna=T){if(rmna){
   x <- x[(x %>% is.na %>% rowSums) != (x %>% ncol),]
 } else{x}}
+
+
+GSEA_Heatmap_Clustering <-
+    function(X,
+             color = cm.colors(100),
+             title = "",
+             metrics = "NES",
+             plotly = T,
+             k=1,
+             hclus="ward.D"){
+        cluster <- X$cluster$labels %>%  dplyr::rename(Cells=Sample)
+        DF      <- create_gsea_matrix(X, pval=pval, es=es, nes=nes, metrics = metrics, SC=T)
+        if(metrics=="NES"){MAT<- DF %>%  dplyr::select(Pathway, Cells, NES) %>%  spread(Cells, NES)}
+        else{MAT<- DF %>%  dplyr::select(Pathway, Cells, ES) %>%  spread(Cells, ES)}
+        InMat <-
+            MAT  %>% dplyr::select(-Pathway) %>%  as.matrix.data.frame %>%  set_rownames(MAT$Pathway)
+        InMat <- InMat %>% t
+        InMat[InMat %>% is.na] <- 0
+        InMat <- InMat[,InMat %>%  apply(2, var) %>%  sort(T) %>%  head(nPath) %>%  names]
+        A <- cluster %>%  arrange(Cells) %>%  use_series(Cluster) %>% unique %>%  length %>%  rainbow %>% set_names(cluster %>%  arrange(Cells) %>%  use_series(Cluster) %>% unique)
+        B <- A[cluster %>%  arrange(Cells) %>%  use_series(Cluster)]
+        C <- InMat %>% Rth::rthdist(nthreads = 4) %>%  as.dist %>% hclust(method = hclus)
+        D <- C %>%  use_series(order)
+        Clus <- C %>% cutree(k=k) %>%  set_names(InMat %>%  rownames)
+        Order <- (InMat %>%  rownames)[D]
+        Bord <- (Clus[Order] %>% table)[Clus[Order] %>% unique] %>% cumsum
+        rc = cluster %>%  arrange(Cells) %$% set_names(Cluster, Cells) %>%  extract(Order) %>% tibble
+        cc = cluster %>%  arrange(Cells) %$% set_names(Cluster, Cells) %>%  extract(Order) %>% tibble
+        rcgp <- set_names(Spectral(rc %>% as.matrix %>% as.vector %>% unique %>%  length()),rc %>% as.matrix %>% as.vector %>% unique)
+        rcgp <- rcgp[rc$.]
+        ccgp <- rcgp
+                if (plotly) {
+            heatmaply(
+                InMat[Order,Order]%>% round(digits = 2),
+                Rowv = F,
+                Colv = F,
+                draw_cellnote = F,
+                na.value = "black",
+                row_side_colors=rc,
+                col_side_colors=cc,
+                row_side_palette = rainbow,
+                col_side_palette = rainbow,
+                heatmap_layers = c(lapply(max(Bord) - Bord, function(i)
+                    geom_hline(yintercept = i + 0.5, color = "black", size=0.1)),
+                    lapply(Bord, function(i)
+                        geom_vline(xintercept = i + 0.5, color = "black", size=0.1))
+                    ),
+                colors = cool_warm,
+                na.rm = F,
+                showticklabels = c(F, F)
+            ) %>%
+                plotly::layout(showlegend = FALSE)
+        }
+        else{
+            heatmap.2(
+                InMat[Order,Order] %>% round(digits = 2),
+                Rowv = F,
+                Colv = F,
+                dendrogram = "none",
+                trace = "none",
+                labRow = "",
+                labCol = "",
+                rowsep = Bord,
+                colsep = Bord,
+                sepcolor = "black",
+                col = color,
+                RowSideColors = rcgp,
+                ColSideColors = ccgp,
+                keysize = 1,
+                key.xlab = metrics,
+                key.title = "Enrichment",
+                margins = c(10, 10),
+                density.info = "none",
+                na.color = "gray",
+                main = title,
+
+            )
+        }
+    }
+
+
 

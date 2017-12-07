@@ -277,7 +277,7 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   cluster_gsea <-
     cluster_rank %>% BiocParallel::bplapply(
       FUN = parallel_fgsea,
-      BPPARAM = BiocParallel::SnowParam(workers = nproc, tasks=nproc, progressbar = T),
+      BPPARAM = BiocParallel::SnowParam(workers = nproc, tasks=nproc*4, progressbar = T),
       a = GMTfile,
       b = nperm,
       c = minSize,
