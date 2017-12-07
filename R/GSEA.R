@@ -350,3 +350,12 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0)
                 width = 1), text = ~paste0(name), showlegend = FALSE, hoverinfo = "text")
 }
 
+Gene_Ranking <- function(X){
+    df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
+                                                                into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+        dplyr::filter(bin %in% nbin)
+    cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
+    {
+        1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
+    })
+}
