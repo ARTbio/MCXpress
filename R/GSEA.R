@@ -127,6 +127,16 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
 }
 
 
+parallel_fgsea <- function(x, a, b, c, d, e, f){
+ gsea <- tibble::as_tibble(fgsea::fgsea(stats = x, pathways = a, nperm = b,
+                                                                                 minSize =  c, maxSize = d, nproc = e,
+                                                                              BPPARAM = BiocParallel::SerialParam(), gseaParam =f))
+ ins <-  round(magrittr::extract(gsea, 2:5),digits = 5)
+ val <-  magrittr::inset(gsea, 2:5, value = ins)
+ return(val)}
+
+
+
 GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
                  nproc = 4, nbin = 1, naxis = 2, gseaParam = 0)
 {
@@ -233,7 +243,6 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
   ### . . . . . . . ..  b Calculate Rank for Cluster ####
   Scaling2 <- function(x){2*(x-min(x))/(max(x)-min(x))}
-  cat("\nCalculating ranking of genes for each clusters \n")
   # cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% bplapply(FUN = function(x,y){
   #   1-(sort(Scaling2(set_names(x,y))))
   # },BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T), y=df2$Genes)
