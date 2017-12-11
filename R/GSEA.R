@@ -127,18 +127,6 @@ GSEA <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
 }
 
 
-
-parallel_fgsea <- function(x, a, b, c, d, e, f){
-  gsea <- tibble::as_tibble(fgsea::fgsea(stats = x, pathways = a, nperm = b,
-                                         minSize =  c, maxSize = d, nproc = e,
-                                         BPPARAM = BiocParallel::SerialParam(), gseaParam =f))
-  ins <-  round(magrittr::extract(gsea, 2:5),digits = 5)
-  val <-  magrittr::inset(gsea, 2:5, value = ins)
-  return(val)
-}
-
-
-
 GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
                  nproc = 4, nbin = 1, naxis = 2, gseaParam = 0)
 {
@@ -184,22 +172,7 @@ GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
 
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
   ### . . . . . . . ..  a Filter Bin ####
-  df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
-                                                              into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
-    dplyr::filter(bin %in% nbin)
-
-  ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-  ### . . . . . . . ..  b Calculate Rank for Cluster ####
-  Scaling2 <- function(x){2*(x-min(x))/(max(x)-min(x))}
-  cat("\nCalculating ranking of genes for each clusters \n")
-  # cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% bplapply(FUN = function(x,y){
-  #   1-(sort(Scaling2(set_names(x,y))))
-  # },BPPARAM = SnowParam(workers = nproc, tasks=nproc, progressbar = T), y=df2$Genes)
-  cat("\nCalculating ranking of genes for each clusters \n")
-  cluster_rank <- df2 %>% dplyr::select(-Genes,-bin) %>% lapply(FUN = function(x)
-  {
-    1-(x %>% set_names(df2$Genes) %>% (function(x){2*(x-min(x))/(max(x)-min(x))}) %>% sort)
-  })
+  cluster_rank <- Gene_Ranking(X, nbin = nbin) 
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
   ### . . . . . . . ..  c fgsea analysis for cluster ####
 
@@ -215,7 +188,6 @@ GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
       e = nproc,
       f = gseaParam
     )
-
 
   ## ............................................................................
   ## C GSEA finalisation ####
@@ -290,7 +262,7 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   ## ............................................................................
   ## C GSEA finalisation ####
 
-  cat(paste0("Creating SIngle Cell Enrichment Analysis Object\n"))
+  cat(paste0("Creating Single Cell Enrichment Analysis Object\n"))
   X$SC_GSEA$GSEA_Results <- cluster_gsea
   X$SC_GSEA$Ranking <- cluster_rank
   X$SC_GSEA$Pathways <- X$SC_GSEA$GSEA_Results %>%  extract2(1) %>%  use_series(pathway)
@@ -300,12 +272,6 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   class(X$SC_GSEA) <- "GSEA"
   return(X)
 }
-
-
-
-
-
-
 
 #' Interactive plot enrichment score of a pathway
 #'
@@ -350,7 +316,7 @@ plotlyEnrichment <- function(pathway, stats, gseaParam = 0)
                 width = 1), text = ~paste0(name), showlegend = FALSE, hoverinfo = "text")
 }
 
-Gene_Ranking <- function(X){
+Gene_Ranking <- function(X, nbin = nbin){
     df2 <- X$cluster$gene_cluster_distances %>% tidyr::separate(col = Genes,
                                                                 into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
         dplyr::filter(bin %in% nbin)
