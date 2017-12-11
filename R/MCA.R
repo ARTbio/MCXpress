@@ -95,7 +95,7 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim %>% min) - 1) {
     # Calculate Correlation Axis and Genes
     ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . ..
     ### Axis and Gene Correlation ####
-    cat("Calculating Spearman Correlation")
+    cat("Calculating Spearman Correlation s\n \n")
     X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal[,1:min(X$MCA$cells_principal %>% ncol,5)], method = "spearman") %>%
         data.frame() %>% tibble::rownames_to_column(var = "Genes") %>% tibble::as_tibble()
     X$MCA$Axis_Gene_Cor[, -1] <- X$MCA$Axis_Gene_Cor[, -1] %>% sapply(FUN =  round,
