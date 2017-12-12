@@ -13,5 +13,5 @@ CSS <- tags$head(tags$style(
     text-align:center;
     color: #ffffff;
     }"
-)
-  ))
+  )
+))
