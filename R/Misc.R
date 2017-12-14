@@ -697,6 +697,13 @@ GSEA_Heatmap_SC2 <-
     }
   }
 
+Make_Cluster_Geneset<-function(X, n=15){
+X$cluster$gene_cluster_distances %>% select(-Origin) %>% gather("Cluster", "Distance", -Genes) %>%  
+group_by(Cluster) %>%  top_n(100, -Distance) %>% 
+arrange(Cluster,Distance)   
+}
+
+
 Jaccard <- function(GeneSet) {
   sapply(X = GeneSet, FUN = function(Hall) {
     GeneSet %>% sapply(FUN = function(Hall2, Hall) {
