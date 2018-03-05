@@ -79,6 +79,17 @@ SC_Pseudo_Cluster <- function(x) {
 }
 
 
+
+
+#' Finding Top Expressed Genes for Each Cluster
+#'
+#' Search for each cluster the Top n closest genes in the MCA components and visualise it on a heatmap.
+#'
+#' @param X An MCXpress Object
+#'
+#' @return
+#' Number of Axis to be retained
+#' @export
 Num_Axis_Eigen_Distance <- function(X) {
   eig <- X$MCA$eigen_value
   A <- (eig[1] - eig[length(eig)]) / (1 - eig %>% length)
@@ -208,10 +219,9 @@ Heatmap_Cluster_SC <- function(x, n = 5, plotly = F) {
 #' @param x MCXpress Object after Clustering
 #' @param n Number of Genes to Display per Cluster
 #' @param plotly Logical indicating if interactive html visualisation should be used
-#' @return
+#' @return A Heatmap giving the cluster mean log fold change expresion of the top n ranked genes.   
 #'
 #' @export
-#'
 #' @examples
 #'MCX64553 <- Initialise_MCXpress(GSE64553)
 #'MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
@@ -320,22 +330,21 @@ Heatmap_Cluster <- function(x, n = 5, plotly = F) {
 
 
 
-#' Title
+#' Heatmap of Cluster Enrichement
 #'
-#' @param X
-#' @param pval
-#' @param es
-#' @param nes
-#' @param color
-#' @param title
-#' @param rmna
-#' @param metrics
-#' @param plotly
+#' @param X MCX object with a cluster object inside
+#' @param pval adjusted pvalue threshold
+#' @param es enrichment score threshold
+#' @param nes normalised enrichment score threshold
+#' @param color color palette to use for heatmap
+#' @param title title of the Heatmap
+#' @param rmna boolean indicating if missing value should be accounted 
+#' @param metrics takes the value of "NES" or "ES", chooses the score to represent on the heatmap
+#' @param plotly boolean indicating if plotly heatmaply representation or gplots heatmap should be used.
 #'
-#' @return
+#' @return Heatmap of cluster enrichment ordered by hierachical clustering
 #' @export
 #'
-#' @examples
 GSEA_Heatmap_Cluster <-
   function(X, pval = 0.05, es = 0 , nes = -20, color = cm.colors(100), title = "", rmna = T, metrics = "NES", plotly = F, margin=c(0,0,0,0)) {
     DF <- lapply(c("padj", "ES", "NES"), function(val) {
@@ -423,7 +432,7 @@ GSEA_Heatmap_Cluster <-
 
 #' Heatmap of GSEA at Single Cell Level
 #'
-#' @param x An MCXpress object
+#' @param x An MCXpress object after clustering and SC_GSEAparall step
 #' @param pval Numeric indicating the threshold pvalue
 #' @param es  Numeric indicating enrichment score threshold
 #' @param nes Numeric normalised enrichment score threshold
@@ -433,11 +442,10 @@ GSEA_Heatmap_Cluster <-
 #' @param metrics NES or ES
 #' @param plotly Logical Indicating if the static version or the interactive version should be plotted.
 #'
-#' @return
+#' @return Heatmap with enrichment score of each cells ordered according to hierchical clustering inside each cluster.
 #' @export
 #'
-#' @examples
-GSEA_Heatmap_SC <-
+GSEA_Heatmap_SC_Cluster <-
   function(X,
            pval = 0.05,
            es = 0 ,

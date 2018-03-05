@@ -14,7 +14,7 @@ plotlyEnrichment(pathway, stats, gseaParam = 0)
 \item{gseaParam}{GSEA parameter value}
 }
 \value{
-RETURN_DESCRIPTION
+enrichment plot with plotly
 }
 \description{
 Plotly version of the plotEnrichment function of the fgsea package
