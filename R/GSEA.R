@@ -332,7 +332,7 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
   ### . . . . . . . ..  c fgsea analysis for cluster ####
 
-  cat("Beginning enrichment analysis for clusters\n\n")
+  cat("Beginning enrichment analysis for cells\n\n")
   cluster_gsea <-
     cluster_rank %>% BiocParallel::bplapply(
       FUN = parallel_fgsea,
@@ -349,7 +349,7 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   ## ............................................................................
   ## C GSEA finalisation ####
 
-  cat(paste0("Creating SIngle Cell Enrichment Analysis Object\n"))
+  cat(paste0("Creating SIigle Cell Enrichment Analysis Object\n"))
   X$SC_GSEA$GSEA_Results <- cluster_gsea
   X$SC_GSEA$Ranking <- cluster_rank
   X$SC_GSEA$Pathways <- X$SC_GSEA$GSEA_Results %>%  extract2(1) %>%  use_series(pathway)
