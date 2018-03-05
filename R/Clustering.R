@@ -3,6 +3,7 @@
 #' Generic function to compute distances, centroids and statistics after statistics.
 #'
 #' @param X an MCXpress object with MCA object (after MCA step)
+#' @param dim number of axis to be retained for the distance calculation.
 #' @return MCXpress object with MCA object and Clustering Object (after MCA step)
 calculate_cluster_centroids <- function(X, dim) {
   ## ............................................................................

@@ -152,6 +152,38 @@ parallel_fgsea <- function(x, a, b, c, d, e, f) {
 
 
 
+#' Gene Set Enrichment Analysis of Clusters and Axis parallel version
+#'
+#' Performs a gene set enrichment analysis with the fgsea bioconductor package
+#' on the cluster and the axis using the ranking of the distance between the clusters centroids and the genes.
+#' Number of Axis used for distance and therefore genes ranking is the same as the one used for cluster.
+#'
+#' @param X A MCXPress object containing a cluster and Dimred object
+#' @param GMTfile .gmt file containing a list of pathway with their represnting
+#'   gene.
+#' @param nperm the number of permutation.
+#' @param minSize threshold for the minimum number of genes that must be in the pathway.
+#' @param maxSize threshold for the maximum number of genes that must be in the pathway.
+#' @param nproc number of processor to use for the enrichment algorithm.
+#' @param nbin an integer indicating which bin to use for the enrichment analysis.
+#' @param naxis number of axis to perform the enrichment analysis.
+#' @param gseaParam an integer to weight the enrichment analysis.
+#' @return Return a MCXpress object containing a GSEA object
+#' \item{GSEA_Results}{List containing dataframes of the GSEA analysis for each Cluster}
+#' \item{Ranking}{List containing vectors of gene ranking according to their distance in MCA for each Cluster}
+#' \item{GSEA_Results_Axis}{List containing dataframes of the GSEA analysis for each Axis}
+#' \item{Ranking_Axis}{List containing vectors of gene ranking according to their MCA cells coordinate and genes expression correlation for each Axis}
+#' \item{GMTfile}{GMTfile used for GSEA}
+#' \item{Pathway}{Name of the genesets contained in the gmtfile}
+#' \item{gseaParam}{GSEA Parameter used}
+#' @examples
+#' MCX64553 <- Initialise_MCXpress(GSE64553)
+#' MCX64553 <- filter_outlier(MCX64553, percentage = 0.05, threshold = 3)
+#' MCX64553 <- discretisation_01(MCX64553, scaled=FALSE)
+#' MCX64553 <- MCA(MCX64553, Dim = 5)
+#' MCX64553 <- cluster_kmeans(MCX64553, k=6)
+#' MCX64553 <- GSEA(X = MCX64553, GMTfile = reactome_gmtfile, nperm = 10000)
+#' @export
 GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
                        nproc = 4, nbin = 1, naxis = 2, gseaParam = 0) {
   ## ............................................................................
@@ -239,6 +271,32 @@ GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   return(X)
 }
 
+
+#' Gene Set Enrichment Analysis at the single cell level parallel version
+#'
+#' Performs a gene set enrichment analysis with the fgsea bioconductor package
+#' on each cells using the ranking of the distance between the clusters centroids and the genes.
+#' Number of Axis used for distance and therefore genes ranking should be specified in the dim paramteter.
+#'
+#' @param X A MCXPress object containing a cluster and Dimred object
+#' @param GMTfile .gmt file containing a list of pathway with their represnting
+#'   gene.
+#' @param nperm the number of permutation.
+#' @param minSize threshold for the minimum number of genes that must be in the pathway.
+#' @param maxSize threshold for the maximum number of genes that must be in the pathway.
+#' @param nproc number of processor to use for the enrichment algorithm.
+#' @param nbin an integer indicating which bin to use for the enrichment analysis.
+#' @param naxis number of axis to perform the enrichment analysis.
+#' @param gseaParam an integer to weight the enrichment analysis.
+#' @return Return a MCXpress object containing a GSEA object
+#' \item{GSEA_Results}{List containing dataframes of the GSEA analysis for each Cluster}
+#' \item{Ranking}{List containing vectors of gene ranking according to their distance in MCA for each Cluster}
+#' \item{GSEA_Results_Axis}{List containing dataframes of the GSEA analysis for each Axis}
+#' \item{Ranking_Axis}{List containing vectors of gene ranking according to their MCA cells coordinate and genes expression correlation for each Axis}
+#' \item{GMTfile}{GMTfile used for GSEA}
+#' \item{Pathway}{Name of the genesets contained in the gmtfile}
+#' \item{gseaParam}{GSEA Parameter used}
+#' @export
 SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
                           nproc = 4, nbin = 1, naxis = 2, gseaParam = 0, dim=2) {
   ## ............................................................................
@@ -322,7 +380,7 @@ SC_GSEAparall <- function(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
 #' @param stats Ranking of the genes
 #' @param gseaParam GSEA parameter value
 #'
-#' @return RETURN_DESCRIPTION
+#' @return plotly object representing the enrichment.
 plotlyEnrichment <- function(pathway, stats, gseaParam = 0) {
   rnk <- rank(-stats)
   ord <- order(rnk)

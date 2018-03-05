@@ -6,7 +6,7 @@
 #' and keep the axis with the most informative variance
 #'
 #' @param X A MCXpress object containing a Disjunctive Matrix produced by one of the Discretisation method.
-#' @param Dim Number of Dimension to keep.
+#' @param dim Number of Dimension to keep.
 #' @return A MCXpress object containing a MCXmca object.
 #' \itemize{
 #'   \item{'cells_principal'}{Stuff}

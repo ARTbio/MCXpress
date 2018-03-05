@@ -2,7 +2,7 @@
 % Please edit documentation in R/GSEA.R
 \name{SC_GSEAparall}
 \alias{SC_GSEAparall}
-\title{Gen1e Set Enrichment Analysis at the single cell level parallel version}
+\title{Gene Set Enrichment Analysis at the single cell level parallel version}
 \usage{
 SC_GSEAparall(X, GMTfile, nperm = 1000, minSize = 15, maxSize = 500,
   nproc = 4, nbin = 1, naxis = 2, gseaParam = 0, dim = 2)
