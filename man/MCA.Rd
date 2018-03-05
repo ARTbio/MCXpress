@@ -4,7 +4,7 @@
 \alias{MCA}
 \title{Dimensional reduction using multiple corespondence analysis.}
 \usage{
-MCA(X, Dim = (X$ExpressionMatrix \%>\% dim \%>\% min) - 1)
+MCA(X, Dim = (X$ExpressionMatrix \%>\% dim() \%>\% min()) - 1)
 }
 \arguments{
 \item{X}{A MCXpress object containing a Disjunctive Matrix produced by one of the Discretisation method.}

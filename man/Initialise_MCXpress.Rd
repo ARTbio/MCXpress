@@ -2,7 +2,7 @@
 % Please edit documentation in R/Misc.R
 \name{Initialise_MCXpress}
 \alias{Initialise_MCXpress}
-\title{Initialisation of the MCXpress Object}
+\title{Initialisation of the MCXpress Objects}
 \usage{
 Initialise_MCXpress(X)
 }
