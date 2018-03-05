@@ -19,17 +19,19 @@
 #' MCX64553 <- MCA(MCX64553, Dim = 5)
 #' @export
 MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim() %>% min()) - 1) {
+  DM <- X$disjunctive_matrix
+  DMcolnames <- DM %>% colnames()
   cat("Peforming MCA...\n")
   ## ............................................................................  A
   ## MCA Algorithm ####
   pb <- txtProgressBar(width = 50, style = 3, char = "+")
-  Acol <- colSums(X$disjunctive_matrix)
-  Y <- sweep(X$disjunctive_matrix, 2, sqrt(Acol), "/")
+  Acol <- colSums(DM)
+  Y <- sweep(DM, 2, sqrt(Acol), "/")
   setTxtProgressBar(pb, 0.1)
-  Arow <- rowSums(X$disjunctive_matrix)
+  Arow <- rowSums(DM)
   Z <- Y / sqrt(Arow)
 
-  if ((X$disjunctive_matrix %>% ncol()) %>% is_weakly_greater_than(X$disjunctive_matrix %>%
+  if ((DM %>% ncol()) %>% is_weakly_greater_than(DM %>%
     nrow())) {
     setTxtProgressBar(pb, 0.2)
     Ztcross <- tcrossprod(Z)
@@ -58,32 +60,33 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim() %>% min()) - 1) {
   ## Coordinates Calculation ####
 
   D <- Eig %>% diag()
-  Dc <- (1 / (sqrt(Acol / sum(X$disjunctive_matrix))))
+  Dc <- (1 / (sqrt(Acol / sum(DM))))
   Component <- paste0("Axis", 1:Dim)
+
   setTxtProgressBar(pb, 0.6)
 
-  X$MCA$cells_principal <- (sqrt(nrow(X$disjunctive_matrix)) * V)[, 1:Dim] %>%
+  X$MCA$cells_principal <- (sqrt(nrow(DM)) * V)[, 1:Dim] %>%
     set_colnames(Component) %>%
-    set_rownames(X$disjunctive_matrix %>% rownames()) %>%
+    set_rownames(DM %>% rownames()) %>%
     data.frame()
 
   setTxtProgressBar(pb, 0.7)
 
-  X$MCA$cells_standard <- (sqrt(nrow(X$disjunctive_matrix)) * (V %*% sqrt(D)))[
+  X$MCA$cells_standard <- (sqrt(nrow(DM)) * (V %*% sqrt(D)))[
     ,
     1:Dim
-  ] %>% set_colnames(Component) %>% set_rownames(X$disjunctive_matrix %>%
+  ] %>% set_colnames(Component) %>% set_rownames(DM %>%
     rownames()) %>% data.frame()
 
   setTxtProgressBar(pb, 0.8)
   X$MCA$genes_standard <- ((t(Z) %*% V) * Dc)[, 1:Dim] %>%
     set_colnames(Component) %>%
-    set_rownames(X$disjunctive_matrix %>% colnames()) %>%
+    set_rownames(DMcolnames) %>%
     data.frame()
   setTxtProgressBar(pb, 0.9)
   X$MCA$genes_principal <- sweep(X$MCA$genes_standard, 2, sqrt(Eig)[1:(Dim)], "/") %>%
     set_colnames(Component) %>%
-    set_rownames(X$disjunctive_matrix %>% colnames()) %>%
+    set_rownames(DMcolnames) %>%
     data.frame()
   setTxtProgressBar(pb, 1)
   close(pb)
@@ -105,8 +108,8 @@ MCA <- function(X, Dim = (X$ExpressionMatrix %>% dim() %>% min()) - 1) {
   # Calculate Correlation Axis and Genes
   ### . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  . . . . . . . ..
   ### Axis and Gene Correlation ####
-  cat("Calculating Spearman Correlation s\n \n")
-  X$MCA$Axis_Gene_Cor <- cor(X$disjunctive_matrix, X$MCA$cells_principal[, 1:min(X$MCA$cells_principal %>% ncol(), 5)], method = "spearman") %>%
+  cat("Calculating Spearman Correlations\n \n")
+  X$MCA$Axis_Gene_Cor <- cor(DM, X$MCA$cells_principal[, 1:min(X$MCA$cells_principal %>% ncol(), 5)], method = "spearman") %>%
     data.frame() %>%
     tibble::rownames_to_column(var = "Genes") %>%
     tibble::as_tibble()

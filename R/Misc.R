@@ -11,8 +11,11 @@
 #' @export
 #'
 Initialise_MCXpress <- function(X) {
+  if(X %>% is.data.frame) {
+     X <- X %>%  extract(-1)  %>% as.matrix  %>% set_rownames(X %>%  extract2(1))
+}
   if (X %>% is.matrix()) {
-    if ((X %>% rownames() %>% is.null()) | (X %>%
+    if ((X %>% rownames %>% is.null) | (X %>%
       colnames() %>%
       is.null())) {
       errormessage <-
@@ -697,10 +700,17 @@ GSEA_Heatmap_SC2 <-
     }
   }
 
-Make_Cluster_Geneset<-function(X, n=15){
-X$cluster$gene_cluster_distances %>% select(-Origin) %>% gather("Cluster", "Distance", -Genes) %>%  
-group_by(Cluster) %>%  top_n(100, -Distance) %>% 
-arrange(Cluster,Distance)   
+Make_Cluster_Geneset <- function(X, n=15, nbin=1) {
+  DF <- X$cluster$gene_cluster_distances %>%
+    select(-Origin) %>%
+    gather("Cluster", "Distance", -Genes) %>%
+    separate(col = Genes, sep = "-bin", into = c("Genes", "bin")) %>%
+    filter(bin %in% nbin) %>%
+    group_by(Cluster) %>%
+    top_n(n, -Distance) %>%
+    arrange(Cluster, Distance)
+  GeneSet <- split(DF %>% use_series(Genes), DF$Cluster %>% factor())
+  return(GeneSet)
 }
 
 
@@ -735,7 +745,8 @@ GSEA_Heatmap_Clustering <-
            metrics = "NES",
            plotly = T,
            k=1,
-           hclus="ward.D") {
+           hclus="ward.D",
+           givedaclus=F) {
     cluster <- X$cluster$labels %>% dplyr::rename(Cells = Sample)
     DF <- create_gsea_matrix(X, pval = pval, es = es, nes = nes, metrics = metrics, SC = T)
     if (metrics == "NES") {
@@ -757,6 +768,10 @@ GSEA_Heatmap_Clustering <-
     C <- InMat %>% Rth::rthdist(nthreads = 4) %>% as.dist() %>% hclust(method = hclus)
     D <- C %>% use_series(order)
     Clus <- C %>% cutree(k = k) %>% set_names(InMat %>% rownames())
+    Clus2 <- C %>% cutree(k = k) %>% paste0("Cluster", .) %>% set_names(InMat %>% rownames())
+    if (givedaclus == T) {
+      return(Clus2)
+    }
     Order <- (InMat %>% rownames())[D]
     Bord <- (Clus[Order] %>% table())[Clus[Order] %>% unique()] %>% cumsum()
     rc <- cluster %>% arrange(Cells) %$% set_names(Cluster, Cells) %>% extract(Order) %>% tibble()
@@ -812,3 +827,26 @@ GSEA_Heatmap_Clustering <-
       )
     }
   }
+
+Rank_Cell_Gene <- function(X, n=20, nbin=1, dim=2) {
+  cells_coord <- X$MCA$cells_principal[, 1:dim]
+  genes_coord <- X$MCA$genes_standard[, 1:dim]
+  DF <- cell_gene_distances <- fields::rdist(
+    x1 = cells_coord %>% select(contains("Axis")) %>% as.matrix() %>% set_rownames(cells_coord %>% rownames()),
+    x2 = genes_coord %>% as.matrix()
+  ) %>%
+    t() %>%
+    set_colnames(cells_coord %>% rownames()) %>%
+    set_rownames(genes_coord %>% rownames()) %>%
+    as.data.frame() %>%
+    rownames_to_column(var = "Genes") %>%
+    as_tibble() %>%
+    tidyr::separate(col = Genes, into = c("Genes", "bin"), sep = "-bin", convert = TRUE) %>%
+    filter(bin %in% nbin) %>%
+    gather("Cluster", "Distance", -Genes) %>%
+    group_by(Cluster) %>%
+    top_n(n, -Distance) %>%
+    arrange(Cluster, Distance)
+  GeneSet <- split(DF %>% use_series(Genes), DF$Cluster %>% factor())
+  return(GeneSet)
+}

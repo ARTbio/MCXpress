@@ -175,40 +175,22 @@ create_dashboard1 <- function(X) {
           )
         )
       } else {
-        plot_ly(
-          X$MCA$cells_standard,
-          mode = "markers",
-          text = ~ paste(
-            rownames(X$MCA$cells_principal),
-            "</br>",
-            input$MCA_CS_Axis1_3D,
-            ": ",
-            X$MCA$cells_principal[[input$MCA_CS_Axis1_3D]] %>%
-              signif(digits = 4),
-            "</br>",
-            input$MCA_CS_Axis2_3D,
-            ": ",
-            X$MCA$cells_principal[[input$MCA_CS_Axis2_3D]] %>%
-              signif(digits = 4),
-            "</br>",
-            input$MCA_CS_Axis3_3D,
-            ": ",
-            X$MCA$cells_principal[[input$MCA_CS_Axis3_3D]] %>%
-              signif(digits = 4)
-          ),
-          x = ~ X$MCA$cells_principal[[input$MCA_CS_Axis1_3D]],
-          y = ~ X$MCA$cells_principal[[input$MCA_CS_Axis2_3D]],
-          z = ~ X$MCA$cells_principal[[input$MCA_CS_Axis3_3D]],
-          hoverinfo = "text",
-          marker = list(
-            opacity = input$MCA_CS_Alpha_3D,
-            size = input$MCA_CS_Size_3D,
-            line = list(
-              color = "rgba(0, 0, 0, .8)",
-              width = 2
-            )
+        plot_ly(X$MCA$cells_principal) %>%
+        add_markers(text = ~ paste(
+          rownames(X$MCA$cells_principal)
+        ),
+        x = ~ X$MCA$cells_principal[[input$MCA_CS_Axis1_3D]],
+        y = ~ X$MCA$cells_principal[[input$MCA_CS_Axis2_3D]],
+        z = ~ X$MCA$cells_principal[[input$MCA_CS_Axis3_3D]],
+        hoverinfo = "text",
+        marker = list(
+          opacity = input$MCA_CS_Alpha_3D,
+          size = input$MCA_CS_Size_3D,
+          line = list(
+            color = "rgba(0, 0, 0, .8)",
+            width = 2
           )
-        ) %>% add_markers() %>% layout(
+      )) %>% layout(
           margin = list(
             b = 50,
             t = 50,
@@ -224,6 +206,7 @@ create_dashboard1 <- function(X) {
           )
         )
       })
+
     output$TableGeneCor <-
       DT::renderDataTable(X$MCA$Axis_Gene_Cor %>% extract(1:6))
     output$GeneSpace <- renderPlotly({

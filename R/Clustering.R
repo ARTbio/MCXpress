@@ -213,7 +213,7 @@ cluster_kmeans <- function(X, k = 2, dim=2, maxIter = 10, nstart = 50) {
 #' MCX64553 <- cluster_hclust(MCX64553, k=6, method="ward.D", dim=2)
 #' @export
 cluster_hclust <- function(X, dim=2, method = "average", k = NULL, h = NULL) {
-  Distance <- X$MCA$cells_principal %>% dist()
+  Distance <- X$MCA$cells_standard[,1:dim] %>% dist()
   Cluster <- Distance %>% hclust(method = method)
   Cluster <- Cluster %>% cutree(k = k, h = h)
   X$cluster$labels <- tibble(paste0("Cluster", Cluster), (Cluster %>%
